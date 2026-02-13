@@ -170,7 +170,7 @@ export function CompanyPage() {
             </main>
 
             <footer className="py-12 text-center text-stone-500 font-serif italic text-lg">
-                "Die menschliche Art, Talente abzulehnen – zum Preis eines Stiftes."
+                "Für den Preis eines Stiftes – die menschliche Art, Talente abzuweisen."
             </footer>
         </div>
     );
