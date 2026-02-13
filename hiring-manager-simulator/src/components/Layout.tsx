@@ -1,7 +1,7 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import { MessageCenter } from './MessageCenter';
-import { DollarSign, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 
 export function Layout({ children }: { children: React.ReactNode }) {
     const { phase, budget, urgency } = useGame();
@@ -19,10 +19,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <header className="border-b border-ink/10 bg-white/50 backdrop-blur sticky top-0 z-40">
                 <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="h-8 w-8 bg-black text-white flex items-center justify-center font-serif font-bold rounded-sm">
-                            T
+                        <div className="h-8 w-8 bg-highlight text-white flex items-center justify-center font-serif font-bold rounded-sm">
+                            J
                         </div>
-                        <h1 className="font-serif font-bold text-xl tracking-tight">TalentLoop Hiring Portal</h1>
+                        <h1 className="font-serif font-bold text-xl tracking-tight">ein Service von Jobaktuell</h1>
                     </div>
 
                     <div className="flex items-center gap-6 text-sm font-medium">

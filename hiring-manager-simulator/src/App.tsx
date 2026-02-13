@@ -9,11 +9,17 @@ import { PhaseDecision } from './components/PhaseDecision';
 import { PhaseReveal } from './components/PhaseReveal';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { B2CLandingPage } from './components/B2CLandingPage';
+
 function GameContent() {
   const { phase, gameState } = useGame();
 
   if (gameState === 'company_home') {
     return <CompanyPage />;
+  }
+
+  if (gameState === 'b2c_home') {
+    return <B2CLandingPage />;
   }
 
   if (gameState === 'applicant_intro') {

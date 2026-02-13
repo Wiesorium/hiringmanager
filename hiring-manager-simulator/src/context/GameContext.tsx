@@ -5,8 +5,8 @@ import { messages as initialMessages } from '../data/scenarios';
 import { jobs } from '../data/jobs';
 
 interface GameContextType extends GameState {
-    gameState: 'company_home' | 'applicant_intro' | 'job_posting' | 'playing';
-    setGameState: (state: 'company_home' | 'applicant_intro' | 'job_posting' | 'playing') => void;
+    gameState: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing';
+    setGameState: (state: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing') => void;
     selectJob: (jobId: string) => void;
     startGame: () => void;
     resetGame: () => void;
@@ -19,7 +19,7 @@ interface GameContextType extends GameState {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-    const [gameState, setGameState] = useState<'company_home' | 'applicant_intro' | 'job_posting' | 'playing'>('company_home');
+    const [gameState, setGameState] = useState<'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing'>('company_home');
     const [phase, setPhase] = useState<Phase>('screening');
     const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
     const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -59,7 +59,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         // For simplicity, we'll set it high enough for 2 hires or just ignore strict budget for now?
         // The messages mention specific numbers (120k). We should probably make that dynamic or ignore.
         // Let's set a generic budget.
-        setBudget(80000); // 80k generic budget for roles?
+        // Set budget based on job or default to 80k
+        const job = jobs.find(j => j.id === selectedJobId);
+        setBudget(job?.budget || 80000);
 
         setUrgency(10);
         setSelectedCandidates([]);

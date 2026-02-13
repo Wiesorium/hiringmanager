@@ -13,7 +13,7 @@ export function PhaseScreening() {
     // Filter out already rejected (though in screening phase usually all are 'pool')
     const pool = candidates.filter(c => c.status === 'pool' || c.status === 'screened'); // Relaxed logic
 
-    const canProceed = selectedCandidates.length >= 5 && selectedCandidates.length <= 6;
+    const canProceed = selectedCandidates.length >= 2 && selectedCandidates.length <= 6;
 
     return (
         <div className="space-y-6 pb-24">
@@ -22,7 +22,7 @@ export function PhaseScreening() {
                 <div>
                     <h2 className="text-3xl font-serif font-bold mb-2">Phase 1: Bewerbungssichtung</h2>
                     <p className="text-muted max-w-xl">
-                        Sichten Sie den Bewerberpool. Wählen Sie <strong>5-6 Kandidaten</strong> für die Interviewrunde aus.
+                        Sichten Sie den Bewerberpool. Wählen Sie <strong>2-6 Kandidaten</strong> für die Interviewrunde aus.
                         Achten Sie auf Gehaltsvorstellungen und Erfahrung.
                     </p>
                 </div>
