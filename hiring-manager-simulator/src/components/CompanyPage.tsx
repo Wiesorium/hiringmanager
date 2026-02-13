@@ -43,7 +43,7 @@ export function CompanyPage() {
                         </h1>
                         <p className="text-xl text-muted max-w-lg leading-relaxed">
                             Verwandeln Sie Absagen in wertvolle Lernmomente.
-                            Geben Sie Kandidaten die Chance, die andere Seite des Tisches zu sehen.
+                            Geben Sie Kandidaten mit einer interaktiven Simulation die Chance, die andere Seite des Tisches zu sehen.
                         </p>
                         <div className="flex items-center gap-4 text-sm font-medium text-muted">
                             <div className="flex -space-x-2">
