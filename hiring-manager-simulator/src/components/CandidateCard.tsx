@@ -25,10 +25,10 @@ export function CandidateCard({ candidate, isSelected, onSelect, onView }: Candi
             <div className="flex justify-between items-start mb-4">
                 <div>
                     <h3 className="font-serif font-bold text-lg leading-tight">{candidate.name}</h3>
-                    <p className="text-sm text-muted">{candidate.resume.lastRole} at {candidate.resume.company}</p>
+                    <p className="text-sm text-muted">{candidate.resume.lastRole} bei {candidate.resume.company}</p>
                 </div>
                 <div className="text-xs bg-stone-100 px-2 py-1 rounded font-medium text-stone-600">
-                    {candidate.resume.yearsOfExperience}y Exp
+                    {candidate.resume.yearsOfExperience}J Erf.
                 </div>
             </div>
 
@@ -50,7 +50,7 @@ export function CandidateCard({ candidate, isSelected, onSelect, onView }: Candi
                     className="flex-1 py-2 text-sm font-medium hover:bg-stone-50 rounded flex items-center justify-center gap-2 text-muted hover:text-ink transition-colors"
                 >
                     <Eye className="w-4 h-4" />
-                    Review
+                    Details
                 </button>
                 <button
                     onClick={() => onSelect(candidate.id)}
@@ -62,7 +62,7 @@ export function CandidateCard({ candidate, isSelected, onSelect, onView }: Candi
                     )}
                 >
                     {isSelected ? <BadgeCheck className="w-4 h-4" /> : <div className="w-4 h-4" />}
-                    {isSelected ? "Shortlisted" : "Shortlist"}
+                    {isSelected ? "Auswählen" : "Auswählen"}
                 </button>
             </div>
         </motion.div>

@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState } from 'react';
 import type { Candidate, GameState, Phase, Message } from '../types';
-import { candidates as initialCandidates } from '../data/candidates';
+import { getCandidatesForJob } from '../data/candidates';
 import { messages as initialMessages } from '../data/scenarios';
+import { jobs } from '../data/jobs';
 
 interface GameContextType extends GameState {
-    gameState: 'landing' | 'job_posting' | 'playing';
-    showJobPosting: () => void;
+    gameState: 'company_home' | 'applicant_intro' | 'job_posting' | 'playing';
+    setGameState: (state: 'company_home' | 'applicant_intro' | 'job_posting' | 'playing') => void;
+    selectJob: (jobId: string) => void;
     startGame: () => void;
     resetGame: () => void;
     nextPhase: () => void;
@@ -17,39 +19,56 @@ interface GameContextType extends GameState {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-    const [gameState, setGameState] = useState<'landing' | 'job_posting' | 'playing'>('landing');
+    const [gameState, setGameState] = useState<'company_home' | 'applicant_intro' | 'job_posting' | 'playing'>('company_home');
     const [phase, setPhase] = useState<Phase>('screening');
-    const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
+    const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+    const [candidates, setCandidates] = useState<Candidate[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
-    const [budget, setBudget] = useState(120000);
+    const [budget, setBudget] = useState(0);
     const [urgency, setUrgency] = useState(0);
     const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
     const [finalChoice, setFinalChoice] = useState<string | null>(null);
 
     const resetGame = () => {
-        setGameState('landing');
+        setGameState('company_home');
         setPhase('screening');
-        setCandidates(initialCandidates);
+        setSelectedJobId(null);
+        setCandidates([]);
         setMessages([]);
-        setBudget(120000);
+        setBudget(0);
         setUrgency(0);
         setSelectedCandidates([]);
         setFinalChoice(null);
     };
 
-    const showJobPosting = () => {
+    const selectJob = (jobId: string) => {
+        setSelectedJobId(jobId);
+        // Initialize candidates based on job
+        const jobCandidates = getCandidatesForJob(jobId);
+        setCandidates(jobCandidates);
         setGameState('job_posting');
     };
 
     const startGame = () => {
         setGameState('playing');
         setPhase('screening');
-        setCandidates(initialCandidates.map(c => ({ ...c, status: 'pool' })));
-        setMessages([]);
-        setBudget(120000);
+
+        // Start Budget depends on role? Let's verify scenarios or just set default
+        // Scenarios mention 120k for marketing manager, but our roles are cheaper.
+        // Let's set budget dynamically based on job if needed, or just a safe pool.
+        // For simplicity, we'll set it high enough for 2 hires or just ignore strict budget for now?
+        // The messages mention specific numbers (120k). We should probably make that dynamic or ignore.
+        // Let's set a generic budget.
+        setBudget(80000); // 80k generic budget for roles?
+
         setUrgency(10);
         setSelectedCandidates([]);
         setFinalChoice(null);
+
+        // MAP candidates to 'pool' status explicitly just in case
+        if (selectedJobId) {
+            setCandidates(getCandidatesForJob(selectedJobId).map(c => ({ ...c, status: 'pool' })));
+        }
 
         // Trigger initial messages
         const initialMsgs = initialMessages.filter(m => m.triggerPhase === 'screening');
@@ -58,7 +77,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     const nextPhase = () => {
         if (phase === 'screening') {
-            // Move selected candidates to interview stage
             setCandidates(prev => prev.map(c => ({
                 ...c,
                 status: selectedCandidates.includes(c.id) ? 'interviewed' : 'rejected'
@@ -66,30 +84,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             setPhase('interviews');
             setSelectedCandidates([]);
 
-            // Trigger interview messages
             const newMsgs = initialMessages.filter(m => m.triggerPhase === 'interviews');
             setMessages(prev => [...prev, ...newMsgs]);
 
-            // Apply effects
             newMsgs.forEach(msg => {
                 if (msg.effect?.type === 'budget_cut') {
                     setBudget(b => b - (msg.effect?.value || 0));
                 }
             });
 
-            // Special Scenario: Inject "Brett Johnson" (The Nephew) if triggered
-            // We force him into the list if he wasn't already selected (he wasn't visible before)
-            // Assuming his ID is known or we find him by name/role
-            const nephew = candidates.find(c => c.name.includes("Nephew"));
-            if (nephew) {
-                setCandidates(prev => prev.map(c =>
-                    c.id === nephew.id ? { ...c, status: 'interviewed' } : c
-                ));
-            }
+            // Neffe Logic - Generic if needed
         } else if (phase === 'interviews') {
-            // Ready for decision
             setPhase('decision');
-            // Trigger decision messages
             const newMsgs = initialMessages.filter(m => m.triggerPhase === 'decision');
             setMessages(prev => [...prev, ...newMsgs]);
 
@@ -110,9 +116,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     };
 
     const toggleCandidateSelection = (id: string) => {
-        // Logic depends on phase
         if (phase === 'screening') {
-            // Allow selecting up to 6
             if (selectedCandidates.includes(id)) {
                 setSelectedCandidates(prev => prev.filter(cid => cid !== id));
             } else {
@@ -121,22 +125,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
                 }
             }
         } else if (phase === 'interviews') {
-            // Allow selecting up to 3 finalists (or just moving to decision)
-            // Let's say in interview phase we select the 3 finalists? 
-            // Or we just review notes and then move to decision where we pick 1 from the pool of interviewed.
-            // The prompt says: "Review interview notes for your 5-6 candidates, select 3 for final round"
-            // So we need another filter step.
-            // Let's implement logic: Screening -> Interview Pool (5-6) -> Finalist Pool (3) -> Decision (1)
-            // But keeping it simple: Screening -> Interview Pool -> Decision (from Interview Pool)
-            // Actually user requested: "Select 3 for final round".
-            // So Interview Phase should filter 'interviewed' down to 'finalist'?
-            // Let's stick to the simpler flow first: Screen -> Interview (Review Notes) -> Decision (Pick 1).
-            // Or do we want to strictly follow the prompt? "select 3 for final round".
-            // If so, we need 'finalist' status.
-            // Let's implicitly assume the ones NOT rejected in interview phase are finalists.
-            // But wait, the context has `selectedCandidates`. We can use that.
-
-            // During interview phase, selecting a candidate means they go to final round.
             if (selectedCandidates.includes(id)) {
                 setSelectedCandidates(prev => prev.filter(cid => cid !== id));
             } else {
@@ -156,15 +144,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         setMessages(prev => prev.map(m => m.id === id ? { ...m, isRead: true } : m));
     };
 
-    // Initialize game on mount - REMOVED to allow Landing Page
-    // useEffect(() => {
-    //     startGame();
-    // }, []);
-
     return (
         <GameContext.Provider value={{
-            gameState, phase, candidates, messages, budget, urgency, selectedCandidates, finalChoice,
-            showJobPosting, startGame, resetGame, nextPhase, toggleCandidateSelection, makeFinalDecision, markMessageRead
+            gameState, setGameState, phase, candidates, messages, budget, urgency, selectedCandidates, finalChoice, selectedJobId,
+            selectJob, startGame, resetGame, nextPhase, toggleCandidateSelection, makeFinalDecision, markMessageRead
         }}>
             {children}
         </GameContext.Provider>

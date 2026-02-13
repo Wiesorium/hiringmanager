@@ -20,12 +20,12 @@ export function PhaseInterviews() {
                 <div>
                     <h2 className="text-3xl font-serif font-bold mb-2">Phase 2: Interviews</h2>
                     <p className="text-muted max-w-xl">
-                        The team has interviewed your shortlist. Review their notes and pick <strong>3 finalists</strong> for the final round.
+                        Das Team hat Ihre Auswahl interviewt. Prüfen Sie die Notizen und wählen Sie <strong>3 Finalisten</strong> für die letzte Runde.
                     </p>
                 </div>
                 <div className="text-right">
                     <div className="text-4xl font-bold font-serif">{selectedCandidates.length} / 3</div>
-                    <div className="text-sm text-muted uppercase tracking-wider">Finalists</div>
+                    <div className="text-sm text-muted uppercase tracking-wider">Finalisten</div>
                 </div>
             </div>
 
@@ -54,7 +54,7 @@ export function PhaseInterviews() {
                             : "bg-stone-300 text-stone-500 cursor-not-allowed"
                     )}
                 >
-                    Select Finalist <ArrowRight className="w-5 h-5" />
+                    Finalisten bestätigen <ArrowRight className="w-5 h-5" />
                 </button>
             </div>
 
@@ -63,7 +63,7 @@ export function PhaseInterviews() {
                 onClose={() => setViewingCandidate(null)}
                 // In Interview phase, action is selecting/deselecting as finalist
                 onAction={toggleCandidateSelection}
-                actionLabel={selectedCandidates.includes(viewingCandidate?.id || '') ? "Remove Finalist" : "Select as Finalist"}
+                actionLabel={selectedCandidates.includes(viewingCandidate?.id || '') ? "Als Finalist entfernen" : "Als Finalist wählen"}
                 isActionSelected={selectedCandidates.includes(viewingCandidate?.id || '')}
             />
         </div>
@@ -103,7 +103,7 @@ function InterviewCard({ candidate, isSelected, onSelect, onView }: { candidate:
                             onView();
                         }}
                         className="p-2 hover:bg-stone-100 rounded-full text-stone-400 hover:text-ink transition-colors"
-                        title="View Full Profile"
+                        title="Profil ansehen"
                     >
                         <Eye className="w-5 h-5" />
                     </button>
@@ -119,7 +119,7 @@ function InterviewCard({ candidate, isSelected, onSelect, onView }: { candidate:
                 </div>
                 <div>
                     <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-green-700">
-                        <ThumbsUp className="w-4 h-4" /> Strengths
+                        <ThumbsUp className="w-4 h-4" /> Stärken
                     </div>
                     <ul className="text-sm space-y-1">
                         {candidate.interviewNotes.strengths.map(s => <li key={s}>• {s}</li>)}
@@ -127,7 +127,7 @@ function InterviewCard({ candidate, isSelected, onSelect, onView }: { candidate:
                 </div>
                 <div>
                     <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-red-700">
-                        <ThumbsDown className="w-4 h-4" /> Weaknesses
+                        <ThumbsDown className="w-4 h-4" /> Schwächen
                     </div>
                     <ul className="text-sm space-y-1">
                         {candidate.interviewNotes.weaknesses.map(s => <li key={s}>• {s}</li>)}

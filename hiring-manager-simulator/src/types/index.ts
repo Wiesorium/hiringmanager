@@ -54,6 +54,14 @@ export interface Message {
     isRead: boolean;
 }
 
+export interface Job {
+    id: string;
+    title: string;
+    description: string;
+    salaryRange: string;
+    requirements: string[];
+}
+
 export interface GameState {
     phase: Phase;
     candidates: Candidate[];
@@ -62,4 +70,5 @@ export interface GameState {
     urgency: number; // 0-100
     selectedCandidates: string[]; // IDs
     finalChoice: string | null;
+    selectedJobId: string | null;
 }

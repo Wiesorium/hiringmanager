@@ -20,15 +20,15 @@ export function PhaseScreening() {
             {/* Header */}
             <div className="flex justify-between items-end">
                 <div>
-                    <h2 className="text-3xl font-serif font-bold mb-2">Phase 1: Screening</h2>
+                    <h2 className="text-3xl font-serif font-bold mb-2">Phase 1: Bewerbungssichtung</h2>
                     <p className="text-muted max-w-xl">
-                        Review the applicant pool. Select <strong>5-6 candidates</strong> to move to the interview round.
-                        Keep an eye on salary expectations and experience.
+                        Sichten Sie den Bewerberpool. Wählen Sie <strong>5-6 Kandidaten</strong> für die Interviewrunde aus.
+                        Achten Sie auf Gehaltsvorstellungen und Erfahrung.
                     </p>
                 </div>
                 <div className="text-right">
                     <div className="text-4xl font-bold font-serif">{selectedCandidates.length} / 6</div>
-                    <div className="text-sm text-muted uppercase tracking-wider">Selected</div>
+                    <div className="text-sm text-muted uppercase tracking-wider">Ausgewählt</div>
                 </div>
             </div>
 
@@ -57,7 +57,7 @@ export function PhaseScreening() {
                             : "bg-stone-300 text-stone-500 cursor-not-allowed"
                     )}
                 >
-                    Proceed to Interviews <ArrowRight className="w-5 h-5" />
+                    Weiter zu den Interviews <ArrowRight className="w-5 h-5" />
                 </button>
             </div>
 
@@ -66,7 +66,7 @@ export function PhaseScreening() {
                 candidate={viewingCandidate}
                 onClose={() => setViewingCandidate(null)}
                 onAction={toggleCandidateSelection}
-                actionLabel={selectedCandidates.includes(viewingCandidate?.id || '') ? "Remove from List" : "Add to Shortlist"}
+                actionLabel={selectedCandidates.includes(viewingCandidate?.id || '') ? "Von Liste entfernen" : "Zur Auswahl hlizufügen"}
                 isActionSelected={selectedCandidates.includes(viewingCandidate?.id || '')}
             />
         </div>

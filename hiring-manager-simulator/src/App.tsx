@@ -1,6 +1,7 @@
 import { GameProvider, useGame } from './context/GameContext';
 import { Layout } from './components/Layout';
-import { LandingPage } from './components/LandingPage';
+import { CompanyPage } from './components/CompanyPage';
+import { ApplicantLandingPage } from './components/ApplicantLandingPage';
 import { JobPosting } from './components/JobPosting';
 import { PhaseScreening } from './components/PhaseScreening';
 import { PhaseInterviews } from './components/PhaseInterviews';
@@ -11,8 +12,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 function GameContent() {
   const { phase, gameState } = useGame();
 
-  if (gameState === 'landing') {
-    return <LandingPage />;
+  if (gameState === 'company_home') {
+    return <CompanyPage />;
+  }
+
+  if (gameState === 'applicant_intro') {
+    return <ApplicantLandingPage />;
   }
 
   if (gameState === 'job_posting') {

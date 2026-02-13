@@ -4,17 +4,17 @@ export const messages: Message[] = [
     // Screening Phase
     {
         id: 'm1',
-        sender: 'CEO',
+        sender: 'Geschäftsführer',
         role: 'CEO',
-        content: "Team, we need this role filled efficiently. The board is watching our headcount/output ratio carefully. Don't just hire the most expensive person.",
+        content: "Team, wir müssen diese Stelle effizient besetzen. Der Vorstand schaut genau auf unser Verhältnis von Kopfzahl zu Output. Stellt nicht einfach den Teuersten ein.",
         triggerPhase: 'screening',
         isRead: false
     },
     {
         id: 'm2',
         sender: 'Sarah (HR)',
-        role: 'HR Director',
-        content: "Heads up: The approved budget is strictly $120k base. We can stretch to $130k for a unicorn, but try to stay under.",
+        role: 'HR Direktor',
+        content: "Zur Info: Das genehmigte Budget ist fix. Wir können für ein Einhorn vielleicht etwas drauflegen, aber versucht darunter zu bleiben.",
         triggerPhase: 'screening',
         isRead: false
     },
@@ -22,47 +22,39 @@ export const messages: Message[] = [
     // Interview Phase
     {
         id: 'm3',
-        sender: 'CEO',
+        sender: 'Geschäftsführer',
         role: 'CEO',
-        content: "Hey, my nephew Brett Johnson applied. I'm not saying you HAVE to hire him, but at least give him a fair shake. He's a good kid.",
+        content: "Hey, mein Neffe hat sich beworben. Ich sage nicht, ihr MÜSST ihn einstellen, aber gebt ihm zumindest eine faire Chance. Er ist ein guter Junge.",
         triggerPhase: 'interviews',
         effect: {
             type: 'force_interview',
-            value: 'c12' // Brett's ID
+            value: 'nephew_id_placeholder' // Logic needs to find dynamic nephew if we implement one for each role, or make generic
         },
         isRead: false
     },
     {
         id: 'm4',
-        sender: 'Marcus (CFO)',
+        sender: 'Markus (CFO)',
         role: 'CFO',
-        content: "Bad news. Q3 projections are down. We need to cut the hiring budget for this role by $15k. New max is $105k firm.",
+        content: "Schlechte Nachrichten. Die Q3-Prognosen sind runter. Wir müssen das Einstellungsbudget für diese Rolle um 10% kürzen.",
         triggerPhase: 'interviews',
         effect: {
             type: 'budget_cut',
-            value: 15000
+            value: 5000 // Simplified flat amount or percentage logic handled in context
         },
-        isRead: false
-    },
-    {
-        id: 'm5',
-        sender: 'Team Lead',
-        role: 'Product Lead',
-        content: "We're drowning in data requests. Please prioritize someone with SQL or Python skills. The last manager couldn't open a CSV.",
-        triggerPhase: 'interviews',
         isRead: false
     },
 
     // Decision Phase
     {
         id: 'm6',
-        sender: 'CEO',
+        sender: 'Geschäftsführer',
         role: 'CEO',
-        content: "I need a decision by EOD today. Just pick the best athlete and let's move.",
+        content: "Ich brauche eine Entscheidung bis heute Abend. Wählt einfach den/die Beste(n) und weiter geht's.",
         triggerPhase: 'decision',
         effect: {
             type: 'urgency_increase',
-            value: 100
+            value: 80
         },
         isRead: false
     },
@@ -70,7 +62,7 @@ export const messages: Message[] = [
         id: 'm7',
         sender: 'Recruiter',
         role: 'Recruiting',
-        content: "Just heard that Candidate 1 (Alexandra) has another offer on the table. We need to decide NOW or she walks.",
+        content: "Habe gerade gehört, dass einer der Top-Kandidaten ein anderes Angebot hat. Wir müssen uns JETZT entscheiden.",
         triggerPhase: 'decision',
         isRead: false
     }
