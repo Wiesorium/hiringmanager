@@ -57,6 +57,38 @@ export const getCandidatesForJob = (jobId: string): Candidate[] => {
                     { experience: 2, salary: 38000, skills: ['Notion', 'Zapier', 'AI'], culture: ['Remote-First'] },
                     { red: ['Will nicht ins Büro'], green: ['Innovativ'] },
                     { title: 'Digitaler Geist', description: 'Hat Prozesse automatisiert, war aber nie greifbar.', type: 'success' }
+                ),
+                createCandidate('oa8', 'Hannes Hilfreich', 'Büroassistenz',
+                    { lastRole: 'Empfang', company: 'Hotel', education: 'Hotelfachmann', summary: 'Service ist meine Leidenschaft.', yearsOfExperience: 4 },
+                    'Ich sorge dafür, dass sich jeder Gast wohlfühlt.',
+                    { interviewerStart: 'Sehr höflich, top Umgangsformen.', strengths: ['Service', 'Freundlichkeit'], weaknesses: ['Büro-Software'], score: 7 },
+                    { experience: 4, salary: 34000, skills: ['Service', 'Telefon'], culture: ['Dienstleister'] },
+                    { red: [], green: ['Kundenliebling'] },
+                    { title: 'Der Gastgeber', description: 'Perfekt am Empfang, aber kämpft mit Excel.', type: 'success' }
+                ),
+                createCandidate('oa9', 'Youngster Yara', 'Büroassistenz',
+                    { lastRole: 'Auszubildende', company: 'Versicherung', education: 'Kauffrau', summary: 'Gerade ausgelernt, voller Tatendrang.', yearsOfExperience: 0 },
+                    'Ich will zeigen, was ich kann.',
+                    { interviewerStart: 'Etwas schüchtern, aber kompetent.', strengths: ['Lernbereitschaft', 'Aktuelles Wissen'], weaknesses: ['Erfahrung'], score: 6 },
+                    { experience: 0, salary: 32000, skills: ['Office 365', 'Social Media'], culture: ['Jung'] },
+                    { red: ['Unsicher'], green: ['Formbar'] },
+                    { title: 'Zukunftshoffnung', description: 'Lernt schnell und ist bald unverzichtbar.', type: 'success' }
+                ),
+                createCandidate('oa10', 'Rückkehrerin Romy', 'Büroassistenz',
+                    { lastRole: 'Buchhaltung', company: 'Vor 10 Jahren', education: 'Steuerfachgehilfin', summary: 'War 10 Jahre in Kindererziehung.', yearsOfExperience: 8 },
+                    'Ich bin etwas raus, aber ich beiße mich rein.',
+                    { interviewerStart: 'Sehr motiviert, etwas unsicher bzgl. Technik.', strengths: ['Zahlen', 'Loyalität'], weaknesses: ['Software-Kenntnisse'], score: 6 },
+                    { experience: 8, salary: 33000, skills: ['Datev (alt)', 'Buchhaltung'], culture: ['Familiär'] },
+                    { red: ['Veraltetes Wissen'], green: ['Zuverlässig'] },
+                    { title: 'Die Loyale', description: 'Brauchte Einarbeitung, ist jetzt aber die treueste Seele.', type: 'success' }
+                ),
+                createCandidate('oa11', 'Quereinsteiger Quentin', 'Büroassistenz',
+                    { lastRole: 'Barista', company: 'Coffee Shop', education: 'Studium Philo (Abgebrochen)', summary: 'Will ins Büro wechseln.', yearsOfExperience: 1 },
+                    'Ich kann gut mit Stress umgehen.',
+                    { interviewerStart: 'Locker, hip.', strengths: ['Stressresistenz', 'Kommunikation'], weaknesses: ['Fachwissen'], score: 4 },
+                    { experience: 1, salary: 30000, skills: ['Kaffee', 'Menschen'], culture: ['Hipster'] },
+                    { red: ['Keine Ahnung von Akten'], green: ['Teamplayer'] },
+                    { title: 'Der Kumpel', description: 'Macht super Kaffee, aber die Ablage ist ein Chaos.', type: 'mixed' }
                 )
             ];
         case 'warehouse_worker':
@@ -116,6 +148,30 @@ export const getCandidatesForJob = (jobId: string): Candidate[] => {
                     { experience: 0, salary: 29000, skills: ['Optimierung', 'Englisch'], culture: ['Akademisch'] },
                     { red: ['Nur temporär'], green: ['Denkt mit'] },
                     { title: 'Der Denker', description: 'Hat das Lagersystem verbessert, ist dann aber zurück zur Uni.', type: 'mixed' }
+                ),
+                createCandidate('ww8', 'Nachtschicht Norbert', 'Lagerist',
+                    { lastRole: 'Produktion', company: 'Fabrik', education: 'Keine', summary: 'Arbeite am liebsten nachts.', yearsOfExperience: 20 },
+                    'Licht aus, Arbeit an.',
+                    { interviewerStart: 'Sehr ruhig, fast düster.', strengths: ['Ausdauer', 'Nachtarbeit'], weaknesses: ['Teamwork'], score: 7 },
+                    { experience: 20, salary: 33000, skills: ['Maschinen', 'Packen'], culture: ['Einzelgänger'] },
+                    { red: ['Lichtscheu'], green: ['Zuverlässig'] },
+                    { title: 'Der Schatten', description: 'Man sieht ihn nie, aber die Arbeit ist erledigt.', type: 'success' }
+                ),
+                createCandidate('ww9', 'Stapler Steffi', 'Lagerist',
+                    { lastRole: 'Lagerhelfer', company: 'Versandhaus', education: 'Staplerschein', summary: 'Will mehr Verantwortung.', yearsOfExperience: 3 },
+                    'Ich fahre besser als die Männer.',
+                    { interviewerStart: 'Tough, direkt.', strengths: ['Stapler', 'Durchsetzungsvermögen'], weaknesses: ['Geduld'], score: 7 },
+                    { experience: 3, salary: 31000, skills: ['Stapler', 'Scannen'], culture: ['Hands-on'] },
+                    { red: [], green: ['Powerfrau'] },
+                    { title: 'Die Macherin', description: 'Hat das Team im Griff und arbeitet hart.', type: 'success' }
+                ),
+                createCandidate('ww10', 'Faulpelz Fritz', 'Lagerist',
+                    { lastRole: 'Arbeitssuchend', company: '-', education: '-', summary: 'Amt schickt mich.', yearsOfExperience: 0 },
+                    'Wann ist Mittagspause?',
+                    { interviewerStart: 'Kaugummi kauend, desinteressiert.', strengths: ['Keine'], weaknesses: ['Alles'], score: 2 },
+                    { experience: 0, salary: 28000, skills: ['Pausen machen'], culture: ['Faul'] },
+                    { red: ['Keine Lust'], green: ['Billig'] },
+                    { title: 'Die Bremse', description: 'Hat mehr Pausen gemacht als gearbeitet.', type: 'failure' }
                 )
             ];
         case 'craftsman':
@@ -143,6 +199,62 @@ export const getCandidatesForJob = (jobId: string): Candidate[] => {
                     { experience: 10, salary: 42000, skills: ['Tuning', 'Power Tools'], culture: ['Explosiv'] },
                     { red: ['Unfallrisiko'], green: ['Unterhaltsam'] },
                     { title: 'Explosion', description: 'Hat die Werkstatt in die Luft gejagt.', type: 'failure' }
+                ),
+                createCandidate('cm4', 'Genau Gustav', 'Handwerker',
+                    { lastRole: 'Uhrmacher', company: 'Manufaktur', education: 'Feinmechaniker', summary: 'Präzision ist alles.', yearsOfExperience: 20 },
+                    'Ein Millimeter ist ein Kilometer.',
+                    { interviewerStart: 'Mit Lupe und Pinzette.', strengths: ['Präzision', 'Geduld'], weaknesses: ['Tempo'], score: 7 },
+                    { experience: 20, salary: 40000, skills: ['Feinmechanik'], culture: ['Ruhig'] },
+                    { red: ['Zu langsam'], green: ['Perfektionist'] },
+                    { title: 'Der Chirurg', description: 'Perfekte Arbeit, aber braucht für einen Nagel eine Stunde.', type: 'mixed' }
+                ),
+                createCandidate('cm5', 'Azubi Ali', 'Handwerker',
+                    { lastRole: 'Schüler', company: '-', education: 'Hauptschule', summary: 'Will was mit Händen machen.', yearsOfExperience: 0 },
+                    'Ich lerne schnell, Chef.',
+                    { interviewerStart: 'Eifrig, höflich.', strengths: ['Lernwille', 'Motorik'], weaknesses: ['Erfahrung'], score: 6 },
+                    { experience: 0, salary: 30000, skills: ['Zupacken'], culture: ['Jung'] },
+                    { red: [], green: ['Rohdiamant'] },
+                    { title: 'Guter Fang', description: 'Hat sich super entwickelt.', type: 'success' }
+                ),
+                createCandidate('cm6', 'Elektro Evi', 'Handwerker',
+                    { lastRole: 'Elektrikerin', company: 'Stadtwerke', education: 'Gesellin', summary: 'Spezialisiert auf Kabel.', yearsOfExperience: 4 },
+                    'Kurzschluss? Nicht mit mir.',
+                    { interviewerStart: 'Kompetent, sachlich.', strengths: ['Elektrik', 'Sicherheit'], weaknesses: ['Kreativität'], score: 8 },
+                    { experience: 4, salary: 38000, skills: ['Strom', 'Schaltpläne'], culture: ['Sicher'] },
+                    { red: [], green: ['Fachkraft'] },
+                    { title: 'Die Expertin', description: 'Löst alle elektrischen Probleme im Handumdrehen.', type: 'success' }
+                ),
+                createCandidate('cm7', 'Allrounder Andy', 'Handwerker',
+                    { lastRole: 'Hausmeister', company: 'Schule', education: 'Gas-Wasser', summary: 'Kann Heizung und Dach.', yearsOfExperience: 15 },
+                    'Geht nicht gibt\'s nicht.',
+                    { interviewerStart: 'Hände voller Öl.', strengths: ['Vielseitigkeit'], weaknesses: ['Spezialisierung'], score: 7 },
+                    { experience: 15, salary: 39000, skills: ['Sanitär', 'Dach', 'Elektro'], culture: ['Pragmatisch'] },
+                    { red: ['Macht alles etwas, nichts perfekt'], green: ['Universalkraft'] },
+                    { title: 'Der Retter', description: 'Goldwert wenn es brennt, aber keine Meisterqualität.', type: 'success' }
+                ),
+                createCandidate('cm8', 'Künstler Kai', 'Handwerker',
+                    { lastRole: 'Restaurator', company: 'Museum', education: 'Kunsthandwerk', summary: 'Liebt alte Dinge.', yearsOfExperience: 8 },
+                    'Holz hat eine Seele.',
+                    { interviewerStart: 'Trägt Leinenhemd.', strengths: ['Gefühl', 'Optik'], weaknesses: ['Funktion'], score: 5 },
+                    { experience: 8, salary: 36000, skills: ['Restaurierung'], culture: ['Künstlerisch'] },
+                    { red: ['Träumer'], green: ['Ästhet'] },
+                    { title: 'Der Verschönerer', description: 'Die Reparatur sieht toll aus, hält aber nicht.', type: 'mixed' }
+                ),
+                createCandidate('cm9', 'Grantler Günther', 'Handwerker',
+                    { lastRole: 'Bauarbeiter', company: 'Hochtief', education: 'Maurer', summary: 'Arbeit ist Scheiße.', yearsOfExperience: 30 },
+                    'Muss ja.',
+                    { interviewerStart: 'Rocht nach Rauch.', strengths: ['Kraft'], weaknesses: ['Einstellung'], score: 2 },
+                    { experience: 30, salary: 35000, skills: ['Mauern'], culture: ['Negativ'] },
+                    { red: ['Extrem miese Laune'], green: ['Kommt pünktlich'] },
+                    { title: 'Das schwarze Loch', description: 'Zieht alle runter. Kündigung war Erlösung.', type: 'failure' }
+                ),
+                createCandidate('cm10', 'Stift Susi', 'Handwerker',
+                    { lastRole: 'Praktikantin', company: 'Tischlerei', education: 'Realschule', summary: 'Handwerk ist voll mein Ding.', yearsOfExperience: 0 },
+                    'Ich zeig\'s den Jungs.',
+                    { interviewerStart: 'Selbstbewusst, taff.', strengths: ['Ehrgeiz', 'Talent'], weaknesses: ['Kraft'], score: 6 },
+                    { experience: 0, salary: 31000, skills: ['Holz', 'Feinmotorik'], culture: ['Mutig'] },
+                    { red: [], green: ['Power'] },
+                    { title: 'Die Überraschung', description: 'Unterschätzt, aber liefert besser ab als die Gesellen.', type: 'success' }
                 )
             ];
         case 'technician':
@@ -170,6 +282,62 @@ export const getCandidatesForJob = (jobId: string): Candidate[] => {
                     { experience: 0, salary: 45000, skills: ['Hardware', 'Löten'], culture: ['Nerdig'] },
                     { red: [], green: ['Formbar'] },
                     { title: 'Solider Start', description: 'Macht sich gut und lernt jeden Tag dazu.', type: 'success' }
+                ),
+                createCandidate('tech4', 'Linux Lena', 'Techniker',
+                    { lastRole: 'Admin', company: 'Serverfarm', education: 'Informatik B.Sc.', summary: 'Ich spreche fließend Bash.', yearsOfExperience: 5 },
+                    'Sudo make me a sandwich.',
+                    { interviewerStart: 'T-Shirt mit Nerd-Spruch.', strengths: ['Linux', 'Scripting'], weaknesses: ['Windows'], score: 8 },
+                    { experience: 5, salary: 55000, skills: ['Linux', 'Python'], culture: ['Open Source'] },
+                    { red: ['Hasst Windows'], green: ['Automatisierung'] },
+                    { title: 'Die Coderin', description: 'Hat alles automatisiert, jetzt langweilt sie sich.', type: 'success' }
+                ),
+                createCandidate('tech5', 'Hardware Horst', 'Techniker',
+                    { lastRole: 'Servicetechniker', company: 'Maschinenbau', education: 'Mechatroniker', summary: 'Ich repariere alles mit dem Hammer.', yearsOfExperience: 25 },
+                    'Ein gezielter Schlag und es läuft wieder.',
+                    { interviewerStart: 'Große Hände, laut.', strengths: ['Mechanik', 'Erfahrung'], weaknesses: ['Fein-Elektronik'], score: 6 },
+                    { experience: 25, salary: 50000, skills: ['Mechanik', 'Hydraulik'], culture: ['Rustikal'] },
+                    { red: ['Grobmotoriker'], green: ['Unverwüstlich'] },
+                    { title: 'Der Grobe', description: 'Hat die Platine zerbrochen beim Einbau.', type: 'failure' }
+                ),
+                createCandidate('tech6', 'Netzwerk Nina', 'Techniker',
+                    { lastRole: 'Network Admin', company: 'ISP', education: 'Cisco Zertifikat', summary: 'Ich verbinde alles.', yearsOfExperience: 6 },
+                    'Ping ist mein Herzschlag.',
+                    { interviewerStart: 'Professionell, fokussiert.', strengths: ['Netzwerk', 'WLAN'], weaknesses: ['Hardware'], score: 7 },
+                    { experience: 6, salary: 52000, skills: ['Cisco', 'Routing'], culture: ['Verbunden'] },
+                    { red: [], green: ['Zertifiziert'] },
+                    { title: 'Die Verbindung', description: 'WLAN läuft endlich überall perfekt.', type: 'success' }
+                ),
+                createCandidate('tech7', 'Cloud Claud', 'Techniker',
+                    { lastRole: 'Cloud Architect', company: 'Startup', education: 'Master', summary: 'Alles in die Cloud.', yearsOfExperience: 4 },
+                    'Server sind so 2010.',
+                    { interviewerStart: 'Sehr modern, Buzzword-Bingo.', strengths: ['AWS', 'Azure'], weaknesses: ['On-Premise'], score: 7 },
+                    { experience: 4, salary: 65000, skills: ['Cloud', 'Docker'], culture: ['Modern'] },
+                    { red: ['Teuer', 'Will keine Hardware anfassen'], green: ['Zukunft'] },
+                    { title: 'Der Wolkige', description: 'Wollte die Kaffeemaschine in die Cloud migrieren.', type: 'mixed' }
+                ),
+                createCandidate('tech8', 'Reparatur Rolf', 'Techniker',
+                    { lastRole: 'Radio-Fernsehtechniker', company: 'Kleiner Laden', education: 'Altgeselle', summary: 'Ich löte Chips noch von Hand.', yearsOfExperience: 35 },
+                    'Diese modernen Dinger gehen alle kaputt.',
+                    { interviewerStart: 'Ruhig, sehr genau.', strengths: ['Löten', 'Geduld'], weaknesses: ['Software'], score: 5 },
+                    { experience: 35, salary: 48000, skills: ['Elektronik'], culture: ['Altmodisch'] },
+                    { red: ['Langsam'], green: ['Repariert alles'] },
+                    { title: 'Der Tüftler', description: 'Hat 3 Tage an einem 5€ Bauteil gelötet.', type: 'mixed' }
+                ),
+                createCandidate('tech9', 'Chaos Computer Club Charly', 'Techniker',
+                    { lastRole: 'Hacker', company: '?', education: '?', summary: 'Ich teste eure Sicherheit.', yearsOfExperience: 10 },
+                    'Ich bin schon drin.',
+                    { interviewerStart: 'Kapuzenpulli, Sonnenbrille.', strengths: ['Hacking'], weaknesses: ['Legalität?'], score: 4 },
+                    { experience: 10, salary: 60000, skills: ['Exploits'], culture: ['Anarchisch'] },
+                    { red: ['Unheimlich'], green: ['Findet jede Lücke'] },
+                    { title: 'Der Hacker', description: 'Hat die Firma gehackt um seine Gehaltserhöhung einzutragen.', type: 'failure' }
+                ),
+                createCandidate('tech10', 'Support Susi', 'Techniker',
+                    { lastRole: 'First Level Support', company: 'Callcenter', education: 'Kauffrau IT', summary: 'Ich kann gut mit Kunden.', yearsOfExperience: 3 },
+                    'Haben Sie es schon aus- und wieder eingeschaltet?',
+                    { interviewerStart: 'Sehr freundlich, geduldig.', strengths: ['Geduld', 'Kommunikation'], weaknesses: ['Tiefes Wissen'], score: 5 },
+                    { experience: 3, salary: 40000, skills: ['Telefon', 'Tickets'], culture: ['Service'] },
+                    { red: ['Kein Experte'], green: ['Kundenfreundlich'] },
+                    { title: 'Die Stimme', description: 'Die Kunden lieben sie, aber die Server brennen immer noch.', type: 'mixed' }
                 )
             ];
         case 'marketing_assistant':

@@ -1,10 +1,4 @@
-export interface Job {
-    id: string;
-    title: string;
-    description: string;
-    salaryRange: string;
-    requirements: string[];
-}
+import type { Job } from '../types';
 
 export const jobs: Job[] = [
     {
@@ -12,21 +6,24 @@ export const jobs: Job[] = [
         title: 'Büroassistenz',
         description: 'Unterstützung des Teams bei administrativen und organisatorischen Aufgaben.',
         salaryRange: '€30.000 - €40.000',
-        requirements: ['Organisationstalent', 'MS Office Kenntnisse', 'Kommunikationsstärke']
+        requirements: ['Organisationstalent', 'MS Office Kenntnisse', 'Kommunikationsstärke'],
+        budget: 45000
     },
     {
         id: 'warehouse_worker',
         title: 'Lagerist',
         description: 'Verantwortlich für den Wareneingang, Lagerhaltung und Versandvorbereitung.',
         salaryRange: '€28.000 - €35.000',
-        requirements: ['Staplerschein', 'Körperliche Belastbarkeit', 'Zuverlässigkeit']
+        requirements: ['Staplerschein', 'Körperliche Belastbarkeit', 'Zuverlässigkeit'],
+        budget: 38000
     },
     {
         id: 'craftsman',
         title: 'Handwerker',
         description: 'Durchführung von handwerklichen Tätigkeiten, Reparaturen und Instandhaltung.',
         salaryRange: '€35.000 - €45.000',
-        requirements: ['Abgeschlossene Ausbildung', 'Handwerkliches Geschick', 'Führerschein Klasse B']
+        requirements: ['Abgeschlossene Ausbildung', 'Handwerkliches Geschick', 'Führerschein Klasse B'],
+        budget: 50000
     },
     {
         id: 'technician',

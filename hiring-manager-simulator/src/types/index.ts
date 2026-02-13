@@ -15,6 +15,8 @@
 // So no type updates are strictly necessary for the code to run.
 // I can proceed to verification.
 
+export type Phase = 'screening' | 'interviews' | 'decision' | 'reveal';
+
 export interface CandidateAttributes {
     experience: number; // Years
     salary: number; // Expected salary
@@ -53,7 +55,7 @@ export interface Candidate {
         red: string[];
         green: string[];
     };
-    id: 'office_assistant' | 'warehouse' | 'craftsman' | 'technician' | 'marketing_assistant' | 'educator';
+    status: 'pool' | 'screened' | 'interviewed' | 'hired' | 'rejected';
 }
 
 export interface Message {
