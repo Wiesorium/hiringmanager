@@ -39,7 +39,7 @@ export function MessageCenter() {
                                 markMessageRead(msg.id);
                             }}
                             className="absolute top-2 right-2 text-stone-400 hover:text-ink p-1 hover:bg-stone-100 rounded-full transition-colors"
-                            aria-label="Close message"
+                            aria-label="Nachricht schließen"
                         >
                             <X className="w-4 h-4" />
                         </button>

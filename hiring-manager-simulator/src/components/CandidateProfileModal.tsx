@@ -44,8 +44,8 @@ export function CandidateProfileModal({ candidate, onClose, onAction, actionLabe
                         <h2 className="text-3xl font-serif font-bold mb-1">{candidate.name}</h2>
                         <p className="text-lg text-muted mb-4">{candidate.role}</p>
                         <div className="flex gap-4 text-sm font-medium">
-                            <span className="bg-ink/5 px-3 py-1 rounded">Exp: {candidate.resume.yearsOfExperience} years</span>
-                            <span className="bg-ink/5 px-3 py-1 rounded">Salary: ${candidate.attributes.salary.toLocaleString()}</span>
+                            <span className="bg-ink/5 px-3 py-1 rounded">Erf: {candidate.resume.yearsOfExperience} Jahre</span>
+                            <span className="bg-ink/5 px-3 py-1 rounded">Gehalt: € {candidate.attributes.salary.toLocaleString()}</span>
                         </div>
                     </header>
 
@@ -53,12 +53,12 @@ export function CandidateProfileModal({ candidate, onClose, onAction, actionLabe
                         {/* Resume Section - Always Visible */}
                         <div className="space-y-6">
                             <section>
-                                <h3 className="font-bold uppercase tracking-wider text-sm text-muted mb-2">Summary</h3>
+                                <h3 className="font-bold uppercase tracking-wider text-sm text-muted mb-2">Zusammenfassung</h3>
                                 <p className="font-serif text-lg leading-relaxed">{candidate.resume.summary}</p>
                             </section>
 
                             <section>
-                                <h3 className="font-bold uppercase tracking-wider text-sm text-muted mb-2">Recent Experience</h3>
+                                <h3 className="font-bold uppercase tracking-wider text-sm text-muted mb-2">Letzte Erfahrung</h3>
                                 <div className="bg-white p-4 rounded border border-stone-200">
                                     <div className="font-bold">{candidate.resume.lastRole}</div>
                                     <div className="text-muted mb-2">{candidate.resume.company}</div>
@@ -66,14 +66,14 @@ export function CandidateProfileModal({ candidate, onClose, onAction, actionLabe
                             </section>
 
                             <section>
-                                <h3 className="font-bold uppercase tracking-wider text-sm text-muted mb-2">Cover Letter</h3>
+                                <h3 className="font-bold uppercase tracking-wider text-sm text-muted mb-2">Anschreiben</h3>
                                 <div className="bg-white p-6 rounded border border-stone-200 font-serif italic text-ink/80 leading-relaxed">
                                     "{candidate.coverLetter}"
                                 </div>
                             </section>
 
                             <section>
-                                <h3 className="font-bold uppercase tracking-wider text-sm text-muted mb-2">Skills</h3>
+                                <h3 className="font-bold uppercase tracking-wider text-sm text-muted mb-2">Fähigkeiten</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {candidate.attributes.skills.map(s => (
                                         <span key={s} className="px-3 py-1 bg-white border border-stone-200 rounded-full text-sm">
@@ -89,7 +89,7 @@ export function CandidateProfileModal({ candidate, onClose, onAction, actionLabe
                             <div className="pt-8 border-t border-ink/10">
                                 <h3 className="text-lg font-serif font-bold mb-6 flex items-center gap-2">
                                     <div className="w-6 h-6 bg-highlight text-white rounded-full flex items-center justify-center text-xs">2</div>
-                                    Interview Notes
+                                    Interview Notizen
                                 </h3>
 
                                 <div className="bg-white p-6 rounded-lg border border-stone-200 shadow-sm space-y-6">
@@ -105,7 +105,7 @@ export function CandidateProfileModal({ candidate, onClose, onAction, actionLabe
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="bg-stone-50 p-3 rounded">
                                             <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-green-700">
-                                                <ThumbsUp className="w-4 h-4" /> Strengths
+                                                <ThumbsUp className="w-4 h-4" /> Stärken
                                             </div>
                                             <ul className="text-sm space-y-1">
                                                 {candidate.interviewNotes.strengths.map(s => <li key={s}>• {s}</li>)}
@@ -113,7 +113,7 @@ export function CandidateProfileModal({ candidate, onClose, onAction, actionLabe
                                         </div>
                                         <div className="bg-stone-50 p-3 rounded">
                                             <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-red-700">
-                                                <ThumbsDown className="w-4 h-4" /> Weaknesses
+                                                <ThumbsDown className="w-4 h-4" /> Schwächen
                                             </div>
                                             <ul className="text-sm space-y-1">
                                                 {candidate.interviewNotes.weaknesses.map(s => <li key={s}>• {s}</li>)}
@@ -129,7 +129,7 @@ export function CandidateProfileModal({ candidate, onClose, onAction, actionLabe
                             <div className="pt-8 border-t border-ink/10">
                                 <h3 className="text-lg font-serif font-bold mb-6 flex items-center gap-2">
                                     <div className="w-6 h-6 bg-highlight text-white rounded-full flex items-center justify-center text-xs">4</div>
-                                    Outcome
+                                    Ergebnis
                                 </h3>
                                 <div className={cn(
                                     "p-6 rounded-lg border-l-4",
@@ -149,7 +149,7 @@ export function CandidateProfileModal({ candidate, onClose, onAction, actionLabe
                             onClick={onClose}
                             className="px-6 py-2 border border-stone-300 rounded font-medium hover:bg-stone-50"
                         >
-                            Close
+                            Schließen
                         </button>
                         {onAction && actionLabel && (
                             <button
