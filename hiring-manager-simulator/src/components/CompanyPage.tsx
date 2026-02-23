@@ -167,7 +167,96 @@ export function CompanyPage() {
                         </div>
                     </div>
                 </section>
+
+                {/* Rejection Email Sample Section */}
+                <section className="w-full bg-white py-20 border-t border-stone-100">
+                    <div className="max-w-4xl mx-auto px-6">
+                        <div className="text-center mb-12">
+                            <h2 className="text-3xl md:text-4xl font-serif font-bold text-ink mb-4">
+                                So sieht Ihre Absage aus
+                            </h2>
+                            <p className="text-muted text-lg max-w-2xl mx-auto">
+                                Kopieren Sie einfach diese Vorlage – und fügen Sie Ihren personalisierten Link ein.
+                            </p>
+                        </div>
+
+                        {/* Email mockup */}
+                        <div className="bg-white rounded-2xl shadow-2xl border border-stone-200 overflow-hidden">
+                            {/* Email client header bar */}
+                            <div className="bg-stone-100 border-b border-stone-200 px-6 py-3 flex items-center gap-2">
+                                <div className="w-3 h-3 rounded-full bg-red-400" />
+                                <div className="w-3 h-3 rounded-full bg-yellow-400" />
+                                <div className="w-3 h-3 rounded-full bg-green-400" />
+                                <span className="ml-4 text-xs text-stone-400 font-mono">Neue E-Mail — Absage.eml</span>
+                            </div>
+
+                            {/* Email meta */}
+                            <div className="px-8 py-5 border-b border-stone-100 space-y-1.5 bg-stone-50">
+                                <div className="flex gap-3 text-sm">
+                                    <span className="text-stone-400 w-12 flex-shrink-0">Von:</span>
+                                    <span className="text-ink font-medium">hr@ihr-unternehmen.de</span>
+                                </div>
+                                <div className="flex gap-3 text-sm">
+                                    <span className="text-stone-400 w-12 flex-shrink-0">An:</span>
+                                    <span className="text-ink font-medium">max.mustermann@email.de</span>
+                                </div>
+                                <div className="flex gap-3 text-sm">
+                                    <span className="text-stone-400 w-12 flex-shrink-0">Betreff:</span>
+                                    <span className="text-ink font-semibold">Ihre Bewerbung als Büroassistenz (m/w/d)</span>
+                                </div>
+                            </div>
+
+                            {/* Email body */}
+                            <div className="px-8 py-8 space-y-5 text-sm leading-relaxed text-stone-700 font-sans">
+                                <p>Sehr geehrter Herr Mustermann,</p>
+                                <p>
+                                    vielen Dank für Ihr Interesse an einer Tätigkeit in unserem Unternehmen
+                                    und die Zeit, die Sie in Ihre Bewerbung investiert haben.
+                                </p>
+                                <p>
+                                    Nach sorgfältiger Prüfung aller eingegangenen Bewerbungen müssen wir Ihnen
+                                    leider mitteilen, dass wir uns für einen anderen Kandidaten entschieden haben,
+                                    dessen Profil zum jetzigen Zeitpunkt noch etwas besser zu den spezifischen
+                                    Anforderungen der Stelle passt.
+                                </p>
+                                <p>
+                                    Wir wünschen Ihnen für Ihre weitere berufliche Laufbahn alles Gute und
+                                    hoffen, dass Sie bald die richtige Stelle finden.
+                                </p>
+                                <p>Mit freundlichen Grüßen,<br />
+                                    <strong>Sarah Hoffmann</strong><br />
+                                    Human Resources · Musterunternehmen GmbH
+                                </p>
+
+                                {/* The PS — highlighted */}
+                                <div className="border-l-4 border-highlight pl-4 py-3 bg-highlight/5 rounded-r-lg mt-6">
+                                    <p className="text-ink">
+                                        <span className="font-bold text-highlight">P.S.</span>{' '}
+                                        Wir haben gesehen, wie viel Mühe Sie in Ihre Bewerbung gesteckt haben –
+                                        das ist uns aufgefallen. Genau deshalb möchten wir Ihnen etwas mitgeben:{' '}
+                                        <a
+                                            href="https://wiesorium.github.io/hiringmanager/"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="font-bold text-highlight underline decoration-2 underline-offset-2 hover:text-highlight/80 transition-colors"
+                                        >
+                                            Hiring Manager Simulator →
+                                        </a>
+                                        {' '}Simulieren Sie selbst einmal die andere Seite des Tisches –
+                                        und gewinnen Sie ein Gespür dafür, wie Hiring-Entscheidungen wirklich fallen.
+                                        Kostenlos, 5 Minuten. Viel Erfolg!
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p className="text-center text-xs text-stone-400 mt-6">
+                            ↑ Einfach kopieren, Link anpassen, und versenden. Fertig.
+                        </p>
+                    </div>
+                </section>
             </main>
+
 
             <footer className="py-12 text-center text-stone-500 font-serif italic text-lg">
                 "Für den Preis eines Stiftes – die menschliche Art, Talente abzuweisen."

@@ -1,20 +1,3 @@
-// No strict enum for role in the file, it is string.
-// However, let's verify if 'jobs.ts' uses a specific type.
-// It uses 'Job' interface where ID is string.
-// So we should be safe.
-// I will just add a comment to index.ts to force a refresh if needed, 
-// or I can improve the type safety.
-// Actually, I'll update the Candidate interface to be more descriptive if possible, 
-// but for now, I'll just leave it as is to avoid breaking changes.
-// I'll update the 'Job' interface to include the new IDs in a comment for documentation?
-// No, I'll just skip this if no changes are needed.
-// Wait, I see I already made a mistake in the previous tool call thinking I was editing index.ts but I didn't actually submit a valid edit because I was "checking".
-// Let's actually look at the file content I just viewed.
-// 'role' in Candidate is `string`.
-// 'id' in Job is `string`.
-// So no type updates are strictly necessary for the code to run.
-// I can proceed to verification.
-
 export type Phase = 'screening' | 'interviews' | 'decision' | 'reveal';
 
 export interface CandidateAttributes {
@@ -34,7 +17,7 @@ export interface Candidate {
     id: string;
     name: string;
     role: string;
-    avatar?: string; // URL or placeholder
+    avatar?: string;
     resume: {
         lastRole: string;
         company: string;
@@ -46,8 +29,8 @@ export interface Candidate {
     interviewNotes?: {
         strengths: string[];
         weaknesses: string[];
-        interviewerStart: string; // "Impressed by..." or "Concerns about..."
-        score: number; // 1-10 hidden score? Or just qualitative.
+        interviewerStart: string;
+        score: number;
     };
     attributes: CandidateAttributes;
     outcome: CandidateOutcome;
@@ -58,15 +41,42 @@ export interface Candidate {
     status: 'pool' | 'screened' | 'interviewed' | 'hired' | 'rejected';
 }
 
+// Internal message from colleagues (CEO, CFO, HR, team lead, etc.)
 export interface Message {
     id: string;
     sender: string;
     role: string;
     content: string;
+    jobId: string; // which job scenario this message belongs to
     triggerPhase: Phase;
     effect?: {
         type: 'budget_cut' | 'urgency_increase' | 'force_interview';
         value?: any;
+    };
+    isRead: boolean;
+}
+
+// Random event initiated by an applicant (thank-you mails, questions, withdrawals, etc.)
+export type ApplicantEventType =
+    | 'thank_you_mail'     // after interview — applicant expresses enthusiasm
+    | 'question_email'     // before first interview — applicant asks about role/company
+    | 'portfolio_link'     // applicant sends additional work samples
+    | 'reference_letter'   // applicant sends unsolicited reference
+    | 'withdrawal';        // applicant withdraws their application!
+
+export interface ApplicantEvent {
+    id: string;
+    candidateId: string;       // which applicant sends it (used to highlight them)
+    jobId: string;
+    triggerPhase: Phase;
+    type: ApplicantEventType;
+    sender: string;            // display name of the applicant
+    subject: string;
+    body: string;
+    effect?: {
+        type: 'urgency_decrease' | 'budget_hint' | 'candidate_boost' | 'candidate_lost';
+        candidateId?: string;
+        value?: number;
     };
     isRead: boolean;
 }
@@ -80,10 +90,18 @@ export interface Job {
     budget: number;
 }
 
+// A full scenario groups all messages and applicant events for one job
+export interface Scenario {
+    jobId: string;
+    messages: Message[];
+    applicantEvents: ApplicantEvent[];
+}
+
 export interface GameState {
     phase: Phase;
     candidates: Candidate[];
     messages: Message[];
+    applicantEvents: ApplicantEvent[];
     budget: number;
     urgency: number; // 0-100
     selectedCandidates: string[]; // IDs
