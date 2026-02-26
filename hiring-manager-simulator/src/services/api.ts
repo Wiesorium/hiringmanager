@@ -77,12 +77,15 @@ export async function fetchSimulationForJob(jobId: string): Promise<ApiSimulatio
  * Join the Hiring Manager newsletter.
  * Returns { is_new: boolean } on success, null on error.
  */
-export async function joinNewsletter(email: string): Promise<{ is_new: boolean; message: string } | null> {
+export async function joinNewsletter(
+    email: string,
+    metadata?: { rejected_count?: number; monthly_price?: number; source?: string }
+): Promise<{ is_new: boolean; message: string } | null> {
     try {
         const res = await fetch(`${BASE_URL}/join_newsletter`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
+            body: JSON.stringify({ email, ...metadata }),
         });
         if (!res.ok) return null;
         const json = await res.json();

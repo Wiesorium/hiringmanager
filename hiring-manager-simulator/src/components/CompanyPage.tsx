@@ -1,15 +1,31 @@
 import { useState } from 'react';
-import { Building2, ArrowRight, Calculator, Users } from 'lucide-react';
+import { Building2, ArrowRight, Calculator, Users, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useGame } from '../context/GameContext';
+import { joinNewsletter } from '../services/api';
 
 export function CompanyPage() {
     const { setGameState } = useGame();
     const [rejectedCount, setRejectedCount] = useState(50);
+    const [email, setEmail] = useState('');
+    const [submitState, setSubmitState] = useState<'idle' | 'loading' | 'success' | 'duplicate' | 'error'>('idle');
 
     // Pricing logic: Base fee + per candidate cost
     const baseFee = 49;
     const pricePerCandidate = 0.50;
     const totalPrice = baseFee + (rejectedCount * pricePerCandidate);
+
+    const handleSubmit = async () => {
+        const trimmed = email.trim().toLowerCase();
+        if (!trimmed || !trimmed.includes('@')) return;
+        setSubmitState('loading');
+        const result = await joinNewsletter(trimmed, {
+            rejected_count: rejectedCount,
+            monthly_price: Math.round(totalPrice),
+            source: 'company_roi_calculator',
+        });
+        if (!result) { setSubmitState('error'); return; }
+        setSubmitState(result.is_new ? 'success' : 'duplicate');
+    };
 
     return (
         <div className="min-h-screen bg-paper flex flex-col font-sans text-ink">
@@ -102,11 +118,45 @@ export function CompanyPage() {
                                 <input
                                     type="email"
                                     placeholder="Ihre Unternehmens E-Mail"
-                                    className="w-full px-4 py-3 rounded border border-stone-300 focus:outline-none focus:border-highlight mb-4"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    onKeyDown={e => e.key === 'Enter' && handleSubmit()}
+                                    disabled={submitState === 'loading' || submitState === 'success'}
+                                    className="w-full px-4 py-3 rounded border border-stone-300 focus:outline-none focus:border-highlight mb-3 disabled:opacity-50"
                                 />
-                                <button className="w-full py-3 bg-ink text-white rounded font-bold hover:bg-black transition-colors flex justify-center items-center gap-2">
-                                    <Calculator className="w-4 h-4" />
-                                    Angebot mit Beispielsimulation anfordern
+
+                                {/* Feedback messages */}
+                                {submitState === 'success' && (
+                                    <div className="flex items-center gap-2 text-green-600 text-sm font-medium mb-3">
+                                        <CheckCircle className="w-4 h-4" />
+                                        Angebot angefordert! Wir melden uns bald.
+                                    </div>
+                                )}
+                                {submitState === 'duplicate' && (
+                                    <div className="flex items-center gap-2 text-amber-600 text-sm mb-3">
+                                        <CheckCircle className="w-4 h-4" />
+                                        Diese E-Mail ist bereits registriert – wir sind dran!
+                                    </div>
+                                )}
+                                {submitState === 'error' && (
+                                    <div className="flex items-center gap-2 text-red-500 text-sm mb-3">
+                                        <AlertCircle className="w-4 h-4" />
+                                        Fehler – bitte erneut versuchen.
+                                    </div>
+                                )}
+
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={submitState === 'loading' || submitState === 'success' || !email.includes('@')}
+                                    className="w-full py-3 bg-ink text-white rounded font-bold hover:bg-black transition-colors flex justify-center items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {submitState === 'loading' ? (
+                                        <><Loader2 className="w-4 h-4 animate-spin" /> Wird gesendet…</>
+                                    ) : submitState === 'success' ? (
+                                        <><CheckCircle className="w-4 h-4" /> Angefordert!</>
+                                    ) : (
+                                        <><Calculator className="w-4 h-4" /> Angebot mit Beispielsimulation anfordern</>
+                                    )}
                                 </button>
                             </div>
                         </div>
