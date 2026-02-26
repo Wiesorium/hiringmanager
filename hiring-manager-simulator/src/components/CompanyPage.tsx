@@ -158,6 +158,9 @@ export function CompanyPage() {
                                         <><Calculator className="w-4 h-4" /> Angebot mit Beispielsimulation anfordern</>
                                     )}
                                 </button>
+                                <p className="text-center text-xs text-stone-400 italic mt-2">
+                                    "Zum Preis eines Stiftes. Die menschliche Art, Talente abzuweisen."
+                                </p>
                             </div>
                         </div>
 
@@ -308,9 +311,6 @@ export function CompanyPage() {
             </main>
 
 
-            <footer className="py-12 text-center text-stone-500 font-serif italic text-lg">
-                "Für den Preis eines Stiftes – die menschliche Art, Talente abzuweisen."
-            </footer>
         </div>
     );
 }

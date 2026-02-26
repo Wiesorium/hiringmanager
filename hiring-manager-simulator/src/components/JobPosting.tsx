@@ -1,11 +1,20 @@
 import { motion } from 'framer-motion';
 import { useGame } from '../context/GameContext';
 import { ArrowRight, CheckCircle, MapPin, DollarSign, Briefcase } from 'lucide-react';
-import { jobs } from '../data/jobs';
 
 export function JobPosting() {
-    const { startGame, selectedJobId } = useGame();
-    const job = jobs.find(j => j.id === selectedJobId) || jobs[0];
+    const { startGame, selectedJobId, availableJobs } = useGame();
+    // Look up the job in the merged list (static + API) — no || jobs[0] fallback
+    const job = availableJobs.find(j => j.id === selectedJobId);
+
+    // Still loading or no match yet — shouldn't happen in normal flow
+    if (!job) {
+        return (
+            <div className="min-h-screen bg-paper flex items-center justify-center">
+                <p className="text-muted animate-pulse">Simulation wird geladen…</p>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-paper flex items-center justify-center p-6 font-sans text-ink">
