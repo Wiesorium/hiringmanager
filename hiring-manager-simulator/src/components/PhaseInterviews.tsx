@@ -11,26 +11,27 @@ export function PhaseInterviews() {
     const [viewingCandidate, setViewingCandidate] = useState<Candidate | null>(null);
 
     const interviewPool = candidates.filter(c => c.status === 'interviewed');
-    const canProceed = selectedCandidates.length === 3;
+    const requiredFinalists = Math.min(3, interviewPool.length);
+    const canProceed = selectedCandidates.length === requiredFinalists;
 
     return (
-        <div className="space-y-6 pb-24">
+        <div className="space-y-6 pb-32">
             {/* Header */}
-            <div className="flex justify-between items-end">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
                 <div>
-                    <h2 className="text-3xl font-serif font-bold mb-2">Phase 2: Interviews</h2>
-                    <p className="text-muted max-w-xl">
-                        Das Team hat Ihre Auswahl interviewt. Prüfen Sie die Notizen und wählen Sie <strong>3 Finalisten</strong> für die letzte Runde.
+                    <h2 className="text-2xl sm:text-3xl font-serif font-bold mb-2">Phase 2: Interviews</h2>
+                    <p className="text-muted max-w-xl text-sm sm:text-base">
+                        Das Team hat Ihre Auswahl interviewt. Prüfen Sie die Notizen und wählen Sie <strong>{requiredFinalists} Finalist{requiredFinalists === 1 ? 'en' : 'en'}</strong> für die letzte Runde.
                     </p>
                 </div>
-                <div className="text-right">
-                    <div className="text-4xl font-bold font-serif">{selectedCandidates.length} / 3</div>
+                <div className="text-left sm:text-right flex-shrink-0">
+                    <div className="text-3xl sm:text-4xl font-bold font-serif">{selectedCandidates.length} / {requiredFinalists}</div>
                     <div className="text-sm text-muted uppercase tracking-wider">Finalisten</div>
                 </div>
             </div>
 
             {/* List */}
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:gap-6">
                 {interviewPool.map(candidate => (
                     <InterviewCard
                         key={candidate.id}
@@ -42,26 +43,25 @@ export function PhaseInterviews() {
                 ))}
             </div>
 
-            {/* Proceed Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-paper via-paper to-transparent pointer-events-none flex justify-end z-40">
+            {/* Proceed Button — fixed at bottom, always above the z-30 notes panel */}
+            <div className="fixed bottom-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-paper via-paper to-transparent pointer-events-none flex justify-center sm:justify-end z-40">
                 <button
                     onClick={nextPhase}
                     disabled={!canProceed}
                     className={cn(
-                        "pointer-events-auto flex items-center gap-2 px-8 py-4 rounded-full font-bold shadow-lg transition-all",
+                        "pointer-events-auto flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold shadow-lg transition-all text-sm sm:text-base",
                         canProceed
                             ? "bg-highlight text-white hover:bg-highlight/90 hover:scale-105"
                             : "bg-stone-300 text-stone-500 cursor-not-allowed"
                     )}
                 >
-                    Finalisten bestätigen <ArrowRight className="w-5 h-5" />
+                    Finalisten bestätigen <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
             </div>
 
             <CandidateProfileModal
                 candidate={viewingCandidate}
                 onClose={() => setViewingCandidate(null)}
-                // In Interview phase, action is selecting/deselecting as finalist
                 onAction={toggleCandidateSelection}
                 actionLabel={selectedCandidates.includes(viewingCandidate?.id || '') ? "Als Finalist entfernen" : "Als Finalist wählen"}
                 isActionSelected={selectedCandidates.includes(viewingCandidate?.id || '')}
@@ -78,7 +78,7 @@ function InterviewCard({ candidate, isSelected, onSelect, onView }: { candidate:
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className={cn(
-                "bg-white p-6 rounded-lg border-2 transition-all cursor-pointer relative group",
+                "bg-white p-4 sm:p-6 rounded-lg border-2 transition-all cursor-pointer relative group",
                 isSelected ? "border-highlight shadow-lg bg-highlight/5" : "border-transparent hover:border-stone-200 shadow-sm"
             )}
             onClick={onSelect}
@@ -86,17 +86,17 @@ function InterviewCard({ candidate, isSelected, onSelect, onView }: { candidate:
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
                     <div className={cn(
-                        "w-6 h-6 rounded-full border border-stone-300 flex items-center justify-center transition-colors",
+                        "w-6 h-6 rounded-full border border-stone-300 flex items-center justify-center transition-colors flex-shrink-0",
                         isSelected && "bg-highlight border-highlight text-white"
                     )}>
                         {isSelected && <Check className="w-4 h-4" />}
                     </div>
                     <div>
-                        <h3 className="text-xl font-bold font-serif">{candidate.name}</h3>
+                        <h3 className="text-lg sm:text-xl font-bold font-serif">{candidate.name}</h3>
                         <p className="text-sm text-muted">{candidate.role}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
@@ -107,16 +107,17 @@ function InterviewCard({ candidate, isSelected, onSelect, onView }: { candidate:
                     >
                         <Eye className="w-5 h-5" />
                     </button>
-                    <div className="text-2xl font-bold font-serif bg-stone-100 px-3 py-1 rounded">
+                    <div className="text-xl sm:text-2xl font-bold font-serif bg-stone-100 px-3 py-1 rounded">
                         {candidate.interviewNotes.score}/10
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="col-span-1 md:col-span-3 italic text-ink/80 border-b border-stone-100 pb-4 mb-2">
-                    "{candidate.interviewNotes.interviewerStart}"
-                </div>
+            <div className="italic text-ink/80 border-b border-stone-100 pb-3 mb-3 text-sm sm:text-base">
+                "{candidate.interviewNotes.interviewerStart}"
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                     <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-green-700">
                         <ThumbsUp className="w-4 h-4" /> Stärken

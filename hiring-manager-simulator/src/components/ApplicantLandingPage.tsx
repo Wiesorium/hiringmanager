@@ -1,9 +1,8 @@
-import { MailOpen, ArrowRight } from 'lucide-react';
+import { MailOpen, ArrowRight, Loader2 } from 'lucide-react';
 import { useGame } from '../context/GameContext';
-import { jobs } from '../data/jobs';
 
 export function ApplicantLandingPage() {
-    const { selectJob } = useGame();
+    const { selectJob, availableJobs, simulationsLoading } = useGame();
 
     return (
         <div className="min-h-screen bg-paper flex items-center justify-center p-6 text-ink font-sans">
@@ -34,25 +33,54 @@ export function ApplicantLandingPage() {
                         <div className="h-1 w-12 bg-highlight mx-auto rounded-full"></div>
                     </div>
 
+                    {/* Job grid — skeletons while loading */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {jobs.map((job) => (
-                            <button
-                                key={job.id}
-                                onClick={() => selectJob(job.id)}
-                                className="text-left p-6 rounded-xl border-2 border-stone-100 hover:border-highlight hover:bg-highlight/5 transition-all group relative overflow-hidden"
-                            >
-                                <div className="relative z-10">
-                                    <h3 className="font-bold text-lg group-hover:text-highlight transition-colors mb-1">{job.title}</h3>
-                                    <p className="text-sm text-muted font-medium mb-3">{job.salaryRange}</p>
-                                    <div className="flex items-center text-xs text-muted group-hover:text-ink transition-colors">
-                                        Simulation starten <ArrowRight className="w-3 h-3 ml-1" />
-                                    </div>
+                        {simulationsLoading ? (
+                            // Skeleton cards
+                            Array.from({ length: 4 }).map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="p-6 rounded-xl border-2 border-stone-100 animate-pulse"
+                                >
+                                    <div className="h-5 bg-stone-200 rounded w-3/4 mb-3"></div>
+                                    <div className="h-3 bg-stone-100 rounded w-1/2 mb-4"></div>
+                                    <div className="h-3 bg-stone-100 rounded w-1/3"></div>
                                 </div>
-                            </button>
-                        ))}
+                            ))
+                        ) : (
+                            availableJobs.map((job) => (
+                                <button
+                                    key={job.id}
+                                    onClick={() => selectJob(job.id)}
+                                    className="text-left p-6 rounded-xl border-2 border-stone-100 hover:border-highlight hover:bg-highlight/5 transition-all group relative overflow-hidden"
+                                >
+                                    <div className="relative z-10">
+                                        <h3 className="font-bold text-lg group-hover:text-highlight transition-colors mb-1">{job.title}</h3>
+                                        <p className="text-sm text-muted font-medium mb-3">{job.salaryRange}</p>
+                                        <div className="flex items-center text-xs text-muted group-hover:text-ink transition-colors">
+                                            Simulation starten <ArrowRight className="w-3 h-3 ml-1" />
+                                        </div>
+                                    </div>
+                                </button>
+                            ))
+                        )}
                     </div>
 
-                    <div className="mt-10 pt-6 border-t border-stone-100 text-center text-xs text-muted">
+                    {/* API status indicator */}
+                    {!simulationsLoading && (
+                        <p className="text-center text-xs text-muted mt-4 flex items-center justify-center gap-1">
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                            {availableJobs.length} Simulationen verfügbar
+                        </p>
+                    )}
+                    {simulationsLoading && (
+                        <p className="text-center text-xs text-muted mt-4 flex items-center justify-center gap-1">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            Simulationen werden geladen…
+                        </p>
+                    )}
+
+                    <div className="mt-8 pt-6 border-t border-stone-100 text-center text-xs text-muted">
                         Ein Service von <strong className="text-ink">Jobaktuell</strong>
                     </div>
                 </div>

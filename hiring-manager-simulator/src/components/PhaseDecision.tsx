@@ -13,19 +13,17 @@ export function PhaseDecision() {
     const finalists = candidates.filter(c => selectedCandidates.includes(c.id));
 
     return (
-        <div className="space-y-6 pb-24">
+        <div className="space-y-6 pb-8">
             {/* Header */}
-            <div className="flex justify-between items-end">
-                <div>
-                    <h2 className="text-3xl font-serif font-bold mb-2">Phase 3: Finale Entscheidung</h2>
-                    <p className="text-muted max-w-xl">
-                        Das ist es. Sie haben 3 Finalisten. Vergleichen Sie sie mit dem Budget und der Team-Passung. Machen Sie das Angebot.
-                    </p>
-                </div>
+            <div>
+                <h2 className="text-2xl sm:text-3xl font-serif font-bold mb-2">Phase 3: Finale Entscheidung</h2>
+                <p className="text-muted max-w-xl text-sm sm:text-base">
+                    Das ist es. Sie haben 3 Finalisten. Vergleichen Sie sie mit dem Budget und der Team-Passung. Machen Sie das Angebot.
+                </p>
             </div>
 
-            {/* List */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* List — single column on mobile, 3 cols on desktop */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {finalists.map(candidate => (
                     <DecisionCard
                         key={candidate.id}
@@ -42,7 +40,7 @@ export function PhaseDecision() {
                 onClose={() => setViewingCandidate(null)}
                 onAction={makeFinalDecision}
                 actionLabel="Diesen Kandidaten einstellen"
-                isActionSelected={false} // Action immediately converts to 'reveal' usually
+                isActionSelected={false}
             />
         </div>
     );
@@ -57,12 +55,12 @@ function DecisionCard({ candidate, currentBudget, onSelect, onView }: { candidat
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white rounded-xl shadow-xl overflow-hidden flex flex-col hover:translate-y-[-4px] transition-transform"
         >
-            <div className="p-6 border-b border-stone-100 bg-stone-50/50">
+            <div className="p-4 sm:p-6 border-b border-stone-100 bg-stone-50/50">
                 <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-2xl font-serif font-bold leading-tight">{candidate.name}</h3>
+                    <h3 className="text-xl sm:text-2xl font-serif font-bold leading-tight">{candidate.name}</h3>
                     <button
                         onClick={onView}
-                        className="p-2 hover:bg-stone-200 rounded-full text-stone-400 hover:text-ink transition-colors"
+                        className="p-2 hover:bg-stone-200 rounded-full text-stone-400 hover:text-ink transition-colors flex-shrink-0"
                         title="Profil ansehen"
                     >
                         <Eye className="w-5 h-5" />
@@ -83,7 +81,7 @@ function DecisionCard({ candidate, currentBudget, onSelect, onView }: { candidat
                 </div>
             </div>
 
-            <div className="p-6 flex-grow space-y-4">
+            <div className="p-4 sm:p-6 flex-grow space-y-4">
                 <div>
                     <div className="text-xs font-bold uppercase tracking-wider text-muted mb-1">Interview Punktzahl</div>
                     <div className="text-3xl font-bold font-serif">{candidate.interviewNotes?.score}/10</div>
@@ -103,7 +101,7 @@ function DecisionCard({ candidate, currentBudget, onSelect, onView }: { candidat
             <div className="p-4 bg-stone-100">
                 <button
                     onClick={onSelect}
-                    className="w-full py-3 bg-ink text-white rounded-lg font-bold hover:bg-black transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-ink text-white rounded-lg font-bold hover:bg-black transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
                 >
                     <Check className="w-4 h-4" /> Angebot machen
                 </button>

@@ -10,30 +10,28 @@ export function PhaseScreening() {
     const { candidates, selectedCandidates, toggleCandidateSelection, nextPhase } = useGame();
     const [viewingCandidate, setViewingCandidate] = useState<Candidate | null>(null);
 
-    // Filter out already rejected (though in screening phase usually all are 'pool')
-    const pool = candidates.filter(c => c.status === 'pool' || c.status === 'screened'); // Relaxed logic
-
+    const pool = candidates.filter(c => c.status === 'pool' || c.status === 'screened');
     const canProceed = selectedCandidates.length >= 2 && selectedCandidates.length <= 6;
 
     return (
-        <div className="space-y-6 pb-24">
+        <div className="space-y-6 pb-32">
             {/* Header */}
-            <div className="flex justify-between items-end">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
                 <div>
-                    <h2 className="text-3xl font-serif font-bold mb-2">Phase 1: Bewerbungssichtung</h2>
-                    <p className="text-muted max-w-xl">
-                        Sichten Sie den Bewerberpool. Wählen Sie <strong>2-6 Kandidaten</strong> für die Interviewrunde aus.
+                    <h2 className="text-2xl sm:text-3xl font-serif font-bold mb-2">Phase 1: Bewerbungssichtung</h2>
+                    <p className="text-muted max-w-xl text-sm sm:text-base">
+                        Sichten Sie den Bewerberpool. Wählen Sie <strong>2–6 Kandidaten</strong> für die Interviewrunde aus.
                         Achten Sie auf Gehaltsvorstellungen und Erfahrung.
                     </p>
                 </div>
-                <div className="text-right">
-                    <div className="text-4xl font-bold font-serif">{selectedCandidates.length} / 6</div>
+                <div className="text-left sm:text-right flex-shrink-0">
+                    <div className="text-3xl sm:text-4xl font-bold font-serif">{selectedCandidates.length} / 6</div>
                     <div className="text-sm text-muted uppercase tracking-wider">Ausgewählt</div>
                 </div>
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {pool.map(candidate => (
                     <CandidateCard
                         key={candidate.id}
@@ -46,18 +44,18 @@ export function PhaseScreening() {
             </div>
 
             {/* Proceed Button */}
-            <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-paper via-paper to-transparent pointer-events-none flex justify-end z-40">
+            <div className="fixed bottom-0 left-0 right-0 p-4 sm:p-6 bg-gradient-to-t from-paper via-paper to-transparent pointer-events-none flex justify-center sm:justify-end z-40">
                 <button
                     onClick={nextPhase}
                     disabled={!canProceed}
                     className={cn(
-                        "pointer-events-auto flex items-center gap-2 px-8 py-4 rounded-full font-bold shadow-lg transition-all",
+                        "pointer-events-auto flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold shadow-lg transition-all text-sm sm:text-base",
                         canProceed
                             ? "bg-highlight text-white hover:bg-highlight/90 hover:scale-105"
                             : "bg-stone-300 text-stone-500 cursor-not-allowed"
                     )}
                 >
-                    Weiter zu den Interviews <ArrowRight className="w-5 h-5" />
+                    Weiter zu den Interviews <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
             </div>
 
@@ -66,7 +64,7 @@ export function PhaseScreening() {
                 candidate={viewingCandidate}
                 onClose={() => setViewingCandidate(null)}
                 onAction={toggleCandidateSelection}
-                actionLabel={selectedCandidates.includes(viewingCandidate?.id || '') ? "Von Liste entfernen" : "Zur Auswahl hlizufügen"}
+                actionLabel={selectedCandidates.includes(viewingCandidate?.id || '') ? "Von Liste entfernen" : "Zur Auswahl hinzufügen"}
                 isActionSelected={selectedCandidates.includes(viewingCandidate?.id || '')}
             />
         </div>

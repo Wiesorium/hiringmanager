@@ -1,8 +1,11 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { Candidate, GameState, Phase, Message, ApplicantEvent } from '../types';
 import { getCandidatesForJob } from '../data/candidates';
-import { scenarios } from '../data/scenarios';
-import { jobs } from '../data/jobs';
+import { scenarios as staticScenarios } from '../data/scenarios';
+import { jobs as staticJobs } from '../data/jobs';
+import { fetchSimulations, joinNewsletter, type ApiSimulation } from '../services/api';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface GameContextType extends GameState {
     gameState: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing';
@@ -15,16 +18,31 @@ interface GameContextType extends GameState {
     makeFinalDecision: (id: string) => void;
     markMessageRead: (id: string) => void;
     markApplicantEventRead: (id: string) => void;
+    /** All available jobs (static + API-generated, deduplicated by id) */
+    availableJobs: typeof staticJobs;
+    /** True while fetching simulations from the API */
+    simulationsLoading: boolean;
+    /** Subscribe an email to the newsletter via the backend */
+    subscribeNewsletter: (email: string) => Promise<{ is_new: boolean; message: string } | null>;
 }
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
-/** Pick applicant events for the current phase with a 60% trigger chance each */
 function sampleApplicantEvents(events: ApplicantEvent[], phase: Phase): ApplicantEvent[] {
     return events.filter(e => e.triggerPhase === phase && Math.random() < 0.6);
 }
 
+/** Convert an ApiSimulation's candidates array to the typed Candidate[] shape */
+function normalizeCandidates(raw: any[]): Candidate[] {
+    return raw.map(c => ({ ...c, status: 'pool' as const }));
+}
+
+// ─── Provider ─────────────────────────────────────────────────────────────────
+
 export function GameProvider({ children }: { children: React.ReactNode }) {
+    // Game UI state
     const [gameState, setGameState] = useState<'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing'>('company_home');
     const [phase, setPhase] = useState<Phase>('screening');
     const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
@@ -35,6 +53,58 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const [urgency, setUrgency] = useState(0);
     const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
     const [finalChoice, setFinalChoice] = useState<string | null>(null);
+
+    // API-loaded simulations (merged with static data)
+    const [apiSimulations, setApiSimulations] = useState<ApiSimulation[]>([]);
+    const [simulationsLoading, setSimulationsLoading] = useState(true);
+
+    // ── Fetch API simulations on mount ──────────────────────────────────────
+    useEffect(() => {
+        fetchSimulations()
+            .then(sims => setApiSimulations(sims))
+            .finally(() => setSimulationsLoading(false));
+    }, []);
+
+    // ── Derived: merged job list (API jobs + static, API takes priority) ────
+    const availableJobs = React.useMemo(() => {
+        const apiJobs = apiSimulations
+            .filter(s => s.job)
+            .map(s => s.job)
+            .filter(Boolean);
+
+        // Keep static jobs that don't have an API equivalent
+        const apiJobIds = new Set(apiJobs.map(j => j.id));
+        const filteredStatic = staticJobs.filter(j => !apiJobIds.has(j.id));
+
+        return [...apiJobs, ...filteredStatic];
+    }, [apiSimulations]);
+
+    // ── Helpers to resolve scenario/candidates (API first, static fallback) ─
+
+    const resolveScenario = useCallback((jobId: string) => {
+        const apiSim = apiSimulations.find(s => s.jobId === jobId || s.job?.id === jobId);
+        if (apiSim?.scenario) return apiSim.scenario;
+        return staticScenarios.find(s => s.jobId === jobId) ?? null;
+    }, [apiSimulations]);
+
+    const resolveCandidates = useCallback((jobId: string): Candidate[] => {
+        const staticOnes = getCandidatesForJob(jobId).map(c => ({ ...c, status: 'pool' as const }));
+        const apiSim = apiSimulations.find(s => s.jobId === jobId || s.job?.id === jobId);
+        const apiOnes = apiSim?.candidates?.length ? normalizeCandidates(apiSim.candidates) : [];
+
+        // Merge: static first, then API additions – deduplicate by id
+        const seen = new Set(staticOnes.map(c => c.id));
+        const merged = [...staticOnes, ...apiOnes.filter(c => !seen.has(c.id))];
+        return merged;
+    }, [apiSimulations]);
+
+    const resolveJob = useCallback((jobId: string) => {
+        const apiSim = apiSimulations.find(s => s.jobId === jobId || s.job?.id === jobId);
+        if (apiSim?.job) return apiSim.job;
+        return staticJobs.find(j => j.id === jobId) ?? null;
+    }, [apiSimulations]);
+
+    // ── Game actions ──────────────────────────────────────────────────────────
 
     const resetGame = () => {
         setGameState('company_home');
@@ -51,40 +121,33 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     const selectJob = (jobId: string) => {
         setSelectedJobId(jobId);
-        const jobCandidates = getCandidatesForJob(jobId);
-        setCandidates(jobCandidates);
+        setCandidates(resolveCandidates(jobId));
         setGameState('job_posting');
     };
 
     const startGame = () => {
+        if (!selectedJobId) return;
+
         setGameState('playing');
         setPhase('screening');
-
-        const job = jobs.find(j => j.id === selectedJobId);
-        setBudget(job?.budget || 80000);
-        setUrgency(10);
         setSelectedCandidates([]);
         setFinalChoice(null);
 
-        if (selectedJobId) {
-            setCandidates(getCandidatesForJob(selectedJobId).map(c => ({ ...c, status: 'pool' })));
-        }
+        const job = resolveJob(selectedJobId);
+        setBudget(job?.budget ?? 80000);
+        setUrgency(10);
 
-        // Load scenario for selected job
-        const scenario = scenarios.find(s => s.jobId === selectedJobId);
+        setCandidates(resolveCandidates(selectedJobId));
+
+        const scenario = resolveScenario(selectedJobId);
         if (scenario) {
-            // Trigger screening-phase internal messages
-            const initialMsgs = scenario.messages.filter(m => m.triggerPhase === 'screening');
-            setMessages(initialMsgs);
-
-            // Trigger screening-phase applicant events (60% chance each)
-            const triggered = sampleApplicantEvents(scenario.applicantEvents, 'screening');
-            setApplicantEvents(triggered);
+            setMessages(scenario.messages.filter((m: Message) => m.triggerPhase === 'screening'));
+            setApplicantEvents(sampleApplicantEvents(scenario.applicantEvents, 'screening'));
         }
     };
 
     const nextPhase = () => {
-        const scenario = scenarios.find(s => s.jobId === selectedJobId);
+        const scenario = resolveScenario(selectedJobId!);
 
         if (phase === 'screening') {
             setCandidates(prev => prev.map(c => ({
@@ -95,33 +158,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             setSelectedCandidates([]);
 
             if (scenario) {
-                const newMsgs = scenario.messages.filter(m => m.triggerPhase === 'interviews');
+                const newMsgs = scenario.messages.filter((m: Message) => m.triggerPhase === 'interviews');
                 setMessages(prev => [...prev, ...newMsgs]);
 
-                newMsgs.forEach(msg => {
+                newMsgs.forEach((msg: Message) => {
                     if (msg.effect?.type === 'budget_cut') {
-                        setBudget(b => b - (msg.effect?.value || 0));
+                        setBudget(b => b - (msg.effect?.value ?? 0));
                     }
                 });
 
-                const triggered = sampleApplicantEvents(scenario.applicantEvents, 'interviews');
-                setApplicantEvents(prev => [...prev, ...triggered]);
+                setApplicantEvents(prev => [...prev, ...sampleApplicantEvents(scenario.applicantEvents, 'interviews')]);
             }
         } else if (phase === 'interviews') {
             setPhase('decision');
 
             if (scenario) {
-                const newMsgs = scenario.messages.filter(m => m.triggerPhase === 'decision');
+                const newMsgs = scenario.messages.filter((m: Message) => m.triggerPhase === 'decision');
                 setMessages(prev => [...prev, ...newMsgs]);
 
-                newMsgs.forEach(msg => {
+                newMsgs.forEach((msg: Message) => {
                     if (msg.effect?.type === 'urgency_increase') {
-                        setUrgency(u => u + (msg.effect?.value || 0));
+                        setUrgency(u => u + (msg.effect?.value ?? 0));
                     }
                 });
 
-                const triggered = sampleApplicantEvents(scenario.applicantEvents, 'decision');
-                setApplicantEvents(prev => [...prev, ...triggered]);
+                setApplicantEvents(prev => [...prev, ...sampleApplicantEvents(scenario.applicantEvents, 'decision')]);
             }
         } else if (phase === 'decision') {
             if (finalChoice) {
@@ -136,27 +197,27 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     const toggleCandidateSelection = (id: string) => {
         if (phase === 'screening') {
-            if (selectedCandidates.includes(id)) {
-                setSelectedCandidates(prev => prev.filter(cid => cid !== id));
-            } else {
-                if (selectedCandidates.length < 6) {
-                    setSelectedCandidates(prev => [...prev, id]);
-                }
-            }
+            setSelectedCandidates(prev =>
+                prev.includes(id) ? prev.filter(cid => cid !== id)
+                    : prev.length < 6 ? [...prev, id] : prev
+            );
         } else if (phase === 'interviews') {
-            if (selectedCandidates.includes(id)) {
-                setSelectedCandidates(prev => prev.filter(cid => cid !== id));
-            } else {
-                if (selectedCandidates.length < 3) {
-                    setSelectedCandidates(prev => [...prev, id]);
-                }
-            }
+            setSelectedCandidates(prev =>
+                prev.includes(id) ? prev.filter(cid => cid !== id)
+                    : prev.length < 3 ? [...prev, id] : prev
+            );
         }
     };
 
     const makeFinalDecision = (id: string) => {
         setFinalChoice(id);
-        nextPhase();
+        // nextPhase reads finalChoice from state, but state hasn't updated yet –
+        // so we inline the reveal transition here instead.
+        setPhase('reveal');
+        setCandidates(prev => prev.map(c => ({
+            ...c,
+            status: c.id === id ? 'hired' : c.status
+        })));
     };
 
     const markMessageRead = (id: string) => {
@@ -167,12 +228,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         setApplicantEvents(prev => prev.map(e => e.id === id ? { ...e, isRead: true } : e));
     };
 
+    const subscribeNewsletter = useCallback((email: string) => {
+        return joinNewsletter(email);
+    }, []);
+
     return (
         <GameContext.Provider value={{
-            gameState, setGameState, phase, candidates, messages, applicantEvents, budget, urgency,
-            selectedCandidates, finalChoice, selectedJobId,
-            selectJob, startGame, resetGame, nextPhase, toggleCandidateSelection,
-            makeFinalDecision, markMessageRead, markApplicantEventRead
+            gameState, setGameState, phase, candidates, messages, applicantEvents,
+            budget, urgency, selectedCandidates, finalChoice, selectedJobId,
+            availableJobs, simulationsLoading, subscribeNewsletter,
+            selectJob, startGame, resetGame, nextPhase,
+            toggleCandidateSelection, makeFinalDecision,
+            markMessageRead, markApplicantEventRead,
         }}>
             {children}
         </GameContext.Provider>
@@ -181,8 +248,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 export function useGame() {
     const context = useContext(GameContext);
-    if (context === undefined) {
-        throw new Error('useGame must be used within a GameProvider');
-    }
+    if (context === undefined) throw new Error('useGame must be used within a GameProvider');
     return context;
 }

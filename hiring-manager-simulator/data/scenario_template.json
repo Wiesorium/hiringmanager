@@ -1,0 +1,1162 @@
+{
+    "service_description": {
+        "product_name": "Hiring Manager Simulator",
+        "tagline": "Ein Service von Jobaktuell – Menschliches Hiring beginnt hier.",
+        "what_it_is": "The Hiring Manager Simulator is a web-based interactive game designed to give job applicants who received a rejection a new perspective: they step into the shoes of a hiring manager and experience firsthand how complex, pressured and imperfect hiring decisions actually are. The game is sent to rejected candidates as a link inside a rejection email – as a goodwill gesture and employer branding tool.",
+        "purpose": [
+            "Give rejected applicants empathy and understanding of the hiring process",
+            "Reduce frustration and negative feelings from rejections",
+            "Strengthen the employer brand by leaving a positive, memorable impression",
+            "Show applicants that hiring is not black-and-white – it involves politics, budgets, urgency and imperfect information"
+        ],
+        "target_audience": "Rejected job applicants at any level, especially those who received a standard rejection email",
+        "gameplay_overview": {
+            "phases": [
+                {
+                    "name": "Phase 1: Bewerbungssichtung (Screening)",
+                    "description": "The player sees a pool of 10-21 fictional candidates and must select 2-6 for the interview round. They see each candidate's CV summary, cover letter snippet, skills, and experience years. They do NOT yet see interview notes.",
+                    "player_decision": "Select 2-6 candidates to advance to interviews"
+                },
+                {
+                    "name": "Phase 2: Interviews",
+                    "description": "The player sees interview notes for each candidate they advanced (strengths, weaknesses, interviewer first impression, score out of 10). They must select exactly 3 finalists.",
+                    "player_decision": "Select exactly 3 finalists from the interviewed pool"
+                },
+                {
+                    "name": "Phase 3: Finale Entscheidung (Decision)",
+                    "description": "The player sees the 3 finalists side-by-side with salary expectation, score, top strength and main concern. They make a final hire decision.",
+                    "player_decision": "Pick one candidate to hire (click 'Angebot machen')"
+                },
+                {
+                    "name": "Phase 4: Ergebnisse (Reveal)",
+                    "description": "The outcome of the hire is revealed – success, mixed, or failure. The player sees what happened months after the hire decision.",
+                    "player_decision": "None – observe the outcome"
+                }
+            ],
+            "parallel_mechanics": {
+                "messages": "Throughout all phases, internal messages arrive from colleagues (CEO, CFO, HR, team lead, customers). These create pressure, introduce bias, reveal budget constraints, add urgency. They arrive as floating notification cards. The player cannot ignore them.",
+                "applicant_events": "Some candidates proactively send emails (thank-you mails, portfolio links, reference letters, questions, or withdrawals). These can boost or reduce a candidate's effective standing.",
+                "budget": "The hiring manager has a starting budget (e.g. €45,000). Budget cuts from internal messages can lower this. If a finalist's salary expectation exceeds the budget, they're flagged as 'Über Budget'.",
+                "urgency": "A 0-100% urgency meter. Certain internal messages increase urgency, simulating time pressure that can push the player to decide faster than ideal."
+            }
+        },
+        "design_philosophy": [
+            "All content is in GERMAN",
+            "Characters are fictional but realistic and diverse",
+            "Scenarios contain ethical dilemmas: nepotism hints, budget pressure, urgency, bias, discrimination",
+            "Candidates range from clearly excellent to obviously bad, with many nuanced in-between cases",
+            "Outcomes (Phase 4) show that even 'good choices' can have mixed results and 'bad choices' can occasionally work out",
+            "Tone is professional but sometimes darkly humorous",
+            "The game is meant to take 5-10 minutes to complete"
+        ]
+    },
+    "data_structures": {
+        "Job": {
+            "id": "string – URL-safe slug, e.g. 'office_assistant'",
+            "title": "string – Display title in German, e.g. 'Büroassistenz'",
+            "description": "string – 1-2 sentences describing the role",
+            "salaryRange": "string – e.g. '€30.000 - €40.000'",
+            "requirements": "string[] – 3-5 key requirements",
+            "budget": "number – initial hiring budget in euros, should be ~10-20% above the salary range max to leave room for budget cuts"
+        },
+        "Candidate": {
+            "id": "string – job-prefix + number, e.g. 'oa1' for office_assistant candidate 1",
+            "name": "string – German full name, often with a descriptive nickname in quotes",
+            "role": "string – Short role label matching the job, e.g. 'Büroassistenz'",
+            "resume": {
+                "lastRole": "string",
+                "company": "string",
+                "education": "string",
+                "summary": "string – 1 sentence, the candidate's perspective",
+                "yearsOfExperience": "number"
+            },
+            "coverLetter": "string – 1-2 sentences, first-person, revealing character",
+            "interviewNotes": {
+                "interviewerStart": "string – The interviewer's gut reaction, 1 sentence",
+                "strengths": "string[] – 2-3 items",
+                "weaknesses": "string[] – 1-2 items",
+                "score": "number – 1-10"
+            },
+            "attributes": {
+                "experience": "number – years",
+                "salary": "number – annual salary expectation in euros",
+                "skills": "string[] – 2-4 concrete skills",
+                "culture": "string[] – 1-3 culture-fit descriptors"
+            },
+            "flags": {
+                "red": "string[] – warning signals (can be empty)",
+                "green": "string[] – positive signals (can be empty)"
+            },
+            "outcome": {
+                "title": "string – catchy short outcome name",
+                "description": "string – 1-2 sentences: what actually happened after hiring",
+                "type": "'success' | 'mixed' | 'failure'"
+            },
+            "status": "'pool' – always set to this in the data file"
+        },
+        "Message": {
+            "id": "string – job-prefix + _m + number, e.g. 'oa_m1'",
+            "sender": "string – 'Full Name (Role Label)', e.g. 'Klaus (Teamleitung)'",
+            "role": "string – short role, e.g. 'Team Lead'",
+            "content": "string – 2-4 sentences in German. Should feel like a real internal Slack/email message.",
+            "jobId": "string – matches scenario jobId",
+            "triggerPhase": "'screening' | 'interviews' | 'decision'",
+            "effect_optional": {
+                "type": "'budget_cut' | 'urgency_increase'",
+                "value": "number – for budget_cut: euros removed from budget; for urgency_increase: points added to 0-100 urgency meter"
+            },
+            "isRead": "false – always"
+        },
+        "ApplicantEvent": {
+            "id": "string – job-prefix + _ae + number, e.g. 'oa_ae1'",
+            "candidateId": "string – must reference a real candidate id for this job",
+            "jobId": "string",
+            "triggerPhase": "'screening' | 'interviews' | 'decision'",
+            "type": "'thank_you_mail' | 'question_email' | 'portfolio_link' | 'reference_letter' | 'withdrawal'",
+            "sender": "string – candidate display name",
+            "subject": "string – email subject",
+            "body": "string – email body in German, 3-6 sentences, \\n for line breaks",
+            "effect_optional": {
+                "type": "'candidate_boost' | 'candidate_lost'",
+                "candidateId": "string",
+                "value": "number – for candidate_boost: 1 or 2 score bonus points"
+            },
+            "isRead": "false – always"
+        }
+    },
+    "creation_prompt": "You are a content creator for the 'Hiring Manager Simulator', a German-language web game sent to rejected job applicants as part of an employer branding strategy by Jobaktuell.\n\n## What the game does\nPlayers step into the role of a hiring manager and go through 3 decision phases:\n1. SCREENING: Select 2-6 candidates from a pool of 10-21 to interview\n2. INTERVIEWS: Review interview notes, select 3 finalists\n3. DECISION: Pick one finalist to hire\n4. REVEAL: See what actually happened months later\n\nThroughout the game, internal messages from colleagues arrive (budget pressure, urgency, personal bias, team politics) and candidates send proactive emails (thank-you mails, portfolios, withdrawals, etc.) These create realism, moral pressure and dilemmas.\n\n## Your task\nGenerate the following for a NEW job scenario based on the job description I will give you at the end:\n\n### OUTPUT 1: Job entry (for jobs.ts)\n```json\n{\n  \"id\": \"url_safe_slug\",\n  \"title\": \"German job title\",\n  \"description\": \"1-2 sentences\",\n  \"salaryRange\": \"€XX.000 - €XX.000\",\n  \"requirements\": [\"req1\", \"req2\", \"req3\"],\n  \"budget\": 00000\n}\n```\n\n### OUTPUT 2: Scenario (for scenarios.ts)\nExactly 5-6 messages and exactly 5 applicant events.\n\nMessage distribution:\n- 2 messages triggerPhase: 'screening'\n- 2 messages triggerPhase: 'interviews' (one MUST have effect: budget_cut)\n- 1-2 messages triggerPhase: 'decision' (one MUST have effect: urgency_increase)\n\nApplicant event distribution:\n- At least 1 'withdrawal' (triggers candidate_lost effect)\n- At least 1 'thank_you_mail' (can trigger candidate_boost)\n- At least 1 'portfolio_link' or 'reference_letter' (triggers candidate_boost)\n- Spread across all 3 phases\n\n### OUTPUT 3: Candidates (for candidates.ts switch case)\nGenerate 12-15 diverse candidates. Use the job slug as prefix (e.g. for 'sales_rep': 'sr1', 'sr2', etc.)\n\nCandidate variety required:\n- 3-4 clearly strong candidates (score 8-10, realistic strengths)\n- 3-4 clearly weak or problematic candidates (score 2-5, red flags)\n- 5-6 nuanced/ambiguous candidates (score 5-7, interesting tradeoffs)\n- Mix of ages, backgrounds, genders\n- Include: an overqualified candidate, a career-changer, a young talent, a 'red flag personality'\n- Salaries must range from well under budget to slightly over budget\n- Outcomes: at least 3 'success', 2 'failure', 3-4 'mixed'\n\n## Writing guidelines\n- ALL text must be in GERMAN\n- Messages should feel like real internal Slack/Teams/email messages – casual, pressured, sometimes inappropriate\n- Include subtle ethical dilemmas: nepotism hints ('mein Schwager...'), age bias, urgency overriding quality, budget gaming\n- Candidate cover letters and interviewer impressions should be vivid and character-revealing in 1-2 sentences\n- Outcomes in Phase 4 should sometimes surprise: a 'difficult' candidate who ends up great, a 'perfect' candidate who leaves after 3 months\n- candidateId in applicantEvents must exactly match a candidate id you generate\n\n## Job description to use:\n[PASTE JOB DESCRIPTION HERE]",
+    "existing_jobs": [
+        {
+            "id": "office_assistant",
+            "title": "Büroassistenz",
+            "description": "Unterstützung des Teams bei administrativen und organisatorischen Aufgaben.",
+            "salaryRange": "€30.000 - €40.000",
+            "requirements": [
+                "Organisationstalent",
+                "MS Office Kenntnisse",
+                "Kommunikationsstärke"
+            ],
+            "budget": 45000
+        },
+        {
+            "id": "warehouse_worker",
+            "title": "Lagerist",
+            "description": "Verantwortlich für den Wareneingang, Lagerhaltung und Versandvorbereitung.",
+            "salaryRange": "€28.000 - €35.000",
+            "requirements": [
+                "Staplerschein",
+                "Körperliche Belastbarkeit",
+                "Zuverlässigkeit"
+            ],
+            "budget": 38000
+        },
+        {
+            "id": "craftsman",
+            "title": "Handwerker",
+            "description": "Durchführung von handwerklichen Tätigkeiten, Reparaturen und Instandhaltung.",
+            "salaryRange": "€35.000 - €45.000",
+            "requirements": [
+                "Abgeschlossene Ausbildung",
+                "Handwerkliches Geschick",
+                "Führerschein Klasse B"
+            ],
+            "budget": 50000
+        },
+        {
+            "id": "technician",
+            "title": "Techniker",
+            "description": "Wartung und Reparatur von Maschinenparks bei Industriekunden.",
+            "salaryRange": "€45.000 - €55.000",
+            "requirements": [
+                "Technische Ausbildung",
+                "Führerschein B",
+                "Reisebereitschaft"
+            ],
+            "budget": 60000
+        },
+        {
+            "id": "marketing_assistant",
+            "title": "Marketing Assistenz",
+            "description": "Unterstützung bei Kampagnen, Social Media Management und Eventorganisation für eine lokale Agentur.",
+            "salaryRange": "€32.000 - €38.000",
+            "requirements": [
+                "Kreativität",
+                "Social Media Skills",
+                "Gute Textierung"
+            ],
+            "budget": 42000
+        },
+        {
+            "id": "educator",
+            "title": "Kursleiter / Erwachsenenbildner",
+            "description": "Leitung von EDV- und Soft-Skill-Kursen für ein lokales Bildungsinstitut.",
+            "salaryRange": "€35.000 - €42.000",
+            "requirements": [
+                "Pädagogische Erfahrung",
+                "Geduld",
+                "EDV-Kenntnisse"
+            ],
+            "budget": 45000
+        }
+    ],
+    "existing_scenarios": [
+        {
+            "jobId": "office_assistant",
+            "messages": [
+                {
+                    "id": "oa_m1",
+                    "sender": "Frau Dr. Brenner",
+                    "role": "Geschäftsführerin",
+                    "content": "Bitte beachtet: Wir suchen jemanden, der wirklich eigenständig arbeiten kann. Das Chaos der letzten Büroassistenz hat uns zwei Monate Mehrarbeit gekostet. Qualität vor Schnelligkeit.",
+                    "jobId": "office_assistant",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "oa_m2",
+                    "sender": "Klaus (Teamleitung)",
+                    "role": "Team Lead",
+                    "content": "Ich brauche jemanden, der reibungslos ins Team passt. Wir sind ein kleines Büro, da ist die Chemie entscheidend. Fachliches lässt sich trainieren – Charakter nicht.",
+                    "jobId": "office_assistant",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "oa_m3",
+                    "sender": "Sabine (HR)",
+                    "role": "HR",
+                    "content": "Zur Info: Budget ist knapp. Wir können für eine wirklich starke Kandidatin etwas drauflegen, aber versucht unter 38.000 € zu bleiben. Der Vorstand schaut hin.",
+                    "jobId": "office_assistant",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "oa_m4",
+                    "sender": "Klaus (Teamleitung)",
+                    "role": "Team Lead",
+                    "content": "Kleiner Hinweis: Meine Schwägerin hat sich beworben. Ich sag nur, gebt ihr eine faire Chance, ja? Sie ist wirklich ordentlich.",
+                    "jobId": "office_assistant",
+                    "triggerPhase": "interviews",
+                    "isRead": false
+                },
+                {
+                    "id": "oa_m5",
+                    "sender": "Frau Dr. Brenner",
+                    "role": "Geschäftsführerin",
+                    "content": "Wir haben morgen ein wichtiges Kundengespräch. Ich brauche bis dann eine Entscheidung – die neue Kraft soll idealerweise nächste Woche beginnen.",
+                    "jobId": "office_assistant",
+                    "triggerPhase": "decision",
+                    "effect": {
+                        "type": "urgency_increase",
+                        "value": 60
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "oa_m6",
+                    "sender": "Sabine (HR)",
+                    "role": "HR",
+                    "content": "Eine unserer Kandidatinnen hat mir kurz geschrieben – sie hat ein weiteres Angebot auf dem Tisch. Falls wir sie wollen, müssen wir uns beeilen.",
+                    "jobId": "office_assistant",
+                    "triggerPhase": "decision",
+                    "isRead": false
+                }
+            ],
+            "applicantEvents": [
+                {
+                    "id": "oa_ae1",
+                    "candidateId": "oa1",
+                    "jobId": "office_assistant",
+                    "triggerPhase": "screening",
+                    "type": "question_email",
+                    "sender": "Anna Müller",
+                    "subject": "Rückfrage zur Stelle – Büroassistenz",
+                    "body": "Sehr geehrte Damen und Herren,\n\nvielen Dank für die spannende Stellenausschreibung. Ich hätte eine kurze Rückfrage: Wäre eine Teilzeitoption (30 Stunden) denkbar, oder ist die Stelle ausschließlich in Vollzeit zu besetzen?\n\nMit freundlichen Grüßen,\nAnna Müller",
+                    "isRead": false
+                },
+                {
+                    "id": "oa_ae2",
+                    "candidateId": "oa5",
+                    "jobId": "office_assistant",
+                    "triggerPhase": "interviews",
+                    "type": "thank_you_mail",
+                    "sender": "Petra Fleißig",
+                    "subject": "Herzlichen Dank für das Gespräch!",
+                    "body": "Liebes Team,\n\nheute hat mir das Gespräch mit Ihnen wirklich Freude bereitet! Die offene Atmosphäre und die Aufgaben begeistern mich sehr. Ich habe bereits ein paar Ideen notiert, wie ich das Ablagesystem in Ihrem Büro noch effizienter gestalten könnte.\n\nIch freue mich sehr auf eine positive Antwort.\n\nHerzliche Grüße,\nPetra Fleißig",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "oa5",
+                        "value": 1
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "oa_ae3",
+                    "candidateId": "oa2",
+                    "jobId": "office_assistant",
+                    "triggerPhase": "interviews",
+                    "type": "question_email",
+                    "sender": "Kevin Schneider",
+                    "subject": "Hey, wann hör ich von euch?",
+                    "body": "Hey,\n\nalso wann geht's los? Ich bin ready. Schreibt mir kurz – ich check mein Handy immer.\n\nCheers,\nKevin",
+                    "isRead": false
+                },
+                {
+                    "id": "oa_ae4",
+                    "candidateId": "oa8",
+                    "jobId": "office_assistant",
+                    "triggerPhase": "decision",
+                    "type": "reference_letter",
+                    "sender": "Hannes Hilfreich",
+                    "subject": "Referenzschreiben meines Hoteldirektors",
+                    "body": "Sehr geehrte Damen und Herren,\n\nmein früherer Vorgesetzter, Herr Radtke (Hotel Sonnenhöhe), hat mir freundlicherweise ein Referenzschreiben ausgestellt, das ich heute in Anlage an Sie weiterleite. Vielleicht ist dies hilfreich für Ihre finale Entscheidung.\n\nHerzliche Grüße,\nHannes Hilfreich",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "oa8",
+                        "value": 1
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "oa_ae5",
+                    "candidateId": "oa10",
+                    "jobId": "office_assistant",
+                    "triggerPhase": "decision",
+                    "type": "withdrawal",
+                    "sender": "Romy Rückkehrerin",
+                    "subject": "Zurückziehung meiner Bewerbung",
+                    "body": "Sehr geehrte Damen und Herren,\n\nleider muss ich meine Bewerbung zurückziehen. Mein bisheriger Arbeitgeber hat mir eine Rückkehrmöglichkeit in Teilzeit angeboten, die ich annehmen möchte.\n\nIch entschuldige mich für die Unannehmlichkeiten.\n\nMit freundlichen Grüßen,\nRomy",
+                    "effect": {
+                        "type": "candidate_lost",
+                        "candidateId": "oa10"
+                    },
+                    "isRead": false
+                }
+            ]
+        },
+        {
+            "jobId": "warehouse_worker",
+            "messages": [
+                {
+                    "id": "ww_m1",
+                    "sender": "Bernd Kellner",
+                    "role": "Logistikleiter",
+                    "content": "Ich brauche einen Lageristen der anpackt und JETZT anfangen kann. Staplerschein und körperliche Belastbarkeit sind Pflicht – keine Ausnahmen. Wir haben nächste Woche Großlieferung.",
+                    "jobId": "warehouse_worker",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "ww_m2",
+                    "sender": "Markus (Sicherheitsbeauftragter)",
+                    "role": "Arbeitssicherheit",
+                    "content": "Bitte prüft unbedingt die Sicherheitsnachweise. Wir hatten letztes Jahr zwei Unfälle – der TÜV steht nächsten Monat vor der Tür. Jemand ohne Sicherheitsbewusstsein kommt für mich nicht infrage.",
+                    "jobId": "warehouse_worker",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "ww_m3",
+                    "sender": "Bernd Kellner",
+                    "role": "Logistikleiter",
+                    "content": "Budget-Update: Finanzabteilung hat die Lohngrenze auf 34.000 € gedeckelt. Ich weiß, das ist knapp für einen erfahrenen Lageristen. Nehmt es trotzdem als harte Grenze.",
+                    "jobId": "warehouse_worker",
+                    "triggerPhase": "interviews",
+                    "effect": {
+                        "type": "budget_cut",
+                        "value": 4000
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "ww_m4",
+                    "sender": "Direktionsassistentin Pia",
+                    "role": "Direktion",
+                    "content": "Die Geschäftsführung fragt nach Stand der Stelle. Bitte bis Freitag entscheiden – die Schicht muss besetzt sein.",
+                    "jobId": "warehouse_worker",
+                    "triggerPhase": "decision",
+                    "effect": {
+                        "type": "urgency_increase",
+                        "value": 70
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "ww_m5",
+                    "sender": "Markus (Sicherheitsbeauftragter)",
+                    "role": "Arbeitssicherheit",
+                    "content": "Ich habe Rob Klaus gegoogelt. Da war mal eine Meldung zu einem Zwischenfall am alten Arbeitsplatz. Bin gespannt, was er dazu sagt im Interview.",
+                    "jobId": "warehouse_worker",
+                    "triggerPhase": "interviews",
+                    "isRead": false
+                }
+            ],
+            "applicantEvents": [
+                {
+                    "id": "ww_ae1",
+                    "candidateId": "ww1",
+                    "jobId": "warehouse_worker",
+                    "triggerPhase": "screening",
+                    "type": "question_email",
+                    "sender": "Thomas Wagner",
+                    "subject": "Frage zu den Schichtzeiten",
+                    "body": "Hallo,\n\nkonnte die Schichtzeiten in der Ausschreibung nicht genau entnehmen. Ich bevorzuge Frühschicht – ist das möglich?\n\nGruß,\nThomas Wagner",
+                    "isRead": false
+                },
+                {
+                    "id": "ww_ae2",
+                    "candidateId": "ww9",
+                    "jobId": "warehouse_worker",
+                    "triggerPhase": "interviews",
+                    "type": "thank_you_mail",
+                    "sender": "Stapler Steffi",
+                    "subject": "Danke für das Gespräch!",
+                    "body": "Hallo Bernd,\n\nvielen Dank für das offene Gespräch heute. Das Lager ist gut organisiert – ich hätte noch ein paar Ideen für den Wareneingang, falls das Interesse besteht.\n\nBeste Grüße,\nStefanie Kraus",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "ww9",
+                        "value": 1
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "ww_ae3",
+                    "candidateId": "ww10",
+                    "jobId": "warehouse_worker",
+                    "triggerPhase": "screening",
+                    "type": "question_email",
+                    "sender": "Fritz Faulpelz",
+                    "subject": "Wann gibts Urlaub?",
+                    "body": "Hey,\n\nich brauch nächsten Monat 2 Wochen Urlaub. Geht das gleich ab Anfang? Sonst ist das nix für mich.\n\nFritz",
+                    "isRead": false
+                },
+                {
+                    "id": "ww_ae4",
+                    "candidateId": "ww2",
+                    "jobId": "warehouse_worker",
+                    "triggerPhase": "decision",
+                    "type": "portfolio_link",
+                    "sender": "Justin",
+                    "subject": "Mein Zeugnis und Kursnachweis",
+                    "body": "Hallo!\n\nIch habe in der Zwischenzeit den Gabelstaplerkurs abgeschlossen! Den Nachweis lege ich bei. Ich hoffe das hilft.\n\nViele Grüße,\nJustin",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "ww2",
+                        "value": 2
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "ww_ae5",
+                    "candidateId": "ww6",
+                    "jobId": "warehouse_worker",
+                    "triggerPhase": "decision",
+                    "type": "withdrawal",
+                    "sender": "Rob Klaus",
+                    "subject": "Bewerbung zurückgezogen",
+                    "body": "Guten Tag,\n\nein anderes Unternehmen hat mir ein Angebot gemacht, das ich annehmen werde. Ich wünsche Ihnen weiterhin viel Erfolg.\n\nRob Klaus",
+                    "effect": {
+                        "type": "candidate_lost",
+                        "candidateId": "ww6"
+                    },
+                    "isRead": false
+                }
+            ]
+        },
+        {
+            "jobId": "craftsman",
+            "messages": [
+                {
+                    "id": "cm_m1",
+                    "sender": "Walter (Werkstattleiter)",
+                    "role": "Werkstattleiter",
+                    "content": "Wir haben aktuell einen Auftragsstau von 3 Wochen. Ich brauche jemanden mit Meisterbrief oder mindestens 5 Jahre Erfahrung im Bau, der sofort eigenständig arbeiten kann.",
+                    "jobId": "craftsman",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "cm_m2",
+                    "sender": "Frau Koch (Einkauf)",
+                    "role": "Einkauf",
+                    "content": "Wir haben gerade Beschwerden von Kunden wegen fehlerhafter Reparaturen. Bitte stellt niemanden ein, der billig ist aber schlechte Arbeit liefert. Qualität kostet, Pfusch kostet mehr.",
+                    "jobId": "craftsman",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "cm_m3",
+                    "sender": "Walter (Werkstattleiter)",
+                    "role": "Werkstattleiter",
+                    "content": "Tim Taylor hat heute fast eine Schleifmaschine demontiert, die er gar nicht anfassen sollte. Ich würde ihn gerne aus dem Prozess nehmen, aber das liegt bei euch.",
+                    "jobId": "craftsman",
+                    "triggerPhase": "interviews",
+                    "isRead": false
+                },
+                {
+                    "id": "cm_m4",
+                    "sender": "Herr Braun (CFO)",
+                    "role": "CFO",
+                    "content": "Handwerker sind teuer. Wir haben das Budget durch den Q3-Verlust um 5.000 € reduziert. Bitte im Rahmen bleiben.",
+                    "jobId": "craftsman",
+                    "triggerPhase": "interviews",
+                    "effect": {
+                        "type": "budget_cut",
+                        "value": 5000
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "cm_m5",
+                    "sender": "Kundin Frau Haas",
+                    "role": "Kundenfeedback",
+                    "content": "Meine Heizungsanlage wartet seit 2 Wochen auf Reparatur. Wenn ihr nicht bald einen Techniker schickt, gehe ich zur Konkurrenz. Bitte Entscheidung beschleunigen!",
+                    "jobId": "craftsman",
+                    "triggerPhase": "decision",
+                    "effect": {
+                        "type": "urgency_increase",
+                        "value": 55
+                    },
+                    "isRead": false
+                }
+            ],
+            "applicantEvents": [
+                {
+                    "id": "cm_ae1",
+                    "candidateId": "cm1",
+                    "jobId": "craftsman",
+                    "triggerPhase": "screening",
+                    "type": "portfolio_link",
+                    "sender": "Meister Eder",
+                    "subject": "Referenzfotos meiner letzten Projekte",
+                    "body": "Grüß Gott,\n\nich schicke Ihnen einige Fotos meiner letzten Arbeiten. Schreinerarbeiten, Restaurierungen, Innenausbau. Ich hoffe das gibt einen besseren Eindruck als ein Lebenslauf.\n\nMit besten Grüßen,\nHans-Joachim Eder, Meister",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "cm1",
+                        "value": 2
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "cm_ae2",
+                    "candidateId": "cm5",
+                    "jobId": "craftsman",
+                    "triggerPhase": "screening",
+                    "type": "question_email",
+                    "sender": "Azubi Ali",
+                    "subject": "Frage zur Stelle",
+                    "body": "Hallo,\n\ngibt es auch die Möglichkeit einer Ausbildung? Ich würde sehr gern was lernen.\n\nViele Grüße,\nAli",
+                    "isRead": false
+                },
+                {
+                    "id": "cm_ae3",
+                    "candidateId": "cm6",
+                    "jobId": "craftsman",
+                    "triggerPhase": "interviews",
+                    "type": "thank_you_mail",
+                    "sender": "Elektro Evi",
+                    "subject": "Nachricht nach dem Gespräch",
+                    "body": "Guten Tag,\n\nvielen Dank für die angenehme Interviewatmosphäre. Ich möchte nochmals betonen: Ich bin sofort verfügbar und bringe alle Zertifizierungen für Elektroinstallationen mit.\n\nFreundliche Grüße,\nEvi Bergmann",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "cm6",
+                        "value": 1
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "cm_ae4",
+                    "candidateId": "cm3",
+                    "jobId": "craftsman",
+                    "triggerPhase": "interviews",
+                    "type": "question_email",
+                    "sender": "Tim Taylor",
+                    "subject": "Kann ich schon mal was tunen?",
+                    "body": "Hey!\n\nIch hab schon Ideen, wie wir eure Werkzeuge upgraden könnten. Wäre cool wenn ich vor dem Start schon kurz vorbeischauen darf. Ich bringe Werkzeug mit. MORE POWER!\n\nTim",
+                    "isRead": false
+                },
+                {
+                    "id": "cm_ae5",
+                    "candidateId": "cm4",
+                    "jobId": "craftsman",
+                    "triggerPhase": "decision",
+                    "type": "withdrawal",
+                    "sender": "Genau Gustav",
+                    "subject": "Rückzug meiner Bewerbung",
+                    "body": "Sehr geehrte Damen und Herren,\n\nda ich bis heute keine Rückmeldung erhalten habe, gehe ich davon aus, dass eine zeitnahe Einstellung nicht geplant ist. Ich habe daher eine andere Stelle angenommen.\n\nGustav Pfeifer",
+                    "effect": {
+                        "type": "candidate_lost",
+                        "candidateId": "cm4"
+                    },
+                    "isRead": false
+                }
+            ]
+        },
+        {
+            "jobId": "technician",
+            "messages": [
+                {
+                    "id": "tech_m1",
+                    "sender": "Ralf Müller",
+                    "role": "IT-Manager",
+                    "content": "Unsere Systeme laufen auf 70% Kapazität, seit der letzte Techniker gekündigt hat. Ich brauche innerhalb von 2 Wochen jemanden. Idealerweise jemand mit Erfahrung in Maschinensteuerung UND IT.",
+                    "jobId": "technician",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "tech_m2",
+                    "sender": "CEO Frau Vogel",
+                    "role": "CEO",
+                    "content": "Der Ausfall kostet uns täglich Geld. Bitte keine langen Prozesse – ich akzeptiere auch einen leicht teureren Kandidaten wenn er sofort anfangen kann.",
+                    "jobId": "technician",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "tech_m3",
+                    "sender": "Ralf Müller",
+                    "role": "IT-Manager",
+                    "content": "Kurzes Update: Cloud Claud hat mich nach dem Interview direkt per LinkedIn kontaktiert und gefragt ob wir zu AWS wechseln wollen. Das gibt mir zu denken.",
+                    "jobId": "technician",
+                    "triggerPhase": "interviews",
+                    "isRead": false
+                },
+                {
+                    "id": "tech_m4",
+                    "sender": "CFO Herr Bauer",
+                    "role": "CFO",
+                    "content": "Der IT-Haushalt ist angespannt. Obere Grenze sind 55.000 €. Alles drüber braucht meinen persönlichen Sign-off.",
+                    "jobId": "technician",
+                    "triggerPhase": "interviews",
+                    "effect": {
+                        "type": "budget_cut",
+                        "value": 5000
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "tech_m5",
+                    "sender": "CEO Frau Vogel",
+                    "role": "CEO",
+                    "content": "Es ist jetzt Montag. Ich will bis Mittwochabend einen signierten Vertrag auf meinem Tisch sehen. Irgendwen einstellen ist besser als niemanden.",
+                    "jobId": "technician",
+                    "triggerPhase": "decision",
+                    "effect": {
+                        "type": "urgency_increase",
+                        "value": 80
+                    },
+                    "isRead": false
+                }
+            ],
+            "applicantEvents": [
+                {
+                    "id": "tech_ae1",
+                    "candidateId": "tech1",
+                    "jobId": "technician",
+                    "triggerPhase": "screening",
+                    "type": "portfolio_link",
+                    "sender": "Ing. Daniel Düsentrieb",
+                    "subject": "GitHub-Link und Patente",
+                    "body": "Guten Tag,\n\nanbei mein GitHub-Profil sowie zwei Patentanmeldungen aus meiner Zeit bei Entenhausen AG. Nichts Weltbewegendes, aber es zeigt wie ich an Probleme herangehe.\n\nhttps://github.com/dduesentrieb\n\nMit freundlichen Grüßen,\nDaniel Düsentrieb, Dipl.-Ing.",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "tech1",
+                        "value": 2
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "tech_ae2",
+                    "candidateId": "tech4",
+                    "jobId": "technician",
+                    "triggerPhase": "interviews",
+                    "type": "thank_you_mail",
+                    "sender": "Linux Lena",
+                    "subject": "Danke + kleines Skript als Mitbringsel",
+                    "body": "Hallo Ralf,\n\ndanke für das tolle Gespräch! Ich habe heute Nacht kurz ein Monitoring-Skript für euren Serverpark gebastelt, das ihr sofort einsetzen könntet. Liegt im Anhang (Bash).\n\nLG,\nLena",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "tech4",
+                        "value": 2
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "tech_ae3",
+                    "candidateId": "tech9",
+                    "jobId": "technician",
+                    "triggerPhase": "screening",
+                    "type": "question_email",
+                    "sender": "Charly CCC",
+                    "subject": "Ich bin schon im internen Wiki",
+                    "body": "Hey,\n\nnur so als Info: Eure Firewall hat eine Fehlkonfiguration auf Port 8443. Kein Grund zur Panik, hab nix gemacht. Aber denkt mal drüber nach mich einzustellen.\n\nCharly",
+                    "isRead": false
+                },
+                {
+                    "id": "tech_ae4",
+                    "candidateId": "tech7",
+                    "jobId": "technician",
+                    "triggerPhase": "interviews",
+                    "type": "question_email",
+                    "sender": "Cloud Claud",
+                    "subject": "Kurze Frage zu AWS-Budget",
+                    "body": "Hi!\n\nIch hab nach unserem Gespräch ein grobes Cloud-Migrationskonzept skizziert. Rechnet mal mit ca. 24.000 € Jahres-Lizenzkosten für AWS. Das amortisiert sich nach 2 Jahren. Soll ich das formal ausarbeiten?\n\nCheers,\nClaud",
+                    "isRead": false
+                },
+                {
+                    "id": "tech_ae5",
+                    "candidateId": "tech3",
+                    "jobId": "technician",
+                    "triggerPhase": "decision",
+                    "type": "reference_letter",
+                    "sender": "Azubi Alex",
+                    "subject": "Empfehlung meines Lehrers",
+                    "body": "Hallo!\n\nMein Informatiklehrer hat mir spontan einen Referenzbrief geschrieben. Ich glaube, er beschreibt mein Potenzial ganz gut. Ich weiß, ich bin noch jung – aber ich gebe alles.\n\nViele Grüße,\nAlex",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "tech3",
+                        "value": 1
+                    },
+                    "isRead": false
+                }
+            ]
+        },
+        {
+            "jobId": "marketing_assistant",
+            "messages": [
+                {
+                    "id": "ma_m1",
+                    "sender": "Lisa (CMO)",
+                    "role": "Chief Marketing Officer",
+                    "content": "Ich will jemanden mit echtem Gespür für Social Media und aktuelle Trends. Die Person muss unsere Marke auf Instagram und TikTok weiterbringen. Zahlen allein reichen mir nicht.",
+                    "jobId": "marketing_assistant",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "ma_m2",
+                    "sender": "Herr Gruber (CFO)",
+                    "role": "CFO",
+                    "content": "Das Social-Media-Budget wurde kürzlich halbiert. Wer auch immer eingestellt wird, muss mit wenig viel erreichen können. Effizienz ist das Stichwort.",
+                    "jobId": "marketing_assistant",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "ma_m3",
+                    "sender": "Lisa (CMO)",
+                    "role": "CMO",
+                    "content": "Old-School Olaf hat im Interview tatsächlich von Zeitungsanzeigen gesprochen. Ich mein, ich bin ja tolerant, aber wir sind ein Digitalunternehmen. Bitte berücksichtigt das.",
+                    "jobId": "marketing_assistant",
+                    "triggerPhase": "interviews",
+                    "isRead": false
+                },
+                {
+                    "id": "ma_m4",
+                    "sender": "Herr Gruber (CFO)",
+                    "role": "CFO",
+                    "content": "Das Quartalsergebnis ist schwach. Budget für die Stelle bitte max. 36.000 € Jahresgehalt. Ich weiß, das ist unter dem Markt, aber das sind die Rahmenbedingungen.",
+                    "jobId": "marketing_assistant",
+                    "triggerPhase": "interviews",
+                    "effect": {
+                        "type": "budget_cut",
+                        "value": 6000
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "ma_m5",
+                    "sender": "Lisa (CMO)",
+                    "role": "CMO",
+                    "content": "Wir launch nächste Woche eine Kampagne. Die neue Kraft muss direkt ab Tag 1 liefern können. Entscheidung bitte heute noch.",
+                    "jobId": "marketing_assistant",
+                    "triggerPhase": "decision",
+                    "effect": {
+                        "type": "urgency_increase",
+                        "value": 65
+                    },
+                    "isRead": false
+                }
+            ],
+            "applicantEvents": [
+                {
+                    "id": "ma_ae1",
+                    "candidateId": "ma1",
+                    "jobId": "marketing_assistant",
+                    "triggerPhase": "screening",
+                    "type": "portfolio_link",
+                    "sender": "Sophie Social",
+                    "subject": "Mein Instagram- & TikTok-Portfolio",
+                    "body": "Hi!\n\nhier ist mein Content-Portfolio:\n📸 https://www.instagram.com/sophiesocial_muster\n🎵 https://www.tiktok.com/@sophiesocial\n\nBeide Accounts habe ich von Null aufgebaut. Die Engagement-Rate liegt über dem Branchendurchschnitt.\n\nFreue mich auf euch!\nSophie ✨",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "ma1",
+                        "value": 2
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "ma_ae2",
+                    "candidateId": "ma2",
+                    "jobId": "marketing_assistant",
+                    "triggerPhase": "screening",
+                    "type": "portfolio_link",
+                    "sender": "Werner Wortgewandt",
+                    "subject": "Drei meiner besten Texte",
+                    "body": "Sehr geehrte Damen und Herren,\n\nanbei drei ausgewählte Texte: ein SEO-Artikel, ein Kundenmailing und ein Produkttext. Ich freue mich auf die Gelegenheit zu zeigen, wie Sprache Marken stärkt.\n\nMit freundlichen Grüßen,\nWerner Wortgewandt",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "ma2",
+                        "value": 1
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "ma_ae3",
+                    "candidateId": "ma8",
+                    "jobId": "marketing_assistant",
+                    "triggerPhase": "interviews",
+                    "type": "question_email",
+                    "sender": "Kreativ Kim",
+                    "subject": "Ich hab eine Vision für euch",
+                    "body": "Heyyyy,\n\nkann ich beim nächsten Gespräch meine Skizzen für eure neue Brand Identity mitbringen? Ich hab die ganze Nacht gemalt. Deadline-mäßig bin ich übrigens total flexibel, Deadlines sind Kunst!\n\nKim 🎨",
+                    "isRead": false
+                },
+                {
+                    "id": "ma_ae4",
+                    "candidateId": "ma5",
+                    "jobId": "marketing_assistant",
+                    "triggerPhase": "decision",
+                    "type": "thank_you_mail",
+                    "sender": "Analyse Anna",
+                    "subject": "Follow-up + Mini-Audit eurer Google Ads",
+                    "body": "Guten Tag,\n\nich habe mir Ihre öffentlichen Google Ads-Daten angesehen und ein kleines kostenfreies Audit erstellt (Anlage). Ich denke, Sie könnten mit optimiertem Targeting ca. 22 % Kosten einsparen.\n\nDas zeigt meinen Arbeitsansatz am besten.\n\nMit freundlichen Grüßen,\nAnna Bergmann",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "ma5",
+                        "value": 2
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "ma_ae5",
+                    "candidateId": "ma7",
+                    "jobId": "marketing_assistant",
+                    "triggerPhase": "decision",
+                    "type": "withdrawal",
+                    "sender": "Old-School Olaf",
+                    "subject": "Ich ziehe meine Bewerbung zurück",
+                    "body": "Sehr geehrte Damen und Herren,\n\nda mir beim Gespräch klar wurde, dass bei Ihnen hauptsächlich Online-Marketing gefragt ist, möchte ich meine Bewerbung zurückziehen. Das ist nicht mein Bereich.\n\nMit freundlichem Gruß,\nOlaf Herzberg",
+                    "effect": {
+                        "type": "candidate_lost",
+                        "candidateId": "ma7"
+                    },
+                    "isRead": false
+                }
+            ]
+        },
+        {
+            "jobId": "educator",
+            "messages": [
+                {
+                    "id": "edu_m1",
+                    "sender": "Dr. Huber (Institutsdirektor)",
+                    "role": "Institutsdirektor",
+                    "content": "Wir haben einen Ruf als seriöses Bildungsinstitut. Die Person muss pädagogisch qualifiziert und verlässlich sein. Unsere Teilnehmer sind Erwachsene – Respekt und Kompetenz sind Pflicht.",
+                    "jobId": "educator",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "edu_m2",
+                    "sender": "Frau Stern (Verwaltung)",
+                    "role": "Verwaltungsleitung",
+                    "content": "Das Bildungsministerium prüft unsere Fördergelder. Wir brauchen nachweisbare Qualifikation des Kursleiters – bitte Zeugnisse und Zertifikate einfordern.",
+                    "jobId": "educator",
+                    "triggerPhase": "screening",
+                    "isRead": false
+                },
+                {
+                    "id": "edu_m3",
+                    "sender": "Kursteilnehmerin Frau Hofer",
+                    "role": "Teilnehmerfeedback",
+                    "content": "Wir haben gehört, dass ein neuer Kursleiter kommt. Bitte jemanden, der wirklich erklärt und nicht einfach Folien vorliest. Der letzte hat uns eingeschläfert.",
+                    "jobId": "educator",
+                    "triggerPhase": "interviews",
+                    "isRead": false
+                },
+                {
+                    "id": "edu_m4",
+                    "sender": "Dr. Huber (Institutsdirektor)",
+                    "role": "Institutsdirektor",
+                    "content": "Business Boris möchte 55.000 €. Das sprengt unser Bildungsbudget deutlich. Trotzdem – wenn jemand wirklich gut ist, können wir intern umschichten.",
+                    "jobId": "educator",
+                    "triggerPhase": "interviews",
+                    "isRead": false
+                },
+                {
+                    "id": "edu_m5",
+                    "sender": "Frau Stern (Verwaltung)",
+                    "role": "Verwaltungsleitung",
+                    "content": "Die Kurse starten in 10 Tagen. Wir müssen morgen einen Vertrag unterschreiben, sonst müssen wir absagen – das wäre ein Reputationsschaden.",
+                    "jobId": "educator",
+                    "triggerPhase": "decision",
+                    "effect": {
+                        "type": "urgency_increase",
+                        "value": 75
+                    },
+                    "isRead": false
+                }
+            ],
+            "applicantEvents": [
+                {
+                    "id": "edu_ae1",
+                    "candidateId": "edu1",
+                    "jobId": "educator",
+                    "triggerPhase": "screening",
+                    "type": "portfolio_link",
+                    "sender": "Mag. Maria",
+                    "subject": "Unterrichtskonzept und Bewertungen",
+                    "body": "Sehr geehrte Damen und Herren,\n\nanbei ein exemplarisches Unterrichtskonzept für einen EDV-Grundkurs sowie anonymisierte Teilnehmerbewertungen aus dem letzten Jahr (Ø 4,7/5).\n\nMit freundlichen Grüßen,\nMag. Maria Hufeisen",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "edu1",
+                        "value": 2
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "edu_ae2",
+                    "candidateId": "edu3",
+                    "jobId": "educator",
+                    "triggerPhase": "screening",
+                    "type": "question_email",
+                    "sender": "Coach Carmen",
+                    "subject": "Kurze Frage zur Zielgruppe",
+                    "body": "Liebe Team,\n\ndarf ich fragen wer die Kursteilnehmer sind? Ich arbeite am liebsten mit Menschen, die sich in einer Lebensveränderung befinden. Das macht mein Coaching wirklich lebendig!\n\nHerzlich,\nCarmen",
+                    "isRead": false
+                },
+                {
+                    "id": "edu_ae3",
+                    "candidateId": "edu7",
+                    "jobId": "educator",
+                    "triggerPhase": "interviews",
+                    "type": "thank_you_mail",
+                    "sender": "Praktiker Paul",
+                    "subject": "Kurze Nachricht nach dem Gespräch",
+                    "body": "Grüß Gott,\n\nda fällt mir noch ein: ich könnte für die Teilnehmer eine kleine Übungsstation aufbauen. Hands-on Lernen, so macht man das richtig. Kein Schmus, nur Praxis.\n\nGruß,\nPaul Kainz",
+                    "effect": {
+                        "type": "candidate_boost",
+                        "candidateId": "edu7",
+                        "value": 1
+                    },
+                    "isRead": false
+                },
+                {
+                    "id": "edu_ae4",
+                    "candidateId": "edu10",
+                    "jobId": "educator",
+                    "triggerPhase": "interviews",
+                    "type": "question_email",
+                    "sender": "Chaos Karsten",
+                    "subject": "Hab den Termin vergessen – tut mir leid",
+                    "body": "Hey,\n\noh Gott, ich hab den Interviewtermin komplett vergessen. Können wir das nächste Woche nachholen? Ich hatte gerade so einen Flow beim Malen...\n\nSorry,\nKarsten",
+                    "isRead": false
+                },
+                {
+                    "id": "edu_ae5",
+                    "candidateId": "edu6",
+                    "jobId": "educator",
+                    "triggerPhase": "decision",
+                    "type": "withdrawal",
+                    "sender": "Business Boris",
+                    "subject": "Absage meinerseits",
+                    "body": "Sehr geehrte Damen und Herren,\n\nnachdem ich keine Antwort auf mein Gehaltsangebot erhalten habe, gehe ich davon aus, dass wir keine gemeinsame Basis finden. Ich habe inzwischen ein besseres Angebot angenommen.\n\nMit freundlichen Grüßen,\nBoris Schreiber, MBA",
+                    "effect": {
+                        "type": "candidate_lost",
+                        "candidateId": "edu6"
+                    },
+                    "isRead": false
+                }
+            ]
+        }
+    ],
+    "example_candidates_per_job": {
+        "_note": "3 representative candidates shown per job (excellent / nuanced / problematic) to illustrate the pattern. Each real job has 15-21 candidates in candidates.ts. Use the same createCandidate() function pattern and matching id prefix.",
+        "office_assistant": [
+            {
+                "id": "oa1",
+                "name": "Anna Müller",
+                "type": "strong",
+                "score": 8,
+                "salary": 35000,
+                "outcome_type": "success",
+                "note": "Organised, friendly, sofort einsetzbar – the safe reliable hire"
+            },
+            {
+                "id": "oa5",
+                "name": "Petra Fleißig",
+                "type": "nuanced",
+                "score": 6,
+                "salary": 36000,
+                "outcome_type": "mixed",
+                "note": "High energy multitasker but makes small errors – classic tradeoff"
+            },
+            {
+                "id": "oa2",
+                "name": "Kevin 'Vollgas' Schneider",
+                "type": "problematic",
+                "score": 2,
+                "salary": 30000,
+                "outcome_type": "failure",
+                "note": "Unprofessional, disrespectful – obvious failure hire"
+            }
+        ],
+        "warehouse_worker": [
+            {
+                "id": "ww1",
+                "name": "Thomas 'Der Bär' Wagner",
+                "type": "strong",
+                "score": 8,
+                "salary": 32000,
+                "outcome_type": "success",
+                "note": "10 years exp, forklift licence, man of action"
+            },
+            {
+                "id": "ww9",
+                "name": "Stapler Steffi",
+                "type": "nuanced",
+                "score": 7,
+                "salary": 31000,
+                "outcome_type": "success",
+                "note": "Proactive, tough, good – but questions her patience"
+            },
+            {
+                "id": "ww10",
+                "name": "Faulpelz Fritz",
+                "type": "problematic",
+                "score": 2,
+                "salary": 28000,
+                "outcome_type": "failure",
+                "note": "Sent by unemployment office, asks about lunch break at interview"
+            }
+        ],
+        "craftsman": [
+            {
+                "id": "cm1",
+                "name": "Meister Eder",
+                "type": "strong",
+                "score": 9,
+                "salary": 45000,
+                "outcome_type": "success",
+                "note": "25yr master craftsman, top quality, hates computers"
+            },
+            {
+                "id": "cm6",
+                "name": "Elektro Evi",
+                "type": "nuanced",
+                "score": 8,
+                "salary": 38000,
+                "outcome_type": "success",
+                "note": "Specialist in electrical – great hire for the right job"
+            },
+            {
+                "id": "cm3",
+                "name": "Tim Taylor",
+                "type": "problematic",
+                "score": 5,
+                "salary": 42000,
+                "outcome_type": "failure",
+                "note": "MORE POWER! Accident risk, blew up the workshop"
+            }
+        ],
+        "technician": [
+            {
+                "id": "tech1",
+                "name": "Ing. Daniel Düsentrieb",
+                "type": "strong",
+                "score": 9,
+                "salary": 60000,
+                "outcome_type": "success",
+                "note": "Genius engineer, solves the unsolvable – slightly absent-minded"
+            },
+            {
+                "id": "tech4",
+                "name": "Linux Lena",
+                "type": "nuanced",
+                "score": 8,
+                "salary": 55000,
+                "outcome_type": "success",
+                "note": "Brilliant sysadmin – hates Windows, eventually gets bored"
+            },
+            {
+                "id": "tech9",
+                "name": "Chaos Computer Club Charly",
+                "type": "problematic",
+                "score": 4,
+                "salary": 60000,
+                "outcome_type": "failure",
+                "note": "Hacker, possibly illegal, hacked the company to adjust his salary"
+            }
+        ],
+        "marketing_assistant": [
+            {
+                "id": "ma1",
+                "name": "Sophie Social",
+                "type": "strong",
+                "score": 7,
+                "salary": 34000,
+                "outcome_type": "success",
+                "note": "Digital native, social media instinct – needs strategic guidance"
+            },
+            {
+                "id": "ma5",
+                "name": "Analyse Anna",
+                "type": "nuanced",
+                "score": 7,
+                "salary": 38000,
+                "outcome_type": "mixed",
+                "note": "Data-driven, ROI-focused, zero creative flair"
+            },
+            {
+                "id": "ma7",
+                "name": "Old-School Olaf",
+                "type": "problematic",
+                "score": 4,
+                "salary": 38000,
+                "outcome_type": "failure",
+                "note": "Believes in print ads; withdrew himself after learning it's all digital"
+            }
+        ],
+        "educator": [
+            {
+                "id": "edu1",
+                "name": "Mag. Maria",
+                "type": "strong",
+                "score": 9,
+                "salary": 42000,
+                "outcome_type": "success",
+                "note": "Certified teacher, sends lesson plan + reviews proactively – treats adults like pupils"
+            },
+            {
+                "id": "edu7",
+                "name": "Praktiker Paul",
+                "type": "nuanced",
+                "score": 8,
+                "salary": 40000,
+                "outcome_type": "success",
+                "note": "Master craftsman turned trainer – hands-on, rough tone"
+            },
+            {
+                "id": "edu10",
+                "name": "Chaos Karsten",
+                "type": "problematic",
+                "score": 3,
+                "salary": 32000,
+                "outcome_type": "failure",
+                "note": "Forgot the interview; improvises instead of preparing; classic failure"
+            }
+        ]
+    }
+}
