@@ -3,7 +3,7 @@ import type { Candidate, GameState, Phase, Message, ApplicantEvent } from '../ty
 import { getCandidatesForJob } from '../data/candidates';
 import { scenarios as staticScenarios } from '../data/scenarios';
 import { jobs as staticJobs } from '../data/jobs';
-import { fetchSimulations, joinNewsletter, type ApiSimulation } from '../services/api';
+import { fetchSimulations, joinNewsletter, generateSimulation, type ApiSimulation } from '../services/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -24,6 +24,8 @@ interface GameContextType extends GameState {
     simulationsLoading: boolean;
     /** Subscribe an email to the newsletter via the backend */
     subscribeNewsletter: (email: string) => Promise<{ is_new: boolean; message: string } | null>;
+    /** Call the GPT endpoint to generate a new simulation, add it to the pool, and select it */
+    generateAndAddSimulation: (jobDescription: string) => Promise<string | null>;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -83,7 +85,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     const resolveScenario = useCallback((jobId: string) => {
         const apiSim = apiSimulations.find(s => s.jobId === jobId || s.job?.id === jobId);
-        if (apiSim?.scenario) return apiSim.scenario;
+        // Guard: must be a real object with a messages array, not a raw JSON string
+        if (
+            apiSim?.scenario &&
+            typeof apiSim.scenario === 'object' &&
+            Array.isArray((apiSim.scenario as any).messages)
+        ) {
+            return apiSim.scenario as { jobId: string; messages: Message[]; applicantEvents: ApplicantEvent[] };
+        }
         return staticScenarios.find(s => s.jobId === jobId) ?? null;
     }, [apiSimulations]);
 
@@ -232,11 +241,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         return joinNewsletter(email);
     }, []);
 
+    const generateAndAddSimulation = useCallback(async (jobDescription: string): Promise<string | null> => {
+        const sim = await generateSimulation(jobDescription);
+        if (!sim) return null;
+        // Normalise: backend returns { job, scenario, candidates } — map to ApiSimulation shape
+        const normalised: ApiSimulation = {
+            jobId: sim.job?.id ?? (sim as any).jobId ?? 'generated',
+            jobTitle: sim.job?.title ?? '',
+            description: sim.job?.description ?? '',
+            salaryRange: sim.job?.salaryRange ?? '',
+            budget: sim.job?.budget ?? 80000,
+            requirements: sim.job?.requirements ?? [],
+            job: sim.job ?? (sim as any).job,
+            scenario: (sim as any).scenario,
+            candidates: (sim as any).candidates ?? [],
+            createdAt: new Date().toISOString(),
+        };
+        setApiSimulations(prev => [normalised, ...prev]);
+        return normalised.jobId;
+    }, []);
+
     return (
         <GameContext.Provider value={{
             gameState, setGameState, phase, candidates, messages, applicantEvents,
             budget, urgency, selectedCandidates, finalChoice, selectedJobId,
-            availableJobs, simulationsLoading, subscribeNewsletter,
+            availableJobs, simulationsLoading, subscribeNewsletter, generateAndAddSimulation,
             selectJob, startGame, resetGame, nextPhase,
             toggleCandidateSelection, makeFinalDecision,
             markMessageRead, markApplicantEventRead,
