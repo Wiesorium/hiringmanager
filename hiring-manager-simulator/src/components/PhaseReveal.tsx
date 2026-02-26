@@ -4,7 +4,7 @@ import { RefreshCw, CheckCircle } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export function PhaseReveal() {
-    const { candidates, finalChoice, resetGame } = useGame();
+    const { candidates, finalChoice, resetGame, setGameState } = useGame();
 
     const chosenCandidate = candidates.find(c => c.id === finalChoice);
 
@@ -118,7 +118,7 @@ export function PhaseReveal() {
 
             <div className="flex justify-center pt-12">
                 <button
-                    onClick={resetGame}
+                    onClick={() => { resetGame(); setGameState('applicant_intro'); }}
                     className="flex items-center gap-2 px-8 py-3 bg-ink text-paper rounded-full font-bold hover:bg-black transition-all hover:scale-105"
                 >
                     <RefreshCw className="w-4 h-4" />
