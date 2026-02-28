@@ -63,7 +63,7 @@ export function JobPosting() {
                             Notiz vom Hiring Manager
                         </h3>
                         <p className="italic text-muted">
-                            "Wir suchen jemanden, der sofort loslegen kann. Bitte achte auf die Gehaltsvorstellungen und die Team-Passung."
+                            "{job.hiringManagerNote ?? 'Bitte achte auf die Gehaltsvorstellungen, die Team-Passung und darauf, dass die Person rasch selbstständig arbeiten kann.'}"
                         </p>
                     </section>
 

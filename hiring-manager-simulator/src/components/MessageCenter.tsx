@@ -5,11 +5,15 @@ import { Mail, AlertCircle, X, UserCircle, Bell } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export function MessageCenter() {
-    const { messages, applicantEvents, markMessageRead, markApplicantEventRead } = useGame();
+    const { messages, applicantEvents, candidates, markMessageRead, markApplicantEventRead } = useGame();
     const [drawerOpen, setDrawerOpen] = useState(false);
 
     const visibleMessages = messages.filter(m => !m.isRead);
-    const visibleEvents = (applicantEvents || []).filter(e => !e.isRead);
+    // Only show applicant events from candidates who are still active (not rejected after screening)
+    const activeCandidateIds = new Set(candidates.filter(c => c.status !== 'rejected').map(c => c.id));
+    const visibleEvents = (applicantEvents || []).filter(e =>
+        !e.isRead && (!e.candidateId || activeCandidateIds.has(e.candidateId))
+    );
     const totalUnread = visibleMessages.length + visibleEvents.length;
 
     const MessageCard = ({ msg }: { msg: typeof visibleMessages[0] }) => (

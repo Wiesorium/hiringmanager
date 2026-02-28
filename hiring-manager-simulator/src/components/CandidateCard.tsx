@@ -1,6 +1,6 @@
 import type { Candidate } from '../types';
 import { cn } from '../lib/utils';
-import { BadgeCheck, Eye } from 'lucide-react';
+import { BadgeCheck, Eye, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface CandidateCardProps {
@@ -8,9 +8,10 @@ interface CandidateCardProps {
     isSelected: boolean;
     onSelect: (id: string) => void;
     onView: (candidate: Candidate) => void;
+    onReject?: (id: string) => void;
 }
 
-export function CandidateCard({ candidate, isSelected, onSelect, onView }: CandidateCardProps) {
+export function CandidateCard({ candidate, isSelected, onSelect, onView, onReject }: CandidateCardProps) {
     return (
         <motion.div
             layout
@@ -62,8 +63,17 @@ export function CandidateCard({ candidate, isSelected, onSelect, onView }: Candi
                     )}
                 >
                     {isSelected ? <BadgeCheck className="w-4 h-4" /> : <div className="w-4 h-4" />}
-                    {isSelected ? "Auswählen" : "Auswählen"}
+                    {isSelected ? "Ausgewählt" : "Auswählen"}
                 </button>
+                {onReject && (
+                    <button
+                        onClick={() => onReject(candidate.id)}
+                        title="Kandidat ablehnen"
+                        className="py-2 px-3 text-sm font-bold rounded flex items-center justify-center bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-700 border border-red-200 transition-colors"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                )}
             </div>
         </motion.div>
     );

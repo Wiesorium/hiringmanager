@@ -5,9 +5,10 @@ import { CandidateProfileModal } from './CandidateProfileModal';
 import type { Candidate } from '../types';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { AnimatePresence } from 'framer-motion';
 
 export function PhaseScreening() {
-    const { candidates, selectedCandidates, toggleCandidateSelection, nextPhase } = useGame();
+    const { candidates, selectedCandidates, toggleCandidateSelection, rejectCandidate, nextPhase } = useGame();
     const [viewingCandidate, setViewingCandidate] = useState<Candidate | null>(null);
 
     const pool = candidates.filter(c => c.status === 'pool' || c.status === 'screened');
@@ -21,7 +22,7 @@ export function PhaseScreening() {
                     <h2 className="text-2xl sm:text-3xl font-serif font-bold mb-2">Phase 1: Bewerbungssichtung</h2>
                     <p className="text-muted max-w-xl text-sm sm:text-base">
                         Sichten Sie den Bewerberpool. Wählen Sie <strong>2–6 Kandidaten</strong> für die Interviewrunde aus.
-                        Achten Sie auf Gehaltsvorstellungen und Erfahrung.
+                        Sie können Kandidaten auch mit dem <span className="text-red-500 font-bold">×</span>-Button direkt ablehnen (Ausschlussverfahren).
                     </p>
                 </div>
                 <div className="text-left sm:text-right flex-shrink-0">
@@ -32,15 +33,18 @@ export function PhaseScreening() {
 
             {/* Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {pool.map(candidate => (
-                    <CandidateCard
-                        key={candidate.id}
-                        candidate={candidate}
-                        isSelected={selectedCandidates.includes(candidate.id)}
-                        onSelect={() => toggleCandidateSelection(candidate.id)}
-                        onView={setViewingCandidate}
-                    />
-                ))}
+                <AnimatePresence>
+                    {pool.map(candidate => (
+                        <CandidateCard
+                            key={candidate.id}
+                            candidate={candidate}
+                            isSelected={selectedCandidates.includes(candidate.id)}
+                            onSelect={() => toggleCandidateSelection(candidate.id)}
+                            onView={setViewingCandidate}
+                            onReject={() => rejectCandidate(candidate.id)}
+                        />
+                    ))}
+                </AnimatePresence>
             </div>
 
             {/* Proceed Button */}

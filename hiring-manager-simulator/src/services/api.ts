@@ -34,6 +34,8 @@ export interface ApiSimulation {
     /** Array of candidate objects */
     candidates: any[];
     createdAt: string;
+    /** The raw job description input that was used to generate this simulation */
+    sourcePrompt?: string;
 }
 
 /**

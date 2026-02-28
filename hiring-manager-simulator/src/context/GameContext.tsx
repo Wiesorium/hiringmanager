@@ -15,6 +15,7 @@ interface GameContextType extends GameState {
     resetGame: () => void;
     nextPhase: () => void;
     toggleCandidateSelection: (id: string) => void;
+    rejectCandidate: (id: string) => void;
     makeFinalDecision: (id: string) => void;
     markMessageRead: (id: string) => void;
     markApplicantEventRead: (id: string) => void;
@@ -218,6 +219,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const rejectCandidate = (id: string) => {
+        setCandidates(prev => prev.map(c => c.id === id ? { ...c, status: 'rejected' as const } : c));
+        setSelectedCandidates(prev => prev.filter(cid => cid !== id));
+    };
+
     const makeFinalDecision = (id: string) => {
         setFinalChoice(id);
         // nextPhase reads finalChoice from state, but state hasn't updated yet –
@@ -256,6 +262,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             scenario: (sim as any).scenario,
             candidates: (sim as any).candidates ?? [],
             createdAt: new Date().toISOString(),
+            sourcePrompt: jobDescription,
         };
         setApiSimulations(prev => [normalised, ...prev]);
         return normalised.jobId;
@@ -267,7 +274,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             budget, urgency, selectedCandidates, finalChoice, selectedJobId,
             availableJobs, simulationsLoading, subscribeNewsletter, generateAndAddSimulation,
             selectJob, startGame, resetGame, nextPhase,
-            toggleCandidateSelection, makeFinalDecision,
+            toggleCandidateSelection, rejectCandidate, makeFinalDecision,
             markMessageRead, markApplicantEventRead,
         }}>
             {children}

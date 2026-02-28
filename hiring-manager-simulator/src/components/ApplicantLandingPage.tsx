@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MailOpen, ArrowRight, Loader2, Sparkles, CheckCircle, AlertCircle, ChevronDown } from 'lucide-react';
+import { MailOpen, ArrowRight, Loader2, Sparkles, CheckCircle, AlertCircle, ChevronDown, FileText } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
 // ─── Animated progress bar for the ~10-30s GPT wait ─────────────────────────
@@ -175,6 +175,44 @@ function GenerateSimCard() {
     );
 }
 
+// ─── Job card (with optional prompt display for AI-generated sims) ────────────
+function JobCard({ job, prompt, onSelect }: { job: { id: string; title: string; salaryRange: string }; prompt?: string; onSelect: () => void }) {
+    const [promptOpen, setPromptOpen] = useState(false);
+    return (
+        <div className="rounded-xl border-2 border-stone-100 hover:border-highlight hover:bg-highlight/5 transition-all group relative overflow-hidden">
+            <button
+                onClick={onSelect}
+                className="w-full text-left p-6"
+            >
+                <div className="relative z-10">
+                    <h3 className="font-bold text-lg group-hover:text-highlight transition-colors mb-1">{job.title}</h3>
+                    <p className="text-sm text-muted font-medium mb-3">{job.salaryRange}</p>
+                    <div className="flex items-center text-xs text-muted group-hover:text-ink transition-colors">
+                        Simulation starten <ArrowRight className="w-3 h-3 ml-1" />
+                    </div>
+                </div>
+            </button>
+            {prompt && (
+                <div className="px-6 pb-4 border-t border-stone-100">
+                    <button
+                        onClick={() => setPromptOpen(o => !o)}
+                        className="flex items-center gap-1.5 text-xs text-muted hover:text-ink transition-colors mt-3"
+                    >
+                        <FileText className="w-3.5 h-3.5" />
+                        Eingabe-Prompt
+                        <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${promptOpen ? 'rotate-180' : ''}`} />
+                    </button>
+                    {promptOpen && (
+                        <p className="mt-2 text-xs text-stone-500 bg-stone-50 border border-stone-200 rounded p-3 leading-relaxed line-clamp-5">
+                            {prompt}
+                        </p>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export function ApplicantLandingPage() {
     const { selectJob, availableJobs, simulationsLoading } = useGame();
@@ -219,21 +257,13 @@ export function ApplicantLandingPage() {
                                 </div>
                             ))
                         ) : (
-                            availableJobs.map((job) => (
-                                <button
-                                    key={job.id}
-                                    onClick={() => selectJob(job.id)}
-                                    className="text-left p-6 rounded-xl border-2 border-stone-100 hover:border-highlight hover:bg-highlight/5 transition-all group relative overflow-hidden"
-                                >
-                                    <div className="relative z-10">
-                                        <h3 className="font-bold text-lg group-hover:text-highlight transition-colors mb-1">{job.title}</h3>
-                                        <p className="text-sm text-muted font-medium mb-3">{job.salaryRange}</p>
-                                        <div className="flex items-center text-xs text-muted group-hover:text-ink transition-colors">
-                                            Simulation starten <ArrowRight className="w-3 h-3 ml-1" />
-                                        </div>
-                                    </div>
-                                </button>
-                            ))
+                            availableJobs.map((job) => {
+                                // Use unknown cast to safely extract sourcePrompt if present (API sims only)
+                                const prompt = (job as unknown as { sourcePrompt?: string }).sourcePrompt;
+                                return (
+                                    <JobCard key={job.id} job={job} prompt={prompt} onSelect={() => selectJob(job.id)} />
+                                );
+                            })
                         )}
                     </div>
 

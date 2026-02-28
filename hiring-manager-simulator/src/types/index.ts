@@ -88,6 +88,7 @@ export interface Job {
     salaryRange: string;
     requirements: string[];
     budget: number;
+    hiringManagerNote?: string;
 }
 
 // A full scenario groups all messages and applicant events for one job
