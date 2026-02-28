@@ -14,10 +14,9 @@ interface CandidateCardProps {
 export function CandidateCard({ candidate, isSelected, onSelect, onView, onReject }: CandidateCardProps) {
     return (
         <motion.div
-            layout
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 0.15 } }}
             className={cn(
                 "bg-white p-6 rounded-lg shadow-sm border transition-all relative group",
                 isSelected ? "border-highlight ring-1 ring-highlight shadow-md" : "border-stone-200 hover:border-stone-400"
