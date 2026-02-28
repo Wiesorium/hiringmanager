@@ -3,7 +3,7 @@ import type { Candidate, GameState, Phase, Message, ApplicantEvent } from '../ty
 import { getCandidatesForJob } from '../data/candidates';
 import { scenarios as staticScenarios } from '../data/scenarios';
 import { jobs as staticJobs } from '../data/jobs';
-import { fetchSimulations, joinNewsletter, generateSimulation, type ApiSimulation } from '../services/api';
+import { fetchSimulations, joinNewsletter, generateSimulation, trackEvent, type ApiSimulation } from '../services/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -178,6 +178,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             setMessages(scenario.messages.filter((m: Message) => m.triggerPhase === 'screening'));
             setApplicantEvents(sampleApplicantEvents(scenario.applicantEvents, 'screening'));
         }
+
+        // Track funnel: user started a simulation
+        trackEvent('simulation_started');
     };
 
     const nextPhase = () => {
@@ -190,6 +193,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             })));
             setPhase('interviews');
             setSelectedCandidates([]);
+            trackEvent('screening_done'); // funnel: phase 1 → 2
 
             if (scenario) {
                 const newMsgs = scenario.messages.filter((m: Message) => m.triggerPhase === 'interviews');
@@ -205,6 +209,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             }
         } else if (phase === 'interviews') {
             setPhase('decision');
+            trackEvent('interviews_done'); // funnel: phase 2 → 3
 
             if (scenario) {
                 const newMsgs = scenario.messages.filter((m: Message) => m.triggerPhase === 'decision');
@@ -257,6 +262,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             ...c,
             status: c.id === id ? 'hired' : c.status
         })));
+        trackEvent('decision_done'); // funnel: hire made
     };
 
     const markMessageRead = (id: string) => {

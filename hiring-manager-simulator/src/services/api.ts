@@ -119,3 +119,25 @@ export async function generateSimulation(jobDescription: string): Promise<ApiSim
         return null;
     }
 }
+
+/**
+ * Track a conversion funnel event.
+ * Fire-and-forget — never throws, never blocks gameplay.
+ */
+export type TrackingEvent =
+    | 'simulation_started'   // user clicked start on job posting
+    | 'screening_done'       // user advanced from phase 1 → 2
+    | 'interviews_done'      // user advanced from phase 2 → 3
+    | 'decision_done';       // user made final hire
+
+export async function trackEvent(event: TrackingEvent): Promise<void> {
+    try {
+        await fetch(`${BASE_URL}/track_event`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ event }),
+        });
+    } catch {
+        // Silently ignore — tracking must never break the game
+    }
+}
