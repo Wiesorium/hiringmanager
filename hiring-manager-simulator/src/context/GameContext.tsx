@@ -46,7 +46,12 @@ function normalizeCandidates(raw: any[]): Candidate[] {
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
     // Game UI state
-    const [gameState, setGameState] = useState<'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing'>('company_home');
+    const [gameState, setGameStateRaw] = useState<'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing'>(() => {
+        // Read initial hash to support direct deep links
+        const hash = window.location.hash.replace('#', '').toLowerCase();
+        if (hash === 'b2b') return 'company_home';
+        return 'b2c_home'; // default
+    });
     const [phase, setPhase] = useState<Phase>('screening');
     const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
     const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -60,6 +65,25 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     // API-loaded simulations (merged with static data)
     const [apiSimulations, setApiSimulations] = useState<ApiSimulation[]>([]);
     const [simulationsLoading, setSimulationsLoading] = useState(true);
+
+    // ── Sync URL hash with landing page state ────────────────────────────────
+    const setGameState = useCallback((state: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing') => {
+        setGameStateRaw(state);
+        if (state === 'company_home') window.location.hash = 'b2b';
+        else if (state === 'b2c_home') window.location.hash = 'b2c';
+        // For deeper states (playing etc.) keep hash as-is
+    }, []);
+
+    // Listen for browser back/forward between #b2b and #b2c
+    useEffect(() => {
+        const onHashChange = () => {
+            const hash = window.location.hash.replace('#', '').toLowerCase();
+            if (hash === 'b2b') setGameStateRaw('company_home');
+            else if (hash === 'b2c') setGameStateRaw('b2c_home');
+        };
+        window.addEventListener('hashchange', onHashChange);
+        return () => window.removeEventListener('hashchange', onHashChange);
+    }, []);
 
     // ── Fetch API simulations on mount ──────────────────────────────────────
     useEffect(() => {
