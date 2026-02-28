@@ -24,6 +24,7 @@ export interface ApiSimulation {
         salaryRange: string;
         requirements: string[];
         budget: number;
+        hiringManagerNote?: string;
     };
     /** Scenario object: messages + applicantEvents */
     scenario: {
