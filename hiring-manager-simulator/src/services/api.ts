@@ -141,3 +141,25 @@ export async function trackEvent(event: TrackingEvent): Promise<void> {
         // Silently ignore — tracking must never break the game
     }
 }
+
+/**
+ * Submit player feedback from the final reveal screen.
+ * Returns true on success, false on any error.
+ */
+export async function submitFeedback(payload: {
+    feedback: string;
+    email?: string;
+}): Promise<boolean> {
+    try {
+        const res = await fetch(`${BASE_URL}/submit_feedback`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+        if (!res.ok) return false;
+        const json = await res.json();
+        return json.result_state === 'success';
+    } catch {
+        return false;
+    }
+}

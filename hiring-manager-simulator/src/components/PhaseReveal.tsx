@@ -1,22 +1,37 @@
+import { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { motion } from 'framer-motion';
-import { RefreshCw, CheckCircle } from 'lucide-react';
+import { RefreshCw, CheckCircle, Send, Loader2, CheckCircle2 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { submitFeedback } from '../services/api';
 
 export function PhaseReveal() {
     const { candidates, finalChoice, resetGame, setGameState } = useGame();
 
     const chosenCandidate = candidates.find(c => c.id === finalChoice);
 
-    // Mock "Real Hiring Manager" choice - logic is a bit placeholder-y
-    // We can just pick the 'success' candidate if the user didn't pick it, or a specific one.
-    // For now, let's just make it random from the pool or finding a 'success' one.
+    // Mock "Real Hiring Manager" choice
     const realManagerChoice = candidates.find(c => c.outcome.type === 'success' && c.id !== finalChoice) || candidates.find(c => c.outcome.type === 'success') || candidates[0];
+
+    // Feedback form state
+    const [feedbackText, setFeedbackText] = useState('');
+    const [feedbackEmail, setFeedbackEmail] = useState('');
+    const [feedbackState, setFeedbackState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
     if (!chosenCandidate) return null;
 
     const isSuccess = chosenCandidate.outcome.type === 'success';
     const isFailure = chosenCandidate.outcome.type === 'failure';
+
+    const handleFeedbackSubmit = async () => {
+        if (!feedbackText.trim() || feedbackState === 'loading') return;
+        setFeedbackState('loading');
+        const ok = await submitFeedback({
+            feedback: feedbackText.trim(),
+            email: feedbackEmail.trim() || undefined,
+        });
+        setFeedbackState(ok ? 'success' : 'error');
+    };
 
     return (
         <div className="space-y-12 max-w-4xl mx-auto">
@@ -116,7 +131,59 @@ export function PhaseReveal() {
                 </motion.div>
             </div>
 
-            <div className="flex justify-center pt-12">
+            {/* Feedback Form */}
+            <motion.div
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.7 }}
+                className="bg-white rounded-lg border border-stone-200 shadow-sm p-8"
+            >
+                <h3 className="text-xl font-bold font-serif mb-1">Wie können wir es besser machen?</h3>
+                <p className="text-sm text-muted mb-6">Ihr Feedback hilft uns, das Spiel zu verbessern. Anonym und freiwillig.</p>
+
+                {feedbackState === 'success' ? (
+                    <div className="flex items-center gap-3 text-emerald-700 bg-emerald-50 rounded-lg p-4">
+                        <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                        <p className="font-medium">Danke für Ihr Feedback! Wir nehmen es uns zu Herzen.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        <textarea
+                            value={feedbackText}
+                            onChange={e => setFeedbackText(e.target.value)}
+                            placeholder="Was hat Ihnen gefallen? Was sollten wir verbessern?"
+                            rows={4}
+                            className="w-full px-4 py-3 rounded-lg border border-stone-200 bg-stone-50 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ink/20 focus:border-ink/40 transition-all placeholder:text-muted"
+                        />
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <input
+                                type="email"
+                                value={feedbackEmail}
+                                onChange={e => setFeedbackEmail(e.target.value)}
+                                placeholder="Ihre E-Mail (optional)"
+                                className="flex-1 px-4 py-2.5 rounded-lg border border-stone-200 bg-stone-50 text-sm focus:outline-none focus:ring-2 focus:ring-ink/20 focus:border-ink/40 transition-all placeholder:text-muted"
+                            />
+                            <button
+                                onClick={handleFeedbackSubmit}
+                                disabled={!feedbackText.trim() || feedbackState === 'loading'}
+                                className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ink text-paper rounded-lg font-bold text-sm hover:bg-black transition-all hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            >
+                                {feedbackState === 'loading' ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Send className="w-4 h-4" />
+                                )}
+                                Feedback senden
+                            </button>
+                        </div>
+                        {feedbackState === 'error' && (
+                            <p className="text-red-600 text-xs">Leider ist etwas schiefgelaufen. Bitte versuchen Sie es später erneut.</p>
+                        )}
+                    </div>
+                )}
+            </motion.div>
+
+            <div className="flex justify-center pt-4">
                 <button
                     onClick={() => { resetGame(); setGameState('applicant_intro'); }}
                     className="flex items-center gap-2 px-8 py-3 bg-ink text-paper rounded-full font-bold hover:bg-black transition-all hover:scale-105"
