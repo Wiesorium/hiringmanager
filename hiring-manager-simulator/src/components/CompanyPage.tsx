@@ -35,7 +35,7 @@ export function CompanyPage() {
                     <div className="w-10 h-10 bg-highlight text-white rounded flex items-center justify-center font-bold font-serif text-xl">
                         J
                     </div>
-                    <span className="font-serif font-bold text-xl tracking-tight">Jobaktuell Services</span>
+                    <span className="font-serif font-bold text-xl tracking-tight">Hiring Manager Simulator</span>
                 </div>
 
                 {/* Simplified Nav - removed "fluff" links */}

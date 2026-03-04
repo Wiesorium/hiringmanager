@@ -22,8 +22,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         <div className="h-8 w-8 bg-highlight text-white flex items-center justify-center font-serif font-bold rounded-sm flex-shrink-0">
                             J
                         </div>
-                        <h1 className="font-serif font-bold text-base sm:text-xl tracking-tight hidden sm:block">ein Service von Jobaktuell</h1>
-                        <h1 className="font-serif font-bold text-base tracking-tight sm:hidden">Jobaktuell</h1>
+                        <h1 className="font-serif font-bold text-base sm:text-xl tracking-tight hidden sm:block">Hiring Manager Simulator</h1>
+                        <h1 className="font-serif font-bold text-base tracking-tight sm:hidden">HMS</h1>
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-6 text-sm font-medium flex-wrap">

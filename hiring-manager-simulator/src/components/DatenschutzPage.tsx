@@ -23,10 +23,10 @@ export function DatenschutzPage() {
                         <h2 className="text-xl font-serif font-bold mb-3">1. Verantwortlicher</h2>
                         <p>
                             Verantwortlich für die Datenverarbeitung auf dieser Website ist:<br />
-                            Jobaktuell<br />
+                            Hiring Manager Simulator<br />
                             Martin Wieser<br />
                             Guritzerstraße 110, 5020 Salzburg<br />
-                            E-Mail: martin@jobaktuell.com
+                            E-Mail: wiesorium@gmail.com
                         </p>
                     </section>
 

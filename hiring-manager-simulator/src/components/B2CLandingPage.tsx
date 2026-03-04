@@ -7,14 +7,7 @@ export function B2CLandingPage() {
     return (
         <div className="min-h-screen bg-paper flex flex-col font-sans text-ink">
             {/* Header */}
-            <header className="px-6 py-6 flex justify-between items-center max-w-7xl mx-auto w-full">
-                <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 bg-highlight text-white rounded flex items-center justify-center font-bold font-serif text-xl">
-                        J
-                    </div>
-                    <span className="font-serif font-bold text-xl tracking-tight">Jobaktuell</span>
-                </div>
-            </header>
+
 
             {/* Hero */}
             <main className="flex-grow flex items-center justify-center p-6">
@@ -157,7 +150,7 @@ export function B2CLandingPage() {
             {/* Footer */}
             <footer className="w-full border-t border-stone-100 py-8 px-6">
                 <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted">
-                    <p>&copy; {new Date().getFullYear()} Jobaktuell. Alle Rechte vorbehalten.</p>
+                    <p>&copy; {new Date().getFullYear()} Hiring Manager Simulator. Alle Rechte vorbehalten.</p>
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => setGameState('impressum' as any)}

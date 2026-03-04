@@ -406,9 +406,6 @@ export function ApplicantLandingPage() {
                         </div>
                     )}
 
-                    <div className="mt-8 pt-6 border-t border-stone-100 text-center text-xs text-muted">
-                        Ein Service von <strong className="text-ink">Jobaktuell</strong>
-                    </div>
                 </div>
             </div>
         </div>

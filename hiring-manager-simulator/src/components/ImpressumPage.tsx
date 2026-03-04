@@ -22,7 +22,7 @@ export function ImpressumPage() {
                     <section>
                         <h2 className="text-xl font-serif font-bold mb-3">Angaben gemäß § 25 MedienG</h2>
                         <p>
-                            Jobaktuell<br />
+                            Hiring Manager Simulator<br />
                             Martin Wieser<br />
                             Guritzerstraße 110<br />
                             5020 Salzburg<br />
@@ -34,7 +34,7 @@ export function ImpressumPage() {
                     <section>
                         <h2 className="text-xl font-serif font-bold mb-3">Kontakt</h2>
                         <p>
-                            E-Mail: martin@jobaktuell.com
+                            E-Mail: wiesorium@gmail.com
                         </p>
                     </section>
 
