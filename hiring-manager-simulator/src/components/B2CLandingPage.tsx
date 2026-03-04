@@ -14,12 +14,6 @@ export function B2CLandingPage() {
                     </div>
                     <span className="font-serif font-bold text-xl tracking-tight">Jobaktuell</span>
                 </div>
-                <button
-                    onClick={() => setGameState('company_home')}
-                    className="text-sm font-medium hover:text-highlight transition-colors"
-                >
-                    Für Unternehmen
-                </button>
             </header>
 
             {/* Hero */}
@@ -40,7 +34,7 @@ export function B2CLandingPage() {
                         <div className="space-y-4">
                             <div className="flex items-center gap-3">
                                 <CheckCircle className="w-6 h-6 text-highlight" />
-                                <span className="text-lg">Zugriff auf alle 4 Szenarien</span>
+                                <span className="text-lg">Zugriff auf alle bestehenden Simulationen</span>
                             </div>
                             <div className="flex items-center gap-3">
                                 <CheckCircle className="w-6 h-6 text-highlight" />
@@ -57,9 +51,9 @@ export function B2CLandingPage() {
                                 onClick={() => setGameState('applicant_intro')}
                                 className="w-full sm:w-auto px-8 py-4 bg-highlight text-white rounded-lg font-bold text-lg hover:bg-highlight/90 shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
                             >
-                                Zugang sichern für €4,99 <ArrowRight className="w-5 h-5" />
+                                Kostenlos testen <ArrowRight className="w-5 h-5" />
                             </button>
-                            <p className="text-xs text-muted">Einmalige Zahlung. Kein Abo.</p>
+                            <p className="text-xs text-muted">Bestehende Simulationen gratis. KI-Generierung ab €5.</p>
                         </div>
                     </div>
 
@@ -106,8 +100,8 @@ export function B2CLandingPage() {
                             </div>
 
                             <div className="mt-6 text-center">
-                                <p className="text-2xl font-serif font-bold text-ink">€ 4,99</p>
-                                <p className="text-xs text-muted line-through">statt € 19,99</p>
+                                <p className="text-sm font-serif font-bold text-highlight">Kostenlos testen</p>
+                                <p className="text-xs text-muted">Alle bestehenden Simulationen gratis</p>
                             </div>
                         </div>
                     </div>
@@ -159,6 +153,33 @@ export function B2CLandingPage() {
                     </div>
                 </div>
             </section>
+
+            {/* Footer */}
+            <footer className="w-full border-t border-stone-100 py-8 px-6">
+                <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-muted">
+                    <p>&copy; {new Date().getFullYear()} Jobaktuell. Alle Rechte vorbehalten.</p>
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setGameState('impressum' as any)}
+                            className="hover:text-ink transition-colors"
+                        >
+                            Impressum
+                        </button>
+                        <button
+                            onClick={() => setGameState('datenschutz' as any)}
+                            className="hover:text-ink transition-colors"
+                        >
+                            Datenschutz
+                        </button>
+                        <button
+                            onClick={() => setGameState('company_home')}
+                            className="hover:text-ink transition-colors"
+                        >
+                            Für Unternehmen
+                        </button>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }

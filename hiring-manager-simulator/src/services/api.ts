@@ -101,20 +101,63 @@ export async function joinNewsletter(
 
 /**
  * Generate a new simulation from a job description via the backend GPT pipeline.
- * This can take 10-30 seconds – use with a loading indicator.
+ * This can take 1-2 minutes – use with a loading indicator.
+ * If an access_code is provided, it will be sent to the backend for token tracking.
  * Returns the full simulation object on success, null on error.
  */
-export async function generateSimulation(jobDescription: string): Promise<ApiSimulation | null> {
+export async function generateSimulation(jobDescription: string, accessCode?: string): Promise<{ simulation: ApiSimulation; remaining?: number } | null> {
     try {
+        const body: Record<string, string> = { job_description: jobDescription };
+        if (accessCode) body.access_code = accessCode;
         const res = await fetch(`${BASE_URL}/generate_sim_from_jobdescription`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ job_description: jobDescription }),
+            body: JSON.stringify(body),
         });
         if (!res.ok) return null;
         const json = await res.json();
         if (json.result_state !== 'success') return null;
-        return json.result as ApiSimulation;
+        return { simulation: json.result as ApiSimulation, remaining: json.remaining };
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Validate an access code and get remaining generation count.
+ * Returns { valid, remaining } on success, null on network error.
+ */
+export async function validateAccessCode(code: string): Promise<{ valid: boolean; remaining: number } | null> {
+    try {
+        const res = await fetch(`${BASE_URL}/validate_code`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code }),
+        });
+        if (!res.ok) return null;
+        const json = await res.json();
+        if (json.result_state !== 'success') return null;
+        return { valid: json.valid, remaining: json.remaining };
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * Create an access code after Stripe payment.
+ * Sends the Stripe session_id to the backend which verifies payment and generates a code.
+ */
+export async function createAccessCode(stripeSessionId: string): Promise<{ code: string; remaining: number } | null> {
+    try {
+        const res = await fetch(`${BASE_URL}/create_code`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stripe_session_id: stripeSessionId }),
+        });
+        if (!res.ok) return null;
+        const json = await res.json();
+        if (json.result_state !== 'success') return null;
+        return { code: json.code, remaining: json.remaining };
     } catch {
         return null;
     }

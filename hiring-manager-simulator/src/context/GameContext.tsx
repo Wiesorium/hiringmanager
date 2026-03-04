@@ -8,8 +8,8 @@ import { fetchSimulations, joinNewsletter, generateSimulation, trackEvent, type 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface GameContextType extends GameState {
-    gameState: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing';
-    setGameState: (state: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing') => void;
+    gameState: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz';
+    setGameState: (state: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz') => void;
     selectJob: (jobId: string) => void;
     startGame: () => void;
     resetGame: () => void;
@@ -26,7 +26,7 @@ interface GameContextType extends GameState {
     /** Subscribe an email to the newsletter via the backend */
     subscribeNewsletter: (email: string) => Promise<{ is_new: boolean; message: string } | null>;
     /** Call the GPT endpoint to generate a new simulation, add it to the pool, and select it */
-    generateAndAddSimulation: (jobDescription: string) => Promise<string | null>;
+    generateAndAddSimulation: (jobDescription: string, accessCode?: string) => Promise<{ jobId: string; remaining?: number } | null>;
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -46,7 +46,7 @@ function normalizeCandidates(raw: any[]): Candidate[] {
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
     // Game UI state
-    const [gameState, setGameStateRaw] = useState<'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing'>(() => {
+    const [gameState, setGameStateRaw] = useState<'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz'>(() => {
         // Read initial hash to support direct deep links
         const hash = window.location.hash.replace('#', '').toLowerCase();
         if (hash === 'b2b') return 'company_home';
@@ -67,7 +67,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const [simulationsLoading, setSimulationsLoading] = useState(true);
 
     // ── Sync URL hash with landing page state ────────────────────────────────
-    const setGameState = useCallback((state: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing') => {
+    const setGameState = useCallback((state: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz') => {
         setGameStateRaw(state);
         if (state === 'company_home') window.location.hash = 'b2b';
         else if (state === 'b2c_home') window.location.hash = 'b2c';
@@ -277,9 +277,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         return joinNewsletter(email);
     }, []);
 
-    const generateAndAddSimulation = useCallback(async (jobDescription: string): Promise<string | null> => {
-        const sim = await generateSimulation(jobDescription);
-        if (!sim) return null;
+    const generateAndAddSimulation = useCallback(async (jobDescription: string, accessCode?: string): Promise<{ jobId: string; remaining?: number } | null> => {
+        const result = await generateSimulation(jobDescription, accessCode);
+        if (!result) return null;
+        const sim = result.simulation;
         // Normalise: backend returns { job, scenario, candidates } — map to ApiSimulation shape
         const normalised: ApiSimulation = {
             jobId: sim.job?.id ?? (sim as any).jobId ?? 'generated',
@@ -295,7 +296,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             sourcePrompt: jobDescription,
         };
         setApiSimulations(prev => [normalised, ...prev]);
-        return normalised.jobId;
+        return { jobId: normalised.jobId, remaining: result.remaining };
     }, []);
 
     return (

@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { MailOpen, ArrowRight, Loader2, Sparkles, CheckCircle, AlertCircle, ChevronDown, FileText } from 'lucide-react';
+import { MailOpen, ArrowRight, Loader2, Sparkles, CheckCircle, AlertCircle, ChevronDown, FileText, Lock, Key, ExternalLink } from 'lucide-react';
 import { useGame } from '../context/GameContext';
+import { validateAccessCode } from '../services/api';
 
-// ─── Animated progress bar for the ~10-30s GPT wait ─────────────────────────
+// ─── Animated progress bar for the ~1-2min GPT wait ─────────────────────────
 function GenerationProgressBar({ active }: { active: boolean }) {
     const [progress, setProgress] = useState(0);
 
@@ -11,11 +12,10 @@ function GenerationProgressBar({ active }: { active: boolean }) {
 
         setProgress(0);
         const start = Date.now();
-        const TARGET_MS = 25000; // assume ~25s to reach 87%
+        const TARGET_MS = 90000; // assume ~90s to reach 87%
 
         const tick = setInterval(() => {
             const elapsed = Date.now() - start;
-            // Ease out: fast at first, slows near 87%
             const pct = Math.min(87, (elapsed / TARGET_MS) * 100 * (1 - elapsed / (TARGET_MS * 3)));
             setProgress(prev => Math.max(prev, Math.round(pct)));
         }, 200);
@@ -23,7 +23,6 @@ function GenerationProgressBar({ active }: { active: boolean }) {
         return () => clearInterval(tick);
     }, [active]);
 
-    // Jump to 100 externally by stopping `active` and the parent calling setDone
     return (
         <div className="w-full bg-stone-100 rounded-full h-1.5 overflow-hidden">
             <div
@@ -34,30 +33,75 @@ function GenerationProgressBar({ active }: { active: boolean }) {
     );
 }
 
-// ─── "Generate new simulation" card ─────────────────────────────────────────
+// ─── Access code localStorage helpers ────────────────────────────────────────
+const CODE_STORAGE_KEY = 'hms_access_code';
+function getSavedCode(): string { return localStorage.getItem(CODE_STORAGE_KEY) ?? ''; }
+function saveCode(code: string) { localStorage.setItem(CODE_STORAGE_KEY, code); }
+
+// ─── "Generate new simulation" card (with Stripe access code gate) ───────────
 function GenerateSimCard() {
     const { generateAndAddSimulation, selectJob } = useGame();
 
     const [open, setOpen] = useState(false);
     const [jobDesc, setJobDesc] = useState('');
     const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
-    const [finalProgress, setFinalProgress] = useState(false); // jump bar to 100
+    const [finalProgress, setFinalProgress] = useState(false);
     const [newJobId, setNewJobId] = useState<string | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    const canSubmit = jobDesc.trim().length >= 20 && state === 'idle';
+    // ── Access code state ─────────────────────────────────────────────────
+    const [accessCode, setAccessCode] = useState(getSavedCode);
+    const [codeInput, setCodeInput] = useState('');
+    const [codeState, setCodeState] = useState<'idle' | 'checking' | 'valid' | 'invalid'>(() =>
+        getSavedCode() ? 'valid' : 'idle'
+    );
+    const [remaining, setRemaining] = useState<number | null>(null);
+
+    // Validate saved code on mount
+    useEffect(() => {
+        const saved = getSavedCode();
+        if (!saved) return;
+        validateAccessCode(saved).then(res => {
+            if (res?.valid) {
+                setCodeState('valid');
+                setRemaining(res.remaining);
+            } else {
+                setCodeState('idle');
+                setAccessCode('');
+                localStorage.removeItem(CODE_STORAGE_KEY);
+            }
+        });
+    }, []);
+
+    const handleValidateCode = async () => {
+        const code = codeInput.trim().toUpperCase();
+        if (!code) return;
+        setCodeState('checking');
+        const res = await validateAccessCode(code);
+        if (res?.valid) {
+            setAccessCode(code);
+            saveCode(code);
+            setCodeState('valid');
+            setRemaining(res.remaining);
+        } else {
+            setCodeState('invalid');
+        }
+    };
+
+    const canSubmit = jobDesc.trim().length >= 20 && state === 'idle' && codeState === 'valid' && (remaining === null || remaining > 0);
 
     const handleGenerate = async () => {
         if (!canSubmit) return;
         setState('loading');
 
-        const jobId = await generateAndAddSimulation(jobDesc.trim());
+        const result = await generateAndAddSimulation(jobDesc.trim(), accessCode);
 
         setFinalProgress(true);
-        await new Promise(r => setTimeout(r, 600)); // let bar reach 100 visually
+        await new Promise(r => setTimeout(r, 600));
 
-        if (jobId) {
-            setNewJobId(jobId);
+        if (result) {
+            setNewJobId(result.jobId);
+            if (result.remaining !== undefined) setRemaining(result.remaining);
             setState('done');
         } else {
             setState('error');
@@ -67,6 +111,8 @@ function GenerateSimCard() {
     const handlePlay = () => {
         if (newJobId) selectJob(newJobId);
     };
+
+    const STRIPE_LINK = 'https://buy.stripe.com/8x228scb26eIcDa0j41ZS06';
 
     return (
         <div className={`rounded-xl border-2 transition-all duration-300 overflow-hidden
@@ -90,13 +136,86 @@ function GenerateSimCard() {
             {/* Expandable body */}
             {open && (
                 <div className="px-6 pb-6 space-y-4">
-                    {state === 'idle' && (
+
+                    {/* ── Step 1: Access Code Gate ──────────────────────────────── */}
+                    {codeState !== 'valid' && state === 'idle' && (
+                        <div className="space-y-4">
+                            <div className="bg-stone-50 border border-stone-200 rounded-lg p-4 space-y-3">
+                                <div className="flex items-start gap-3">
+                                    <Lock className="w-5 h-5 text-highlight mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <p className="text-sm font-semibold text-ink">KI-Generierung benötigt einen Zugangscode</p>
+                                        <p className="text-xs text-muted mt-1">
+                                            Einmalig €5 für bis zu <strong>10 Simulationen</strong>. Das sind nur 50 Cent pro Simulation.
+                                            Falls du vor Aufbrauch aller Tokens einen Job findest, kannst du den Code an Freunde weitergeben!
+                                        </p>
+                                    </div>
+                                </div>
+                                <a
+                                    href={STRIPE_LINK}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm bg-highlight text-white hover:bg-highlight/90 transition-all"
+                                >
+                                    Zugangscode kaufen – €5 <ExternalLink className="w-4 h-4" />
+                                </a>
+                            </div>
+
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-stone-200" />
+                                </div>
+                                <div className="relative flex justify-center">
+                                    <span className="bg-highlight/5 px-3 text-xs text-muted">Code bereits vorhanden?</span>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-2">
+                                <div className="flex-1 relative">
+                                    <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                                    <input
+                                        type="text"
+                                        value={codeInput}
+                                        onChange={e => { setCodeInput(e.target.value.toUpperCase()); setCodeState('idle'); }}
+                                        onKeyDown={e => e.key === 'Enter' && handleValidateCode()}
+                                        placeholder="DEIN CODE"
+                                        maxLength={12}
+                                        className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-stone-200 bg-white text-sm font-mono tracking-wider uppercase text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-highlight/40"
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleValidateCode}
+                                    disabled={!codeInput.trim() || codeState === 'checking'}
+                                    className="px-4 py-2.5 rounded-lg font-bold text-sm bg-ink text-white hover:bg-black transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                >
+                                    {codeState === 'checking' ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        'Einlösen'
+                                    )}
+                                </button>
+                            </div>
+                            {codeState === 'invalid' && (
+                                <div className="flex items-center gap-2 text-red-500 text-xs font-medium">
+                                    <AlertCircle className="w-3.5 h-3.5" />
+                                    Ungültiger oder aufgebrauchter Code.
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* ── Step 2: Code valid → show generation form ────────────── */}
+                    {codeState === 'valid' && state === 'idle' && (
                         <>
+                            <div className="flex items-center gap-2 text-green-600 text-xs font-medium bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                                <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                                <span>Code aktiv — {remaining !== null ? `${remaining} Generierung${remaining !== 1 ? 'en' : ''} übrig` : 'Bereit'}</span>
+                            </div>
                             <textarea
                                 ref={textareaRef}
                                 value={jobDesc}
                                 onChange={e => setJobDesc(e.target.value)}
-                                placeholder="Stellenbeschreibung hier einfügen…&#10;&#10;z. B.: Wir suchen einen Vertriebsmitarbeiter im Außendienst mit Erfahrung in der IT-Branche."
+                                placeholder={"Stellenbeschreibung hier einfügen…\n\nz. B.: Wir suchen einen Vertriebsmitarbeiter im Außendienst mit Erfahrung in der IT-Branche."}
                                 rows={5}
                                 className="w-full rounded-lg border border-stone-200 bg-white p-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-highlight/40 resize-none"
                             />
@@ -108,7 +227,7 @@ function GenerateSimCard() {
                             >
                                 Simulation generieren <ArrowRight className="w-4 h-4" />
                             </button>
-                            <p className="text-center text-xs text-muted">Dauert ca. 15-30 Sekunden ☕</p>
+                            <p className="text-center text-xs text-muted">Dauert ca. 1-2 Minuten ☕</p>
                         </>
                     )}
 
@@ -258,7 +377,6 @@ export function ApplicantLandingPage() {
                             ))
                         ) : (
                             availableJobs.map((job) => {
-                                // Use unknown cast to safely extract sourcePrompt if present (API sims only)
                                 const prompt = (job as unknown as { sourcePrompt?: string }).sourcePrompt;
                                 return (
                                     <JobCard key={job.id} job={job} prompt={prompt} onSelect={() => selectJob(job.id)} />

@@ -7,6 +7,10 @@ import { PhaseScreening } from './components/PhaseScreening';
 import { PhaseInterviews } from './components/PhaseInterviews';
 import { PhaseDecision } from './components/PhaseDecision';
 import { PhaseReveal } from './components/PhaseReveal';
+import { StripeSuccess } from './components/StripeSuccess';
+import { ImpressumPage } from './components/ImpressumPage';
+import { DatenschutzPage } from './components/DatenschutzPage';
+import { CookieBanner } from './components/CookieBanner';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { B2CLandingPage } from './components/B2CLandingPage';
@@ -14,12 +18,26 @@ import { B2CLandingPage } from './components/B2CLandingPage';
 function GameContent() {
   const { phase, gameState } = useGame();
 
+  // Stripe redirect: show success page when ?session_id= is in the URL
+  const hasSessionId = new URLSearchParams(window.location.search).has('session_id');
+  if (hasSessionId) {
+    return <StripeSuccess />;
+  }
+
   if (gameState === 'company_home') {
     return <CompanyPage />;
   }
 
   if (gameState === 'b2c_home') {
     return <B2CLandingPage />;
+  }
+
+  if (gameState === 'impressum') {
+    return <ImpressumPage />;
+  }
+
+  if (gameState === 'datenschutz') {
+    return <DatenschutzPage />;
   }
 
   if (gameState === 'applicant_intro') {
@@ -54,6 +72,7 @@ function App() {
   return (
     <GameProvider>
       <GameContent />
+      <CookieBanner />
     </GameProvider>
   );
 }
