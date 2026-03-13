@@ -10,7 +10,7 @@ export function B2CLandingPage() {
 
 
             {/* Hero */}
-            <main className="flex-grow flex items-center justify-center p-6">
+            <main className="flex-grow flex items-center justify-center p-6 pt-16">
                 <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
                     <div className="space-y-8 order-2 lg:order-1">
@@ -50,53 +50,13 @@ export function B2CLandingPage() {
                         </div>
                     </div>
 
-                    <div className="order-1 lg:order-2 relative">
+                    <div className="order-1 lg:order-2 relative flex items-center justify-center">
                         <div className="absolute top-0 right-0 w-72 h-72 bg-highlight opacity-5 rounded-full blur-3xl transform translate-x-10 -translate-y-10"></div>
-                        <div className="bg-white p-8 rounded-2xl shadow-2xl border border-stone-100 relative z-10 transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                            <div className="flex justify-between items-center mb-6">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                                </div>
-                                <span className="text-xs font-mono text-muted">hiring-simulator.exe</span>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="p-4 bg-stone-50 rounded border border-stone-100 flex items-center gap-4">
-                                    <div className="w-10 h-10 bg-ink rounded-full flex items-center justify-center text-white font-serif font-bold">A</div>
-                                    <div>
-                                        <h4 className="font-bold text-sm">Anna Müller</h4>
-                                        <p className="text-xs text-muted">Büroassistenz • 5J Erf.</p>
-                                    </div>
-                                    <span className="ml-auto text-xs font-bold text-green-600 border border-green-200 px-2 py-1 rounded">Top Kandidat</span>
-                                </div>
-
-                                <div className="p-4 bg-stone-50 rounded border border-stone-100 flex items-center gap-4 opacity-75">
-                                    <div className="w-10 h-10 bg-stone-300 rounded-full flex items-center justify-center text-white font-serif font-bold">K</div>
-                                    <div>
-                                        <h4 className="font-bold text-sm">Kevin Schneider</h4>
-                                        <p className="text-xs text-muted">Büroassistenz • 1J Erf.</p>
-                                    </div>
-                                    <span className="ml-auto text-xs font-bold text-red-600 border border-red-200 px-2 py-1 rounded">Abgelehnt</span>
-                                </div>
-
-                                <div className="p-4 bg-stone-50 rounded border border-stone-100 flex items-center gap-4">
-                                    <div className="w-10 h-10 bg-highlight text-white rounded-full flex items-center justify-center font-serif font-bold">
-                                        <BrainCircuit className="w-5 h-5" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold text-sm">Simulator Analyse</h4>
-                                        <p className="text-xs text-muted">"Du hast das Budget überschritten..."</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mt-6 text-center">
-                                <p className="text-sm font-serif font-bold text-highlight">Kostenlos testen</p>
-                                <p className="text-xs text-muted">Alle bestehenden Simulationen gratis</p>
-                            </div>
-                        </div>
+                        <img
+                            src="/hero-illustration.png"
+                            alt="Hiring Manager Simulator Illustration"
+                            className="relative z-10 w-full max-w-lg drop-shadow-xl"
+                        />
                     </div>
 
                 </div>

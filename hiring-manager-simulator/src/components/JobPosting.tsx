@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useGame } from '../context/GameContext';
 import { ArrowRight, CheckCircle, MapPin, DollarSign, Briefcase } from 'lucide-react';
@@ -6,6 +7,10 @@ export function JobPosting() {
     const { startGame, selectedJobId, availableJobs } = useGame();
     // Look up the job in the merged list (static + API) — no || jobs[0] fallback
     const job = availableJobs.find(j => j.id === selectedJobId);
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     // Still loading or no match yet — shouldn't happen in normal flow
     if (!job) {
@@ -23,15 +28,15 @@ export function JobPosting() {
                 animate={{ opacity: 1, y: 0 }}
                 className="max-w-3xl w-full bg-white rounded-xl shadow-xl border border-stone-100 overflow-hidden relative"
             >
-                <div className="bg-ink text-white p-10 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-highlight opacity-10 rounded-full blur-3xl transform translate-x-32 -translate-y-32"></div>
+                <div className="bg-white border-b border-stone-100 p-10 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-highlight opacity-5 rounded-full blur-3xl transform translate-x-32 -translate-y-32"></div>
 
                     <div className="relative z-10">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-highlight/20 text-highlight rounded-full text-xs font-bold uppercase tracking-wider mb-6 ring-1 ring-highlight/40">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-highlight/10 text-highlight rounded-full text-xs font-bold uppercase tracking-wider mb-6 ring-1 ring-highlight/20">
                             <Briefcase className="w-3 h-3" /> Interne Ausschreibung
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4">{job.title}</h1>
-                        <div className="flex flex-wrap gap-6 text-sm text-white/80 font-medium">
+                        <h1 className="text-4xl md:text-5xl font-serif font-bold mb-4 text-ink">{job.title}</h1>
+                        <div className="flex flex-wrap gap-6 text-sm text-muted font-medium">
                             <span className="flex items-center gap-1"><MapPin className="w-4 h-4 text-highlight" /> Wien (Vor Ort)</span>
                             <span className="flex items-center gap-1"><DollarSign className="w-4 h-4 text-highlight" /> {job.salaryRange}</span>
                         </div>

@@ -1,9 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { Candidate, GameState, Phase, Message, ApplicantEvent } from '../types';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import type { Candidate, GameState, Phase, Message, ApplicantEvent, Question } from '../types';
 import { getCandidatesForJob } from '../data/candidates';
 import { scenarios as staticScenarios } from '../data/scenarios';
 import { jobs as staticJobs } from '../data/jobs';
-import { fetchSimulations, joinNewsletter, generateSimulation, trackEvent, type ApiSimulation } from '../services/api';
+import { fetchSimulations, joinNewsletter, generateSimulation, pollSimulationStatus, trackEvent, type ApiSimulation } from '../services/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -26,7 +26,9 @@ interface GameContextType extends GameState {
     /** Subscribe an email to the newsletter via the backend */
     subscribeNewsletter: (email: string) => Promise<{ is_new: boolean; message: string } | null>;
     /** Call the GPT endpoint to generate a new simulation, add it to the pool, and select it */
-    generateAndAddSimulation: (jobDescription: string, accessCode?: string) => Promise<{ jobId: string; remaining?: number } | null>;
+    generateAndAddSimulation: (jobDescription: string, accessCode?: string, email?: string) => Promise<{ jobId: string; remaining?: number; message?: string } | null>;
+    /** The 3 shared interview questions for the currently selected simulation */
+    activeQuestions: Question[];
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -66,6 +68,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const [apiSimulations, setApiSimulations] = useState<ApiSimulation[]>([]);
     const [simulationsLoading, setSimulationsLoading] = useState(true);
 
+    // Image polling ref so we can clear the interval
+    const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
     // ── Sync URL hash with landing page state ────────────────────────────────
     const setGameState = useCallback((state: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz') => {
         setGameStateRaw(state);
@@ -92,6 +97,55 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             .finally(() => setSimulationsLoading(false));
     }, []);
 
+    // Cleanup image polling on unmount
+    useEffect(() => {
+        return () => {
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+        };
+    }, []);
+
+    // ── Start polling a simulation for image URL updates ────────────────────
+    const startImagePolling = useCallback((jobId: string) => {
+        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+
+        pollIntervalRef.current = setInterval(async () => {
+            const status = await pollSimulationStatus(jobId);
+            if (!status) return;
+
+            // Patch the imageUrl for each candidate that now has one
+            setApiSimulations(prev => prev.map(sim => {
+                if (sim.jobId !== jobId && sim.job?.id !== jobId) return sim;
+                const updatedCandidates = sim.candidates.map((c: any) => {
+                    const freshData = status.candidates.find((sc: any) => sc.id === c.id);
+                    if (freshData?.imageUrl && !c.imageUrl) {
+                        return { ...c, imageUrl: freshData.imageUrl };
+                    }
+                    return c;
+                });
+                return { ...sim, candidates: updatedCandidates, imageStatus: status.imageStatus };
+            }));
+
+            // Also patch the live candidates state if this is the active job
+            if (jobId === selectedJobId || status.jobId === selectedJobId) {
+                setCandidates(prev => prev.map(c => {
+                    const freshData = status.candidates.find((sc: any) => sc.id === c.id);
+                    if (freshData?.imageUrl && !c.imageUrl) {
+                        return { ...c, imageUrl: freshData.imageUrl };
+                    }
+                    return c;
+                }));
+            }
+
+            // Stop polling when done or partial
+            if (status.imageStatus === 'done' || status.imageStatus === 'partial') {
+                if (pollIntervalRef.current) {
+                    clearInterval(pollIntervalRef.current);
+                    pollIntervalRef.current = null;
+                }
+            }
+        }, 5000);
+    }, [selectedJobId]);
+
     // ── Derived: merged job list (API jobs + static, API takes priority) ────
     const availableJobs = React.useMemo(() => {
         const apiJobs = apiSimulations
@@ -116,7 +170,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             typeof apiSim.scenario === 'object' &&
             Array.isArray((apiSim.scenario as any).messages)
         ) {
-            return apiSim.scenario as { jobId: string; messages: Message[]; applicantEvents: ApplicantEvent[] };
+            return apiSim.scenario as { jobId: string; messages: Message[]; applicantEvents: ApplicantEvent[]; questions?: any[] };
         }
         return staticScenarios.find(s => s.jobId === jobId) ?? null;
     }, [apiSimulations]);
@@ -137,6 +191,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         if (apiSim?.job) return apiSim.job;
         return staticJobs.find(j => j.id === jobId) ?? null;
     }, [apiSimulations]);
+
+    // ── Derived: questions for the active simulation ──────────────────────
+    const activeQuestions = React.useMemo((): Question[] => {
+        if (!selectedJobId) return [];
+        const apiSim = apiSimulations.find(s => s.jobId === selectedJobId || s.job?.id === selectedJobId);
+        // Prefer top-level questions, fall back to scenario.questions
+        const qs = apiSim?.questions ?? (apiSim?.scenario as any)?.questions ?? [];
+        return qs as Question[];
+    }, [apiSimulations, selectedJobId]);
 
     // ── Game actions ──────────────────────────────────────────────────────────
 
@@ -277,13 +340,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         return joinNewsletter(email);
     }, []);
 
-    const generateAndAddSimulation = useCallback(async (jobDescription: string, accessCode?: string): Promise<{ jobId: string; remaining?: number } | null> => {
-        const result = await generateSimulation(jobDescription, accessCode);
+    const generateAndAddSimulation = useCallback(async (
+        jobDescription: string,
+        accessCode?: string,
+        email?: string
+    ): Promise<{ jobId: string; remaining?: number; message?: string } | null> => {
+        const result = await generateSimulation(jobDescription, accessCode, email);
         if (!result) return null;
         const sim = result.simulation;
         // Normalise: backend returns { job, scenario, candidates } — map to ApiSimulation shape
+        const resolvedJobId = result.jobId ?? sim.job?.id ?? (sim as any).jobId ?? 'generated';
         const normalised: ApiSimulation = {
-            jobId: sim.job?.id ?? (sim as any).jobId ?? 'generated',
+            jobId: resolvedJobId,
             jobTitle: sim.job?.title ?? '',
             description: sim.job?.description ?? '',
             salaryRange: sim.job?.salaryRange ?? '',
@@ -292,12 +360,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             job: sim.job ?? (sim as any).job,
             scenario: (sim as any).scenario,
             candidates: (sim as any).candidates ?? [],
+            questions: (sim as any).questions ?? (sim as any).scenario?.questions ?? [],
+            imageStatus: (result.imageStatus as any) ?? 'pending',
             createdAt: new Date().toISOString(),
             sourcePrompt: jobDescription,
         };
         setApiSimulations(prev => [normalised, ...prev]);
-        return { jobId: normalised.jobId, remaining: result.remaining };
-    }, []);
+
+        // Start polling for images in the background
+        if (normalised.imageStatus === 'pending' || normalised.imageStatus === 'generating') {
+            startImagePolling(resolvedJobId);
+        }
+
+        return { jobId: resolvedJobId, remaining: result.remaining, message: result.message };
+    }, [startImagePolling]);
 
     return (
         <GameContext.Provider value={{
@@ -307,6 +383,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             selectJob, startGame, resetGame, nextPhase,
             toggleCandidateSelection, rejectCandidate, makeFinalDecision,
             markMessageRead, markApplicantEventRead,
+            activeQuestions,
         }}>
             {children}
         </GameContext.Provider>

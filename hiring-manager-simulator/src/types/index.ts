@@ -18,6 +18,18 @@ export interface Candidate {
     name: string;
     role: string;
     avatar?: string;
+    /** Age of the candidate (22–58). Available on API-generated simulations. */
+    age?: number;
+    /** Country of origin code, e.g. AT / DE / TR / PL. API-generated only. */
+    originCountry?: string;
+    /** Internal DALL-E prompt used to generate the profile image. Not displayed. */
+    profileImagePrompt?: string;
+    /** Profile photo URL (1024×1024 on server, display at 512×512). Null until DALL-E generation completes. */
+    imageUrl?: string | null;
+    /** True if this candidate was referred via personal connection. */
+    nepotismFlag?: boolean;
+    /** Candidate's answers to the 3 shared interview questions. */
+    questionResponses?: { q1: string; q2: string; q3: string };
     resume: {
         lastRole: string;
         company: string;
@@ -41,6 +53,12 @@ export interface Candidate {
     status: 'pool' | 'screened' | 'interviewed' | 'hired' | 'rejected';
 }
 
+// One of the 3 shared interview questions
+export interface Question {
+    id: 'q1' | 'q2' | 'q3';
+    text: string;
+}
+
 // Internal message from colleagues (CEO, CFO, HR, team lead, etc.)
 export interface Message {
     id: string;
@@ -49,6 +67,10 @@ export interface Message {
     content: string;
     jobId: string; // which job scenario this message belongs to
     triggerPhase: Phase;
+    /** Message type: standard colleague/HR message, or a casual flurfunk side-note about a candidate */
+    type?: 'standard' | 'flurfunk';
+    /** For flurfunk messages: the candidate this message refers to */
+    candidateId?: string;
     effect?: {
         type: 'budget_cut' | 'urgency_increase' | 'force_interview';
         value?: any;
@@ -62,7 +84,8 @@ export type ApplicantEventType =
     | 'question_email'     // before first interview — applicant asks about role/company
     | 'portfolio_link'     // applicant sends additional work samples
     | 'reference_letter'   // applicant sends unsolicited reference
-    | 'withdrawal';        // applicant withdraws their application!
+    | 'withdrawal'         // applicant withdraws their application!
+    | 'appearance_note';   // interviewer notes candidate looked different from profile photo (no score effect)
 
 export interface ApplicantEvent {
     id: string;
@@ -74,7 +97,7 @@ export interface ApplicantEvent {
     subject: string;
     body: string;
     effect?: {
-        type: 'urgency_decrease' | 'budget_hint' | 'candidate_boost' | 'candidate_lost';
+        type: 'urgency_decrease' | 'budget_hint' | 'candidate_boost' | 'candidate_lost' | 'none';
         candidateId?: string;
         value?: number;
     };
@@ -89,6 +112,8 @@ export interface Job {
     requirements: string[];
     budget: number;
     hiringManagerNote?: string;
+    /** How many days the posting has been live (7–28). Used as urgency context. */
+    daysOnline?: number;
 }
 
 // A full scenario groups all messages and applicant events for one job
@@ -96,6 +121,8 @@ export interface Scenario {
     jobId: string;
     messages: Message[];
     applicantEvents: ApplicantEvent[];
+    /** The 3 shared interview questions the player can ask any candidate */
+    questions?: Question[];
 }
 
 export interface GameState {

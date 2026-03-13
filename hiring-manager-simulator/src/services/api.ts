@@ -9,6 +9,11 @@
 
 const BASE_URL = 'https://app.thediary.games/api/hiring';
 
+export interface ApiQuestion {
+    id: 'q1' | 'q2' | 'q3';
+    text: string;
+}
+
 export interface ApiSimulation {
     jobId: string;
     jobTitle: string;
@@ -25,15 +30,21 @@ export interface ApiSimulation {
         requirements: string[];
         budget: number;
         hiringManagerNote?: string;
+        daysOnline?: number;
     };
-    /** Scenario object: messages + applicantEvents */
+    /** Scenario object: messages + applicantEvents + questions */
     scenario: {
         jobId: string;
         messages: any[];
         applicantEvents: any[];
+        questions?: ApiQuestion[];
     };
     /** Array of candidate objects */
     candidates: any[];
+    /** 3 shared interview questions */
+    questions?: ApiQuestion[];
+    /** Current image generation status */
+    imageStatus?: 'pending' | 'generating' | 'done' | 'partial';
     createdAt: string;
     /** The raw job description input that was used to generate this simulation */
     sourcePrompt?: string;
@@ -99,16 +110,30 @@ export async function joinNewsletter(
     }
 }
 
+export interface GenerateSimulationResult {
+    simulation: ApiSimulation;
+    jobId: string;
+    imageStatus?: string;
+    message?: string;
+    remaining?: number;
+}
+
 /**
  * Generate a new simulation from a job description via the backend GPT pipeline.
- * This can take 1-2 minutes – use with a loading indicator.
- * If an access_code is provided, it will be sent to the backend for token tracking.
- * Returns the full simulation object on success, null on error.
+ * Stage 1 (~10–20s): returns the full simulation + jobId immediately.
+ * Stage 2 (background): images are generated separately; poll via pollSimulationStatus().
+ *
+ * email is now required — the server sends a notification email when images are ready.
  */
-export async function generateSimulation(jobDescription: string, accessCode?: string): Promise<{ simulation: ApiSimulation; remaining?: number } | null> {
+export async function generateSimulation(
+    jobDescription: string,
+    accessCode?: string,
+    email?: string
+): Promise<GenerateSimulationResult | null> {
     try {
         const body: Record<string, string> = { job_description: jobDescription };
         if (accessCode) body.access_code = accessCode;
+        if (email) body.email = email;
         const res = await fetch(`${BASE_URL}/generate_sim_from_jobdescription`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -117,7 +142,42 @@ export async function generateSimulation(jobDescription: string, accessCode?: st
         if (!res.ok) return null;
         const json = await res.json();
         if (json.result_state !== 'success') return null;
-        return { simulation: json.result as ApiSimulation, remaining: json.remaining };
+        return {
+            simulation: json.result as ApiSimulation,
+            jobId: json.jobId ?? (json.result?.job?.id ?? 'generated'),
+            imageStatus: json.imageStatus,
+            message: json.message,
+            remaining: json.remaining,
+        };
+    } catch {
+        return null;
+    }
+}
+
+export interface SimulationStatusResult {
+    jobId: string;
+    imageStatus: 'pending' | 'generating' | 'done' | 'partial';
+    candidates: { id: string; name: string; imageUrl: string | null }[];
+}
+
+/**
+ * Poll image generation status for a simulation.
+ * Call every 5s after generateSimulation() returns. Stop when imageStatus is 'done' or 'partial'.
+ */
+export async function pollSimulationStatus(jobId: string): Promise<SimulationStatusResult | null> {
+    try {
+        const res = await fetch(`${BASE_URL}/simulation_status/${encodeURIComponent(jobId)}`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+        });
+        if (!res.ok) return null;
+        const json = await res.json();
+        if (json.result_state !== 'success') return null;
+        return {
+            jobId: json.jobId,
+            imageStatus: json.imageStatus,
+            candidates: json.candidates ?? [],
+        };
     } catch {
         return null;
     }

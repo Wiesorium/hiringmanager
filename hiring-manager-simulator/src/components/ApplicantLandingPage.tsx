@@ -48,6 +48,7 @@ function GenerateSimCard() {
     const [finalProgress, setFinalProgress] = useState(false);
     const [newJobId, setNewJobId] = useState<string | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+    const fbqFiredRef = useRef(false);
 
     // ── Access code state ─────────────────────────────────────────────────
     const [accessCode, setAccessCode] = useState(getSavedCode);
@@ -72,6 +73,19 @@ function GenerateSimCard() {
             }
         });
     }, []);
+
+    // Fire Meta Pixel InitiateCheckout when paywall is visible
+    useEffect(() => {
+        if (open && codeState !== 'valid' && state === 'idle' && !fbqFiredRef.current) {
+            if (window.fbq) {
+                window.fbq('track', 'InitiateCheckout', { value: 5.00, currency: 'EUR', content_name: 'Hiring Simulator Access Code' });
+                fbqFiredRef.current = true;
+            }
+        }
+        if (!open) {
+            fbqFiredRef.current = false;
+        }
+    }, [open, codeState, state]);
 
     const handleValidateCode = async () => {
         const code = codeInput.trim().toUpperCase();
@@ -127,8 +141,8 @@ function GenerateSimCard() {
                     <Sparkles className="w-5 h-5 text-highlight" />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg text-highlight">Eigene Stelle generieren</h3>
-                    <p className="text-xs text-muted mt-0.5">KI erstellt eine individuelle Simulation für deine Stelle</p>
+                    <h3 className="font-bold text-lg text-highlight">Simuliere genau die Rolle, auf die du dich bewirbst</h3>
+                    <p className="text-xs text-muted mt-0.5">Perfekte Vorbereitung: Die KI erstellt ein maßgeschneidertes Interview-Szenario für dich</p>
                 </div>
                 <ChevronDown className={`w-4 h-4 text-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
             </button>
@@ -336,32 +350,43 @@ function JobCard({ job, prompt, onSelect }: { job: { id: string; title: string; 
 export function ApplicantLandingPage() {
     const { selectJob, availableJobs, simulationsLoading } = useGame();
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return (
         <div className="min-h-screen bg-paper flex items-center justify-center p-6 text-ink font-sans">
-            <div className="max-w-3xl w-full bg-white rounded-xl shadow-xl overflow-hidden border border-stone-100">
-                <div className="bg-ink p-10 text-center relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-highlight opacity-10 rounded-full blur-3xl transform translate-x-10 translate-y-10"></div>
-                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-highlight opacity-10 rounded-full blur-3xl transform -translate-x-10 -translate-y-10"></div>
+            <div className="max-w-3xl w-full mt-8 mb-8 bg-white rounded-xl shadow-xl overflow-hidden border border-stone-100">
+                <div className="bg-white border-b border-stone-100 p-10 text-center relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-highlight opacity-5 rounded-full blur-3xl transform translate-x-10 translate-y-10"></div>
+                    <div className="absolute bottom-0 left-0 w-32 h-32 bg-highlight opacity-5 rounded-full blur-3xl transform -translate-x-10 -translate-y-10"></div>
 
                     <div className="relative z-10">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 rounded-full mb-6 ring-1 ring-white/20">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-highlight/10 rounded-full mb-6 ring-1 ring-highlight/20">
                             <MailOpen className="w-8 h-8 text-highlight" />
                         </div>
-                        <h2 className="text-highlight font-bold uppercase tracking-wider text-sm mb-2">Einladung von TechCorp GmbH</h2>
-                        <h1 className="text-3xl md:text-4xl font-serif font-bold text-white mb-6">
+                        <h2 className="text-highlight font-bold uppercase tracking-wider text-sm mb-2">Interview-Vorbereitung mal anders</h2>
+                        <h1 className="text-3xl md:text-4xl font-serif font-bold text-ink mb-6">
                             Entdecke die andere Seite des Tisches
                         </h1>
-                        <p className="text-white/80 text-lg max-w-2xl mx-auto leading-relaxed">
-                            Wir fanden dein Profil spannend, auch wenn es diesmal nicht geklappt hat.
-                            Als Dankeschön laden wir dich ein, selbst in die Rolle des Hiring Managers zu schlüpfen.
-                            Verstehe unsere Entscheidungen und lerne für die Zukunft.
+                        <p className="text-muted text-lg max-w-2xl mx-auto leading-relaxed">
+                            Schlüpfe selbst in die Rolle des Hiring Managers und analysiere Bewerberprofile.
+                            Indem du Recruiting-Entscheidungen triffst und typische Stolpersteine aus Arbeitgebersicht verstehst,
+                            gehst du optimal vorbereitet in deinen eigenen nächsten Bewerbungsprozess.
                         </p>
                     </div>
                 </div>
 
                 <div className="p-10">
+                    {/* Generate new simulation card — moved above the job grid */}
+                    {!simulationsLoading && (
+                        <div className="mb-10 col-span-full">
+                            <GenerateSimCard />
+                        </div>
+                    )}
+
                     <div className="mb-8 text-center">
-                        <h3 className="text-xl font-bold font-serif mb-2">Wähle deine Simulation</h3>
+                        <h3 className="text-xl font-bold font-serif mb-2">Oder wähle ein kostenloses Szenario</h3>
                         <div className="h-1 w-12 bg-highlight mx-auto rounded-full"></div>
                     </div>
 
@@ -399,10 +424,15 @@ export function ApplicantLandingPage() {
                         </p>
                     )}
 
-                    {/* Generate new simulation card — always shown below the job grid */}
+                    {/* Gentle upsell below the free scenarios */}
                     {!simulationsLoading && (
-                        <div className="mt-4 col-span-full">
-                            <GenerateSimCard />
+                        <div className="mt-8 text-center">
+                            <p className="text-sm text-muted">
+                                Bewirbst du dich auf eine spezifische Rolle? <br />
+                                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-highlight font-bold hover:underline mt-1">
+                                    Erstelle dein eigenes Szenario — €5
+                                </button>
+                            </p>
                         </div>
                     )}
 
