@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useGame } from '../context/GameContext';
-import { ArrowRight, CheckCircle, MapPin, DollarSign, Briefcase } from 'lucide-react';
+import { ArrowRight, CheckCircle, MapPin, DollarSign, Briefcase, Clock } from 'lucide-react';
 
 export function JobPosting() {
     const { startGame, selectedJobId, availableJobs } = useGame();
@@ -39,11 +39,21 @@ export function JobPosting() {
                         <div className="flex flex-wrap gap-6 text-sm text-muted font-medium">
                             <span className="flex items-center gap-1"><MapPin className="w-4 h-4 text-highlight" /> Wien (Vor Ort)</span>
                             <span className="flex items-center gap-1"><DollarSign className="w-4 h-4 text-highlight" /> {job.salaryRange}</span>
+                            {job.daysOnline !== undefined && (
+                                <span className="flex items-center gap-1"><Clock className="w-4 h-4 text-highlight" /> Seit {job.daysOnline} Tagen online</span>
+                            )}
                         </div>
                     </div>
                 </div>
 
-                <div className="p-10 space-y-10">
+                    <div className="p-10 space-y-10">
+                    <section className="bg-highlight/5 border border-highlight/20 rounded-xl px-6 py-4 flex items-start gap-3">
+                        <span className="text-2xl mt-0.5">🎩</span>
+                        <div>
+                            <p className="font-bold text-ink text-sm mb-0.5">Du übernimmst jetzt die Rolle des Hiring Managers</p>
+                            <p className="text-sm text-muted">In dieser Simulation entscheidest du, welche Kandidaten weiterkommen — und wen du am Ende einstellt. Du siehst dieselben Informationen, die ein echter Hiring Manager sehen würde.</p>
+                        </div>
+                    </section>
                     <section>
                         <h3 className="font-bold font-serif text-2xl mb-4 text-ink">Über die Rolle</h3>
                         <p className="leading-relaxed text-muted text-lg">
@@ -64,9 +74,10 @@ export function JobPosting() {
                     </section>
 
                     <section className="bg-paper p-6 rounded-xl border-l-4 border-highlight">
-                        <h3 className="font-bold font-serif text-lg mb-2 flex items-center gap-2 text-ink">
-                            Notiz vom Hiring Manager
+                        <h3 className="font-bold font-serif text-lg mb-1 flex items-center gap-2 text-ink">
+                            Deine Notiz als Hiring Manager
                         </h3>
+                        <p className="text-xs text-muted mb-3">Das ist deine persönliche interne Notiz — Prioritäten und Deal-Breaker, die du dir vor der Sichtung notiert hast.</p>
                         <p className="italic text-muted">
                             "{job.hiringManagerNote ?? 'Bitte achte auf die Gehaltsvorstellungen, die Team-Passung und darauf, dass die Person rasch selbstständig arbeiten kann.'}"
                         </p>

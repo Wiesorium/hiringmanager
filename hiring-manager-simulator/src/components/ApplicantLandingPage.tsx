@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MailOpen, ArrowRight, Loader2, Sparkles, CheckCircle, AlertCircle, ChevronDown, FileText, Lock, Key, ExternalLink } from 'lucide-react';
+import { MailOpen, ArrowRight, Loader2, Sparkles, CheckCircle, AlertCircle, ChevronDown, FileText, Lock, Key, ExternalLink, Mail } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { validateAccessCode } from '../services/api';
 
@@ -12,7 +12,7 @@ function GenerationProgressBar({ active }: { active: boolean }) {
 
         setProgress(0);
         const start = Date.now();
-        const TARGET_MS = 90000; // assume ~90s to reach 87%
+        const TARGET_MS = 120000; // up to 2 minutes for full generation
 
         const tick = setInterval(() => {
             const elapsed = Date.now() - start;
@@ -44,7 +44,9 @@ function GenerateSimCard() {
 
     const [open, setOpen] = useState(false);
     const [jobDesc, setJobDesc] = useState('');
+    const [email, setEmail] = useState('');
     const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+    const [serverMessage, setServerMessage] = useState<string | null>(null);
     const [finalProgress, setFinalProgress] = useState(false);
     const [newJobId, setNewJobId] = useState<string | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -102,13 +104,14 @@ function GenerateSimCard() {
         }
     };
 
-    const canSubmit = jobDesc.trim().length >= 20 && state === 'idle' && codeState === 'valid' && (remaining === null || remaining > 0);
+    const isValidEmail = (v: string) => v.includes('@') && v.includes('.');
+    const canSubmit = jobDesc.trim().length >= 20 && state === 'idle' && codeState === 'valid' && (remaining === null || remaining > 0) && isValidEmail(email.trim());
 
     const handleGenerate = async () => {
         if (!canSubmit) return;
         setState('loading');
 
-        const result = await generateAndAddSimulation(jobDesc.trim(), accessCode);
+        const result = await generateAndAddSimulation(jobDesc.trim(), accessCode, email.trim());
 
         setFinalProgress(true);
         await new Promise(r => setTimeout(r, 600));
@@ -116,6 +119,7 @@ function GenerateSimCard() {
         if (result) {
             setNewJobId(result.jobId);
             if (result.remaining !== undefined) setRemaining(result.remaining);
+            setServerMessage(result.message ?? null);
             setState('done');
         } else {
             setState('error');
@@ -135,7 +139,7 @@ function GenerateSimCard() {
             {/* Header / toggle */}
             <button
                 className="w-full text-left p-6 flex items-center gap-4"
-                onClick={() => { setOpen(o => !o); setState('idle'); setJobDesc(''); setNewJobId(null); setFinalProgress(false); }}
+                onClick={() => { setOpen(o => !o); setState('idle'); setJobDesc(''); setEmail(''); setNewJobId(null); setFinalProgress(false); setServerMessage(null); }}
             >
                 <div className="w-10 h-10 rounded-full bg-highlight/10 flex items-center justify-center flex-shrink-0">
                     <Sparkles className="w-5 h-5 text-highlight" />
@@ -225,6 +229,23 @@ function GenerateSimCard() {
                                 <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
                                 <span>Code aktiv — {remaining !== null ? `${remaining} Generierung${remaining !== 1 ? 'en' : ''} übrig` : 'Bereit'}</span>
                             </div>
+
+                            {/* Email field */}
+                            <div className="space-y-1.5">
+                                <label className="text-xs font-semibold text-ink flex items-center gap-1.5">
+                                    <Mail className="w-3.5 h-3.5 text-highlight" />
+                                    Deine E-Mail-Adresse
+                                </label>
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    placeholder="deine@email.at"
+                                    className="w-full rounded-lg border border-stone-200 bg-white px-3 py-2.5 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-highlight/40"
+                                />
+                                <p className="text-xs text-muted">Wir schicken dir einen Link wenn die Profilfotos fertig generiert sind.</p>
+                            </div>
+
                             <textarea
                                 ref={textareaRef}
                                 value={jobDesc}
@@ -241,7 +262,7 @@ function GenerateSimCard() {
                             >
                                 Simulation generieren <ArrowRight className="w-4 h-4" />
                             </button>
-                            <p className="text-center text-xs text-muted">Dauert ca. 1-2 Minuten ☕</p>
+                            <p className="text-center text-xs text-muted">Dauert bis zu 2 Minuten ☕ — Profilfotos kommen danach per E-Mail</p>
                         </>
                     )}
 
@@ -249,7 +270,7 @@ function GenerateSimCard() {
                         <div className="space-y-4 py-2">
                             <div className="flex items-center gap-3 text-sm text-muted">
                                 <Loader2 className="w-4 h-4 animate-spin text-highlight flex-shrink-0" />
-                                <span>KI erstellt Kandidaten, Nachrichten und Szenario…</span>
+                                <span>KI erstellt Kandidaten, Nachrichten und Szenario… bis zu 2 Minuten</span>
                             </div>
                             <GenerationProgressBar active={!finalProgress} />
                             {finalProgress && (
@@ -275,9 +296,15 @@ function GenerateSimCard() {
 
                     {state === 'done' && (
                         <div className="space-y-4 py-2">
-                            <div className="flex items-center gap-2 text-green-600 text-sm font-medium">
-                                <CheckCircle className="w-4 h-4" />
-                                Simulation erfolgreich erstellt!
+                            <div className="flex items-start gap-2 text-green-600 text-sm font-medium">
+                                <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                <span>
+                                    {serverMessage ?? 'Simulation erfolgreich erstellt!'}
+                                </span>
+                            </div>
+                            <div className="flex items-start gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                                <Mail className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                                <span>Profilfotos werden im Hintergrund generiert. Du erhältst eine E-Mail sobald alles bereit ist. Du kannst die Simulation jetzt schon starten!</span>
                             </div>
                             <button
                                 onClick={handlePlay}

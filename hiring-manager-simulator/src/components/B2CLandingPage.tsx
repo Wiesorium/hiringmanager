@@ -124,12 +124,7 @@ export function B2CLandingPage() {
                         >
                             Datenschutz
                         </button>
-                        <button
-                            onClick={() => setGameState('company_home')}
-                            className="hover:text-ink transition-colors"
-                        >
-                            Für Unternehmen
-                        </button>
+
                     </div>
                 </div>
             </footer>

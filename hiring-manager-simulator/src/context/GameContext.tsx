@@ -8,8 +8,8 @@ import { fetchSimulations, joinNewsletter, generateSimulation, pollSimulationSta
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface GameContextType extends GameState {
-    gameState: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz';
-    setGameState: (state: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz') => void;
+    gameState: 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz';
+    setGameState: (state: 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz') => void;
     selectJob: (jobId: string) => void;
     startGame: () => void;
     resetGame: () => void;
@@ -25,7 +25,6 @@ interface GameContextType extends GameState {
     simulationsLoading: boolean;
     /** Subscribe an email to the newsletter via the backend */
     subscribeNewsletter: (email: string) => Promise<{ is_new: boolean; message: string } | null>;
-    /** Call the GPT endpoint to generate a new simulation, add it to the pool, and select it */
     generateAndAddSimulation: (jobDescription: string, accessCode?: string, email?: string) => Promise<{ jobId: string; remaining?: number; message?: string } | null>;
     /** The 3 shared interview questions for the currently selected simulation */
     activeQuestions: Question[];
@@ -35,8 +34,20 @@ interface GameContextType extends GameState {
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
-function sampleApplicantEvents(events: ApplicantEvent[], phase: Phase): ApplicantEvent[] {
-    return events.filter(e => e.triggerPhase === phase && Math.random() < 0.6);
+/** Sample applicant events for this phase, only for candidates still active (unless it's a withdrawal) */
+function sampleApplicantEvents(
+    events: ApplicantEvent[],
+    phase: Phase,
+    activeCandidateIds?: Set<string>
+): ApplicantEvent[] {
+    return events.filter(e => {
+        if (e.triggerPhase !== phase) return false;
+        // Withdrawals can fire for any candidate regardless of active status
+        if (e.type === 'withdrawal') return Math.random() < 0.6;
+        // Other events: only fire if candidate is still in the active pool (or no filter provided)
+        if (activeCandidateIds && e.candidateId && !activeCandidateIds.has(e.candidateId)) return false;
+        return Math.random() < 0.6;
+    });
 }
 
 /** Convert an ApiSimulation's candidates array to the typed Candidate[] shape */
@@ -48,11 +59,8 @@ function normalizeCandidates(raw: any[]): Candidate[] {
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
     // Game UI state
-    const [gameState, setGameStateRaw] = useState<'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz'>(() => {
-        // Read initial hash to support direct deep links
-        const hash = window.location.hash.replace('#', '').toLowerCase();
-        if (hash === 'b2b') return 'company_home';
-        return 'b2c_home'; // default
+    const [gameState, setGameStateRaw] = useState<'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz'>(() => {
+        return 'b2c_home'; // always start on the B2C landing page
     });
     const [phase, setPhase] = useState<Phase>('screening');
     const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
@@ -72,22 +80,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // ── Sync URL hash with landing page state ────────────────────────────────
-    const setGameState = useCallback((state: 'company_home' | 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz') => {
+    const setGameState = useCallback((state: 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz') => {
         setGameStateRaw(state);
-        if (state === 'company_home') window.location.hash = 'b2b';
-        else if (state === 'b2c_home') window.location.hash = 'b2c';
-        // For deeper states (playing etc.) keep hash as-is
-    }, []);
-
-    // Listen for browser back/forward between #b2b and #b2c
-    useEffect(() => {
-        const onHashChange = () => {
-            const hash = window.location.hash.replace('#', '').toLowerCase();
-            if (hash === 'b2b') setGameStateRaw('company_home');
-            else if (hash === 'b2c') setGameStateRaw('b2c_home');
-        };
-        window.addEventListener('hashchange', onHashChange);
-        return () => window.removeEventListener('hashchange', onHashChange);
+        // No special hash handling needed — B2B page is gone
     }, []);
 
     // ── Fetch API simulations on mount ──────────────────────────────────────
@@ -204,7 +199,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     // ── Game actions ──────────────────────────────────────────────────────────
 
     const resetGame = () => {
-        setGameState('company_home');
+        setGameState('b2c_home');
         setPhase('screening');
         setSelectedJobId(null);
         setCandidates([]);
@@ -256,35 +251,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             })));
             setPhase('interviews');
             setSelectedCandidates([]);
-            trackEvent('screening_done'); // funnel: phase 1 → 2
+            trackEvent('screening_done');
 
             if (scenario) {
                 const newMsgs = scenario.messages.filter((m: Message) => m.triggerPhase === 'interviews');
                 setMessages(prev => [...prev, ...newMsgs]);
-
                 newMsgs.forEach((msg: Message) => {
-                    if (msg.effect?.type === 'budget_cut') {
-                        setBudget(b => b - (msg.effect?.value ?? 0));
-                    }
+                    if (msg.effect?.type === 'budget_cut') setBudget(b => b - (msg.effect?.value ?? 0));
                 });
-
-                setApplicantEvents(prev => [...prev, ...sampleApplicantEvents(scenario.applicantEvents, 'interviews')]);
+                // Only fire events for candidates being promoted to interviews
+                const interviewIds = new Set(selectedCandidates);
+                setApplicantEvents(prev => [...prev, ...sampleApplicantEvents(scenario.applicantEvents, 'interviews', interviewIds)]);
             }
         } else if (phase === 'interviews') {
             setPhase('decision');
-            trackEvent('interviews_done'); // funnel: phase 2 → 3
+            trackEvent('interviews_done');
 
             if (scenario) {
                 const newMsgs = scenario.messages.filter((m: Message) => m.triggerPhase === 'decision');
                 setMessages(prev => [...prev, ...newMsgs]);
-
                 newMsgs.forEach((msg: Message) => {
-                    if (msg.effect?.type === 'urgency_increase') {
-                        setUrgency(u => u + (msg.effect?.value ?? 0));
-                    }
+                    if (msg.effect?.type === 'urgency_increase') setUrgency(u => u + (msg.effect?.value ?? 0));
                 });
-
-                setApplicantEvents(prev => [...prev, ...sampleApplicantEvents(scenario.applicantEvents, 'decision')]);
+                // Only fire events for finalists
+                const finalistIds = new Set(selectedCandidates);
+                setApplicantEvents(prev => [...prev, ...sampleApplicantEvents(scenario.applicantEvents, 'decision', finalistIds)]);
             }
         } else if (phase === 'decision') {
             if (finalChoice) {

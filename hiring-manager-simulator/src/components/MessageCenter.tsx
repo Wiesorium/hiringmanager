@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGame } from '../context/GameContext';
-import { Mail, AlertCircle, X, UserCircle, Bell } from 'lucide-react';
+import { Mail, AlertCircle, X, UserCircle, Bell, MessageSquare } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export function MessageCenter() {
@@ -16,47 +16,67 @@ export function MessageCenter() {
     );
     const totalUnread = visibleMessages.length + visibleEvents.length;
 
-    const MessageCard = ({ msg }: { msg: typeof visibleMessages[0] }) => (
-        <motion.div
-            key={msg.id}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
-            className={cn(
-                "p-4 rounded-lg shadow-xl pointer-events-auto border-l-4 w-full relative group",
-                "bg-white text-ink border-stone-200",
-                "border-l-highlight"
-            )}
-        >
-            <button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    markMessageRead(msg.id);
-                }}
-                className="absolute top-2 right-2 text-stone-400 hover:text-ink p-1 hover:bg-stone-100 rounded-full transition-colors"
-                aria-label="Nachricht schließen"
-            >
-                <X className="w-4 h-4" />
-            </button>
-
-            <div className="flex items-start justify-between mb-1 pr-6">
-                <div className="flex items-center gap-2 font-serif font-bold text-sm">
-                    {msg.effect ? <AlertCircle className="w-4 h-4 text-highlight" /> : <Mail className="w-4 h-4" />}
-                    {msg.sender}
-                </div>
-            </div>
-
-            <p className="text-sm leading-relaxed font-sans mb-1">{msg.content}</p>
-            <div className="flex justify-between items-center mt-2">
-                <span className="text-xs text-muted uppercase tracking-wider">{msg.role}</span>
-                {msg.effect && (
-                    <div className="text-xs font-bold text-highlight uppercase tracking-wide">
-                        Effect: {msg.effect.type.replace(/_/g, ' ')}
-                    </div>
+    const MessageCard = ({ msg }: { msg: typeof visibleMessages[0] }) => {
+        const isFlurfunk = msg.type === 'flurfunk';
+        return (
+            <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                className={cn(
+                    "p-4 rounded-lg shadow-xl pointer-events-auto border-l-4 w-full relative group",
+                    isFlurfunk
+                        ? "bg-amber-50 text-ink border-amber-400"
+                        : "bg-white text-ink border-stone-200 border-l-highlight"
                 )}
-            </div>
-        </motion.div>
-    );
+            >
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        markMessageRead(msg.id);
+                    }}
+                    className={cn(
+                        "absolute top-2 right-2 p-1 rounded-full transition-colors",
+                        isFlurfunk
+                            ? "text-amber-400 hover:text-amber-700 hover:bg-amber-100"
+                            : "text-stone-400 hover:text-ink hover:bg-stone-100"
+                    )}
+                    aria-label="Nachricht schließen"
+                >
+                    <X className="w-4 h-4" />
+                </button>
+
+                <div className="flex items-start justify-between mb-1 pr-6">
+                    <div className="flex items-center gap-2 font-serif font-bold text-sm">
+                        {isFlurfunk
+                            ? <MessageSquare className="w-4 h-4 text-amber-500" />
+                            : msg.effect ? <AlertCircle className="w-4 h-4 text-highlight" /> : <Mail className="w-4 h-4" />}
+                        {msg.sender}
+                    </div>
+                    {isFlurfunk && (
+                        <span className="text-xs text-amber-600 font-semibold bg-amber-100 px-1.5 py-0.5 rounded ml-2">Flurfunk</span>
+                    )}
+                </div>
+
+                <p className={cn(
+                    "text-sm leading-relaxed font-sans mb-1",
+                    isFlurfunk ? "italic" : ""
+                )}>{msg.content}</p>
+                <div className="flex justify-between items-center mt-2">
+                    <span className={cn(
+                        "text-xs uppercase tracking-wider",
+                        isFlurfunk ? "text-amber-600" : "text-muted"
+                    )}>{msg.role}</span>
+                    {!isFlurfunk && msg.effect && (
+                        <div className="text-xs font-bold text-highlight uppercase tracking-wide">
+                            Effect: {msg.effect.type.replace(/_/g, ' ')}
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+        );
+    };
 
     const EventCard = ({ ev }: { ev: typeof visibleEvents[0] }) => (
         <motion.div
@@ -97,7 +117,8 @@ export function MessageCenter() {
                         ev.type === 'thank_you_mail' ? 'Dankesschreiben' :
                             ev.type === 'question_email' ? 'Rückfrage' :
                                 ev.type === 'portfolio_link' ? 'Portfolio gesendet' :
-                                    ev.type === 'reference_letter' ? 'Referenzschreiben' : ev.type}
+                                    ev.type === 'reference_letter' ? 'Referenzschreiben' :
+                                        ev.type === 'appearance_note' ? '👁 Erscheinungsbild-Notiz' : ev.type}
                 </span>
                 {ev.effect?.type === 'candidate_lost' && (
                     <span className="text-xs font-bold text-red-500 uppercase">Kandidat weg!</span>

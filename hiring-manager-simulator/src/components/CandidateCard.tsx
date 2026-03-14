@@ -11,6 +11,25 @@ interface CandidateCardProps {
     onReject?: (id: string) => void;
 }
 
+/** Initials avatar shown until a profile image loads */
+function InitialsAvatar({ name, size = 'sm' }: { name: string; size?: 'sm' | 'lg' }) {
+    const initials = name
+        .split(' ')
+        .slice(0, 2)
+        .map(n => n[0] ?? '')
+        .join('')
+        .toUpperCase();
+    const dim = size === 'lg' ? 'w-20 h-20 text-xl' : 'w-12 h-12 text-sm';
+    return (
+        <div className={cn(
+            'rounded-full bg-stone-200 text-stone-600 flex items-center justify-center font-bold font-serif flex-shrink-0',
+            dim
+        )}>
+            {initials}
+        </div>
+    );
+}
+
 export function CandidateCard({ candidate, isSelected, onSelect, onView, onReject }: CandidateCardProps) {
     return (
         <motion.div
@@ -23,9 +42,33 @@ export function CandidateCard({ candidate, isSelected, onSelect, onView, onRejec
             )}
         >
             <div className="flex justify-between items-start mb-4">
-                <div>
-                    <h3 className="font-serif font-bold text-lg leading-tight">{candidate.name}</h3>
-                    <p className="text-sm text-muted">{candidate.resume.lastRole} bei {candidate.resume.company}</p>
+                <div className="flex items-center gap-3">
+                    {/* Profile image or initials avatar */}
+                    <div className="relative">
+                        {candidate.imageUrl ? (
+                            <img
+                                src={candidate.imageUrl}
+                                alt={candidate.name}
+                                className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                                style={{ width: 48, height: 48 }}
+                            />
+                        ) : (
+                            <InitialsAvatar name={candidate.name} size="sm" />
+                        )}
+                        {/* Nepotism badge */}
+                        {candidate.nepotismFlag && (
+                            <span
+                                className="absolute -bottom-1 -right-1 text-xs bg-amber-100 border border-amber-300 rounded-full w-4 h-4 flex items-center justify-center"
+                                title="Empfehlung via persönliches Netzwerk"
+                            >
+                                🤝
+                            </span>
+                        )}
+                    </div>
+                    <div>
+                        <h3 className="font-serif font-bold text-lg leading-tight">{candidate.name}</h3>
+                        <p className="text-sm text-muted">{candidate.resume.lastRole} bei {candidate.resume.company}</p>
+                    </div>
                 </div>
                 <div className="text-xs bg-stone-100 px-2 py-1 rounded font-medium text-stone-600">
                     {candidate.resume.yearsOfExperience}J Erf.

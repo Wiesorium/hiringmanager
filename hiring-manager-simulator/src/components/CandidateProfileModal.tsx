@@ -12,6 +12,21 @@ interface CandidateProfileModalProps {
     isActionSelected?: boolean;
 }
 
+/** Large initials avatar for the modal header */
+function LargeInitialsAvatar({ name }: { name: string }) {
+    const initials = name
+        .split(' ')
+        .slice(0, 2)
+        .map(n => n[0] ?? '')
+        .join('')
+        .toUpperCase();
+    return (
+        <div className="w-20 h-20 rounded-full bg-stone-200 text-stone-600 flex items-center justify-center font-bold font-serif text-2xl flex-shrink-0">
+            {initials}
+        </div>
+    );
+}
+
 export function CandidateProfileModal({ candidate, onClose, onAction, actionLabel, isActionSelected }: CandidateProfileModalProps) {
     const { phase } = useGame();
 
@@ -44,12 +59,39 @@ export function CandidateProfileModal({ candidate, onClose, onAction, actionLabe
                     </button>
 
                     <header className="mb-6 sm:mb-8 border-b border-ink/10 pb-5 sm:pb-6">
-                        <h2 className="text-2xl sm:text-3xl font-serif font-bold mb-1">{candidate.name}</h2>
-                        <p className="text-base sm:text-lg text-muted mb-4">{candidate.role}</p>
-                        <div className="flex flex-wrap gap-2 sm:gap-4 text-sm font-medium">
+                        <div className="flex items-center gap-4 mb-4">
+                            {/* Profile image or initials */}
+                            {candidate.imageUrl ? (
+                                <img
+                                    src={candidate.imageUrl}
+                                    alt={candidate.name}
+                                    className="w-20 h-20 rounded-full object-cover flex-shrink-0"
+                                    style={{ width: 80, height: 80 }}
+                                />
+                            ) : (
+                                <LargeInitialsAvatar name={candidate.name} />
+                            )}
+                            <div>
+                                <h2 className="text-2xl sm:text-3xl font-serif font-bold mb-1">{candidate.name}</h2>
+                                <p className="text-base sm:text-lg text-muted">{candidate.role}</p>
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2 sm:gap-3 text-sm font-medium">
                             <span className="bg-ink/5 px-3 py-1 rounded">Erf: {candidate.resume.yearsOfExperience} Jahre</span>
                             <span className="bg-ink/5 px-3 py-1 rounded">Gehalt: € {candidate.attributes.salary.toLocaleString()}</span>
+                            {candidate.age !== undefined && (
+                                <span className="bg-ink/5 px-3 py-1 rounded">{candidate.age} Jahre alt</span>
+                            )}
+                            {candidate.originCountry && (
+                                <span className="bg-ink/5 px-3 py-1 rounded">🏷 {candidate.originCountry}</span>
+                            )}
                         </div>
+                        {candidate.nepotismFlag && (
+                            <div className="mt-3 flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2">
+                                <span>🤝</span>
+                                <span>Empfehlung via persönliches Netzwerk</span>
+                            </div>
+                        )}
                     </header>
 
                     <div className="space-y-6 sm:space-y-8">
