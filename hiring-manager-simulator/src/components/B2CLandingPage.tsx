@@ -118,12 +118,12 @@ export function B2CLandingPage() {
                         </div>
 
                         <div>
-                            <p className="text-sm font-semibold text-muted mb-2 uppercase tracking-widest">
-                                Für Bewerber:innen mit fortgeschrittener Berufserfahrung
-                            </p>
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight text-ink">
                                 Warum wurdest du <span className="text-highlight">wirklich</span> abgelehnt?
                             </h1>
+                            <p className="text-xs text-muted mt-3 uppercase tracking-widest">
+                                Für Bewerber:innen mit fortgeschrittener Berufserfahrung
+                            </p>
                         </div>
 
                         <p className="text-lg text-muted max-w-lg leading-relaxed">
