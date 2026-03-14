@@ -8,8 +8,11 @@ import { fetchSimulations, joinNewsletter, generateSimulation, pollSimulationSta
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface GameContextType extends GameState {
-    gameState: 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz';
-    setGameState: (state: 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz') => void;
+    gameState: 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz' | 'blog' | 'blog_post';
+    setGameState: (state: 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz' | 'blog' | 'blog_post') => void;
+    /** Currently viewed blog post slug */
+    activeBlogSlug: string;
+    setActiveBlogSlug: (slug: string) => void;
     selectJob: (jobId: string) => void;
     startGame: () => void;
     resetGame: () => void;
@@ -59,9 +62,10 @@ function normalizeCandidates(raw: any[]): Candidate[] {
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
     // Game UI state
-    const [gameState, setGameStateRaw] = useState<'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz'>(() => {
+    const [gameState, setGameStateRaw] = useState<'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz' | 'blog' | 'blog_post'>(() => {
         return 'b2c_home'; // always start on the B2C landing page
     });
+    const [activeBlogSlug, setActiveBlogSlug] = useState('');
     const [phase, setPhase] = useState<Phase>('screening');
     const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
     const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -80,7 +84,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
     // ── Sync URL hash with landing page state ────────────────────────────────
-    const setGameState = useCallback((state: 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz') => {
+    const setGameState = useCallback((state: 'b2c_home' | 'applicant_intro' | 'job_posting' | 'playing' | 'impressum' | 'datenschutz' | 'blog' | 'blog_post') => {
         setGameStateRaw(state);
         // No special hash handling needed — B2B page is gone
     }, []);
@@ -375,6 +379,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             toggleCandidateSelection, rejectCandidate, makeFinalDecision,
             markMessageRead, markApplicantEventRead,
             activeQuestions,
+            activeBlogSlug, setActiveBlogSlug,
         }}>
             {children}
         </GameContext.Provider>

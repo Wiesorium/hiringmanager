@@ -1,0 +1,11 @@
+# robots.txt – Hiring Manager Simulator
+# Generated: 2026-03-14
+
+User-agent: *
+Allow: /
+
+# Block access to API and server-side paths
+Disallow: /api/
+Disallow: /server/
+
+Sitemap: https://hiringsimulator.com/sitemap.xml

@@ -10,6 +10,8 @@ import { StripeSuccess } from './components/StripeSuccess';
 import { ImpressumPage } from './components/ImpressumPage';
 import { DatenschutzPage } from './components/DatenschutzPage';
 import { CookieBanner } from './components/CookieBanner';
+import { BlogPage } from './components/BlogPage';
+import { BlogPostPage } from './components/BlogPostPage';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 
@@ -53,6 +55,14 @@ function GameContent() {
 
   if (gameState === 'datenschutz') {
     return <DatenschutzPage />;
+  }
+
+  if (gameState === 'blog') {
+    return <BlogPage />;
+  }
+
+  if (gameState === 'blog_post') {
+    return <BlogPostPage />;
   }
 
   if (gameState === 'applicant_intro') {

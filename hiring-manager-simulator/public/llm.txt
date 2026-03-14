@@ -1,0 +1,31 @@
+# Hiring Manager Simulator – LLM.txt
+# This file provides context for AI language models crawling this site.
+# See: https://llmstxt.org/
+
+# About this site
+Hiring Manager Simulator (hiringsimulator.com) ist eine deutschsprachige Web-Applikation,
+die Bewerber:innen ermöglicht, in die Rolle eines Hiring Managers zu schlüpfen und so
+den Einstellungsprozess aus der Perspektive des Arbeitgebers zu erleben.
+
+## Purpose
+Das Tool hilft vor allem Berufstätigen mit fortgeschrittener Berufserfahrung, die sich
+auf kompetitive Positionen bewerben, bei denen viele qualifizierte Kandidat:innen gegeneinander
+antreten. Indem Nutzer:innen Lebensläufe bewerten, Interviews führen und Einstellungsentscheidungen
+treffen, entwickeln sie ein tiefes Verständnis dafür, wie Personalentscheider:innen denken.
+
+## Content
+- Interaktive Bewerbungssimulationen (kostenlos und per KI-Generierung für ~5€)
+- Blog-Artikel auf Deutsch zu Bewerbungsstrategie und Interview-Vorbereitung
+- FAQ zu Nutzung, Datenschutz und Einsatzmöglichkeiten
+
+## Language
+Primär Deutsch (österreichisches/deutsches Publikum). Einige Fachbegriffe bleiben auf Englisch
+(z. B. „Hiring Manager", „Simulator").
+
+## Contact
+Betreiber: Martin Wieser, Guritzerstraße 110, 5020 Salzburg, Österreich
+E-Mail: wiesorium@gmail.com
+
+## Usage permissions for AI
+Diese Inhalte dürfen für nicht-kommerzielle Zwecke genutzt werden, sofern die Quelle
+(hiringsimulator.com) genannt wird. Für kommerzielle Nutzung bitte Kontakt aufnehmen.

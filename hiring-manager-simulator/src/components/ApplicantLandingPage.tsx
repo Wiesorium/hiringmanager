@@ -80,7 +80,7 @@ function GenerateSimCard() {
     useEffect(() => {
         if (open && codeState !== 'valid' && state === 'idle' && !fbqFiredRef.current) {
             if (window.fbq) {
-                window.fbq('track', 'InitiateCheckout', { value: 5.00, currency: 'EUR', content_name: 'Hiring Simulator Access Code' });
+                window.fbq('track', 'InitiateCheckout', { value: 19.00, currency: 'EUR', content_name: 'Hiring Simulator Access Code' });
                 fbqFiredRef.current = true;
             }
         }
@@ -164,7 +164,7 @@ function GenerateSimCard() {
                                     <div>
                                         <p className="text-sm font-semibold text-ink">KI-Generierung benötigt einen Zugangscode</p>
                                         <p className="text-xs text-muted mt-1">
-                                            Einmalig €5 für bis zu <strong>10 Simulationen</strong>. Das sind nur 50 Cent pro Simulation.
+                                            Einmalig €19 für <strong>3 Simulations-Credits</strong>.
                                             Falls du vor Aufbrauch aller Tokens einen Job findest, kannst du den Code an Freunde weitergeben!
                                         </p>
                                     </div>
@@ -175,7 +175,7 @@ function GenerateSimCard() {
                                     rel="noopener noreferrer"
                                     className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm bg-highlight text-white hover:bg-highlight/90 transition-all"
                                 >
-                                    Zugangscode kaufen – €5 <ExternalLink className="w-4 h-4" />
+                                    Zugangscode kaufen – €19 <ExternalLink className="w-4 h-4" />
                                 </a>
                             </div>
 
@@ -392,15 +392,16 @@ export function ApplicantLandingPage() {
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-highlight/10 rounded-full mb-6 ring-1 ring-highlight/20">
                             <MailOpen className="w-8 h-8 text-highlight" />
                         </div>
-                        <h2 className="text-highlight font-bold uppercase tracking-wider text-sm mb-2">Interview-Vorbereitung mal anders</h2>
+                        <h2 className="text-highlight font-bold uppercase tracking-wider text-sm mb-2">Interview-Vorbereitung für kompetitive Positionen</h2>
                         <h1 className="text-3xl md:text-4xl font-serif font-bold text-ink mb-6">
                             Entdecke die andere Seite des Tisches
                         </h1>
                         <p className="text-muted text-lg max-w-2xl mx-auto leading-relaxed">
-                            Schlüpfe selbst in die Rolle des Hiring Managers und analysiere Bewerberprofile.
-                            Indem du Recruiting-Entscheidungen triffst und typische Stolpersteine aus Arbeitgebersicht verstehst,
-                            gehst du optimal vorbereitet in deinen eigenen nächsten Bewerbungsprozess.
+                            Schlüpfe in die Rolle des Hiring Managers und analysiere Bewerberprofile.
+                            Bei Positionen mit viel Berufserfahrung und vielen Bewerber:innen entscheidet nicht nur die Qualifikation —
+                            sondern wie du wahrgenommen wirst. Erlebe diese Dynamik von innen und bereite dich besser vor.
                         </p>
+
                     </div>
                 </div>
 
@@ -457,7 +458,7 @@ export function ApplicantLandingPage() {
                             <p className="text-sm text-muted">
                                 Bewirbst du dich auf eine spezifische Rolle? <br />
                                 <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-highlight font-bold hover:underline mt-1">
-                                    Erstelle dein eigenes Szenario — €5
+                                    Erstelle dein eigenes Szenario — €19
                                 </button>
                             </p>
                         </div>
