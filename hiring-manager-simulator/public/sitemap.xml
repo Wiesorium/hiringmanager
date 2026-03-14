@@ -34,4 +34,20 @@
     <priority>0.7</priority>
   </url>
 
+  <!-- Blog-Artikel 3 -->
+  <url>
+    <loc>https://hiringsimulator.com/#blog/persoenlichkeitstests-bewerbung</loc>
+    <lastmod>2026-03-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Blog-Artikel 4 -->
+  <url>
+    <loc>https://hiringsimulator.com/#blog/hr-perspektive-verstehen</loc>
+    <lastmod>2026-03-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>

@@ -266,14 +266,14 @@ export function B2CLandingPage() {
 
                         <div
                             className="bg-stone-50 border border-stone-100 hover:border-highlight/40 rounded-2xl p-6 cursor-pointer group transition-all"
-                            onClick={() => { setActiveBlogSlug('persoenlichkeitstests-bewerbung'); setGameState('blog_post' as any); }}
+                            onClick={() => { setActiveBlogSlug('hr-perspektive-verstehen'); setGameState('blog_post' as any); }}
                         >
-                            <span className="text-xs text-highlight font-bold">Selbstreflexion &amp; Strategie</span>
+                            <span className="text-xs text-highlight font-bold">HR-Perspektive</span>
                             <h3 className="font-serif font-bold text-ink mt-2 mb-2 group-hover:text-highlight transition-colors leading-snug">
-                                Die wichtigsten Persönlichkeitstests für deine Bewerbung
+                                Was du lernst, wenn du den Hiring Manager spielst
                             </h3>
                             <p className="text-xs text-muted leading-relaxed">
-                                Big Five, DISC, MBTI, Red Bull Wingfinder, Gallup — mit Links und Erklärungen.
+                                HR-Ängste, Stakeholder-Dynamiken, der „Fit“-Begriff — die andere Seite des Tisches verstehen.
                             </p>
                             <p className="text-xs font-semibold text-highlight mt-3 flex items-center gap-1">Artikel lesen <ArrowRight className="w-3 h-3" /></p>
                         </div>

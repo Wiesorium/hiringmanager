@@ -130,7 +130,7 @@ function GenerateSimCard() {
         if (newJobId) selectJob(newJobId);
     };
 
-    const STRIPE_LINK = 'https://buy.stripe.com/8x228scb26eIcDa0j41ZS06';
+    const STRIPE_LINK = 'https://buy.stripe.com/6oU7sM8YQbz25aI6Hs1ZS07';
 
     return (
         <div className={`rounded-xl border-2 transition-all duration-300 overflow-hidden
