@@ -748,11 +748,31 @@ export const blogPosts: BlogPost[] = [
         text: 'Wer das einmal von innen erlebt hat, bewirbt sich anders.'
       },
       {
+        type: 'paragraph',
+        text: 'Der Hiring Manager Simulator lässt dich genau diese Perspektive einnehmen: Du screenst Bewerbungen selbst, spürst den Zeitdruck und merkst, welche Signale wirklich zählen — und welche in der Praxis verloren gehen. Das verändert, wie du deinen Lebenslauf schreibst.'
+      },
+      {
         type: 'divider'
       },
       {
+        type: 'heading',
+        text: '💡 Pro Tipp: Schick den Recruitern dein Business Model Canvas'
+      },
+      {
         type: 'paragraph',
-        text: 'Der Hiring Manager Simulator lässt dich genau diese Perspektive einnehmen: Du screenst Bewerbungen selbst, spürst den Zeitdruck und merkst, welche Signale wirklich zählen — und welche in der Praxis verloren gehen. Das verändert, wie du deinen Lebenslauf schreibst.'
+        text: 'Eine der ungewöhnlichsten — und wirksamsten — Maßnahmen nach dem Absenden deiner Bewerbung: Schick dem Recruiter oder Hiring Manager dein ausgefülltes Business Model Canvas für ihr Unternehmen. Nicht als Anhang mit Erklärung „ich habe mich gut vorbereitet" — sondern als echter Gesprächseinstieg.'
+      },
+      {
+        type: 'callout',
+        text: 'Wichtig: Das Canvas muss nicht vollständig sein. Es ist sogar besser, wenn Fragen offen bleiben. Offene Felder zeigen, dass du ehrlich recherchiert hast — und dass du gezielt fragst, um das Bild zu vervollständigen. Das ist strategisches Denken, keine Schwäche.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Was das bei Recruitern und Hiring Managern auslöst: Sie sehen, dass du nicht nur gelesen hast, was auf der Website steht — sondern dass du das Unternehmen als System denkst. Das ist eine Qualität, die man in Senior-Kandidaten sucht, aber selten findet. Und es gibt dir im Gespräch sofort einen strategischen Anker: Du kannst auf das Canvas verweisen, Fragen von dort ableiten und zeigen, wo du deinen Beitrag verortest.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Kurz: Du zeigst Proaktivität, strategisches Denken und echtes Interesse — in einem einzigen A4-Blatt. Das macht nicht eine von hundert Bewerbungen. Vielleicht eine von tausend.'
       }
     ]
   },
