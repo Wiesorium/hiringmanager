@@ -13,9 +13,17 @@
   <!-- Blog-Übersicht -->
   <url>
     <loc>https://hiringsimulator.com/#blog</loc>
-    <lastmod>2026-03-14</lastmod>
+    <lastmod>2026-03-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+
+  <!-- Blog-Artikel 1: Bewerbungslandschaft Überblick (hohe Priorität – SEO-Landingpage) -->
+  <url>
+    <loc>https://hiringsimulator.com/#blog/bewerbungslandschaft-ueberblick</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
   </url>
 
   <!-- Blog-Artikel 1 -->
@@ -46,6 +54,22 @@
   <url>
     <loc>https://hiringsimulator.com/#blog/hr-perspektive-verstehen</loc>
     <lastmod>2026-03-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog-Artikel 5 -->
+  <url>
+    <loc>https://hiringsimulator.com/#blog/lebenslauf-30-sekunden-aussortiert</loc>
+    <lastmod>2026-03-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Blog-Artikel 6 -->
+  <url>
+    <loc>https://hiringsimulator.com/#blog/business-model-canvas-bewerbung</loc>
+    <lastmod>2026-03-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

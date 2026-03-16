@@ -138,17 +138,18 @@ function GenerateSimCard() {
 
             {/* Header / toggle */}
             <button
-                className="w-full text-left p-6 flex items-center gap-4"
+                className="w-full text-left p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 relative"
                 onClick={() => { setOpen(o => !o); setState('idle'); setJobDesc(''); setEmail(''); setNewJobId(null); setFinalProgress(false); setServerMessage(null); }}
             >
-                <div className="w-10 h-10 rounded-full bg-highlight/10 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-5 h-5 text-highlight" />
+                {/* Chevron pinned top-right on mobile, inline on desktop */}
+                <ChevronDown className={`absolute top-4 right-4 sm:static sm:order-last w-4 h-4 text-muted flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+                <div className="w-9 h-9 rounded-full bg-highlight/10 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-4 h-4 text-highlight" />
                 </div>
-                <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg text-highlight">Simuliere genau die Rolle, auf die du dich bewirbst</h3>
-                    <p className="text-xs text-muted mt-0.5">Perfekte Vorbereitung: Die KI erstellt ein maßgeschneidertes Interview-Szenario für dich</p>
+                <div className="flex-1 min-w-0 pr-6 sm:pr-0">
+                    <h3 className="font-bold text-base sm:text-lg text-highlight leading-snug">Simuliere genau die Rolle, auf die du dich bewirbst</h3>
+                    <p className="text-xs text-muted mt-0.5 leading-relaxed">Perfekte Vorbereitung: Die KI erstellt ein maßgeschneidertes Szenario für dich</p>
                 </div>
-                <ChevronDown className={`w-4 h-4 text-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
             </button>
 
             {/* Expandable body */}

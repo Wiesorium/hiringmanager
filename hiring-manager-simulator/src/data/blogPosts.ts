@@ -17,13 +17,133 @@ export interface BlogSection {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: 'bewerbungslandschaft-ueberblick',
+    title: 'Die Bewerbungslandschaft 2026: Was wirklich hilft — und was fehlt',
+    subtitle: 'Coaches, Lebenslauf-Tools, Interviewtraining, Stärkenanalysen — und trotzdem: Die meisten Bewerber verstehen nie, wie auf der anderen Seite des Tisches entschieden wird. Bis jetzt.',
+    date: '16. März 2026',
+    readingTime: '7 Min. Lesezeit',
+    category: 'Bewerbungsstrategie',
+    metaDescription: 'Bewerbungscoaches, Lebenslauf-Optimierung, Interviewtraining, Persönlichkeitsanalysen — ein ehrlicher Überblick der Bewerbungslandschaft und warum fast alle eine entscheidende Perspektive vergessen: die des Hiring Managers.',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'Der Markt für Bewerbungshilfe ist größer als je zuvor. Coaches, Plattformen, Templates, KI-Tools, Kurse — wer sich aktiv um eine neue Stelle bemüht, hat heute mehr Ressourcen zur Verfügung als jede Generation vor ihm. Und trotzdem scheitern qualifizierte Menschen an Bewerbungsprozessen, die sie eigentlich gewinnen sollten.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Nicht weil die Ressourcen schlecht sind. Sondern weil fast alle von ihnen eine grundlegende Lücke haben: Sie betrachten den Bewerbungsprozess ausschließlich aus der Perspektive des Bewerbers.'
+      },
+      {
+        type: 'heading',
+        text: 'Was der Markt bietet — und was es bringt'
+      },
+      {
+        type: 'subheading',
+        text: '1. Bewerbungscoaching'
+      },
+      {
+        type: 'paragraph',
+        text: 'Karrierecoaches helfen bei Selbstreflexion, Positionierung, Kommunikation und Motivation. Der beste Coaching-Ansatz führt zu klareren Bewerbungsunterlagen, einer stärkeren persönlichen Geschichte und mehr Sicherheit im Gespräch. Das ist wertvoll. Aber Coaching bleibt auf der Bewerber-Seite: Es optimiert, wie du dich darstellst — nicht, was auf der anderen Seite wahrgenommen wird.'
+      },
+      {
+        type: 'subheading',
+        text: '2. Lebenslauf-Optimierung & Design'
+      },
+      {
+        type: 'paragraph',
+        text: 'Von ATS-optimierten Templates bis hin zu professionellen Designagenturen — der Lebenslauf-Markt boomt. Ein gut strukturierter, visuell ansprechender Lebenslauf macht einen Unterschied. Aber er macht ihn nur in den ersten 10 Sekunden. Was danach passiert — wie ein Hiring Manager unter Zeitdruck und mit internen Prioritäten entscheidet — ist eine andere Geschichte.'
+      },
+      {
+        type: 'subheading',
+        text: '3. Interviewtraining & Gesprächsvorbereitung'
+      },
+      {
+        type: 'paragraph',
+        text: 'STAR-Methode, Verhaltensinterviews, typische Fragen, Körpersprache — das alles ist hilfreich. Aber Interviewtraining setzt voraus, dass du es ins Interview schaffst. Und es übt deine Antworten, nicht dein Verständnis dafür, welche Antworten auf der anderen Seite wirklich ankommen — und warum.'
+      },
+      {
+        type: 'subheading',
+        text: '4. Stärken- und Persönlichkeitsanalysen'
+      },
+      {
+        type: 'paragraph',
+        text: 'Big Five, DISC, CliftonStrengths, Enneagramm — Selbsterkenntnis ist ein wertvoller Ausgangspunkt. Wer seine eigenen Muster kennt, kommuniziert klarer und authentischer. Aber auch hier gilt: Es sind Werkzeuge zur Selbstbeschreibung — keine Werkzeuge, um die Entscheidungslogik des Counterparts zu verstehen.'
+      },
+      {
+        type: 'divider'
+      },
+      {
+        type: 'heading',
+        text: 'Was fast alle vergessen: die andere Seite des Tisches'
+      },
+      {
+        type: 'paragraph',
+        text: 'Wer eingestellt oder abgelehnt wird, entscheidet nicht der Bewerber — sondern der Hiring Manager. Und diese Entscheidung fällt unter Bedingungen, die die meisten Bewerber nie erlebt haben: unter Zeitdruck, mit zu vielen Kandidaten, mit internen Erwartungen, unter Budgetdruck, mit Teamdynamiken im Hintergrund und einer Risikoaversion, die gut qualifizierte Kandidaten trotzdem aussortiert.'
+      },
+      {
+        type: 'callout',
+        text: 'Du kannst den perfekten Lebenslauf haben, eine starke Persönlichkeit und exzellente Interviewvorbereitung — und trotzdem scheitern, weil du nicht weißt, welche inneren Filter im Moment der Entscheidung aktiv sind.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Kein Coaching-Angebot auf dem Markt adressiert das systematisch. Es gibt Bücher über Recruiting — aber sie sind für Recruiter geschrieben. Es gibt Insider-Artikel über Bewerbungsprozesse, aber sie sind anekdotisch und nicht erlebbar. Bis jetzt fehlte ein Weg, diese Perspektive wirklich zu internalisieren statt sie nur zu lesen.'
+      },
+      {
+        type: 'heading',
+        text: 'Der Hiring Manager Simulator: die fehlende Perspektive'
+      },
+      {
+        type: 'paragraph',
+        text: 'Der Hiring Manager Simulator schließt genau diese Lücke. Du spielst nicht den Bewerber — du spielst den Hiring Manager. Du screeneest Lebensläufe unter Zeitdruck. Du führst Interviews mit begrenzter Zeit. Du triffst Entscheidungen, wenn Budget und Teamerwartungen im Widerspruch stehen. Du erlebst „Fit" von der anderen Seite.'
+      },
+      {
+        type: 'numbered-list',
+        items: [
+          'Lebenslauf-Screening: Du siehst in Sekunden, welche Signale zählen — und welche in der Praxis verloren gehen',
+          'Interview-Führung: Du erlebst, wie unvollständige Antworten Unsicherheit erzeugen — auch bei starken Kandidaten',
+          'Entscheidungsfindung: Du spürst den Druck, unter Unsicherheit eine verbindliche Entscheidung zu treffen',
+          'Ergebnis & Reflexion: Du siehst, welche Biases deine Entscheidung beeinflusst haben'
+        ]
+      },
+      {
+        type: 'paragraph',
+        text: 'Das ist keine Ergänzung zu den bestehenden Bewerbungstools — es ist die fehlende Grundlage. Wenn du verstehst, wie auf der anderen Seite entschieden wird, verändert sich alles andere: wie du deinen Lebenslauf baust, wie du dein Anschreiben schreibst, wie du im Interview kommunizierst, welche Fragen du stellst.'
+      },
+      {
+        type: 'heading',
+        text: 'Bewerbungsvorbereitung neu gedacht: der vollständige Stack'
+      },
+      {
+        type: 'numbered-list',
+        items: [
+          'HR-Perspektive verstehen → Hiring Manager Simulator (das fehlende Fundament)',
+          'Unterlagen optimieren → Lebenslauf, Anschreiben, Design (auf Basis des Verständnisses aus Schritt 1)',
+          'Unternehmen durchleuchten → Business Model Canvas, Recherche, Positionierung',
+          'Gesprächsvorbereitung → STAR-Methode, eigene Erzählung, kluge Fragen',
+          'Selbstkenntnis schärfen → Persönlichkeitsanalysen, Stärken-Frameworks, Coaching'
+        ]
+      },
+      {
+        type: 'paragraph',
+        text: 'Wer alle fünf Ebenen abdeckt, bewirbt sich grundlegend anders als die meisten Konkurrenten — nicht lauter, sondern schärfer. Nicht selbstdarstellerischer, sondern strategisch klüger.'
+      },
+      {
+        type: 'divider'
+      },
+      {
+        type: 'paragraph',
+        text: 'Der Hiring Manager Simulator ist kostenlos nutzbar. Er braucht keine Anmeldung, dauert 15–25 Minuten und verändert nach Aussage vieler Nutzer:innen grundlegend, wie sie sich in Bewerbungen präsentieren. Das ist der Einstieg — und er gehört an den Anfang jeder ernsthaften Bewerbungsvorbereitung.'
+      }
+    ]
+  },
+  {
     slug: 'bewerbung-vorbereitung',
     title: 'So bereitest du dich auf deine Bewerbung vor',
     subtitle: 'Ein strategischer Leitfaden für erfahrene Berufstätige, die sich auf hart umkämpfte Positionen bewerben — vom Lebenslauf bis zur Gehaltsverhandlung.',
     date: '14. März 2026',
     readingTime: '12 Min. Lesezeit',
     category: 'Interview-Vorbereitung',
-    metaDescription: 'Wie du dich optimal auf kompetitive Bewerbungsprozesse vorbereitest: Lebenslauf, Anschreiben, Gehaltsvorstellungen, Auftreten und die Denkweise von Recruitern verstehen.',
+    metaDescription: 'Komplette Bewerbungsvorbereitung für erfahrene Fach- und Führungskräfte: Lebenslauf strategisch aufbauen, Anschreiben aus HR-Perspektive formulieren, Interview meistern und Gehalt richtig verhandeln.',
     content: [
       {
         type: 'paragraph',
@@ -524,6 +644,272 @@ export const blogPosts: BlogPost[] = [
       {
         type: 'paragraph',
         text: 'Neben dem Selbstverständnis, das Persönlichkeitstests fördern, bleibt die wirkungsvollste Vorbereitung auf kompetitive Bewerbungsprozesse: die Perspektive der anderen Seite verstehen. Der Hiring Manager Simulator gibt dir genau das — direkte Erfahrung mit den Entscheidungen, die darüber bestimmen, wer eingestellt wird und wer nicht.'
+      }
+    ]
+  },
+  {
+    slug: 'lebenslauf-30-sekunden-aussortiert',
+    title: 'Warum dein Lebenslauf in 30 Sekunden aussortiert wird',
+    subtitle: 'Was wirklich in den ersten Momenten passiert, wenn ein Hiring Manager deine Bewerbung öffnet — und warum die meisten Kandidaten nie erfahren, woran es lag.',
+    date: '16. März 2026',
+    readingTime: '8 Min. Lesezeit',
+    category: 'Lebenslauf & Unterlagen',
+    metaDescription: 'Warum dein Lebenslauf in 30 Sekunden aussortiert wird: Was Hiring Manager in den ersten Momenten wirklich sehen, welche unsichtbaren Filter entscheiden und wie du die Screening-Hürde konkret überwindest.',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'Du hast Stunden an deinem Lebenslauf gearbeitet. Formulierungen abgewogen, Formatierungen angepasst, jede Station sorgfältig formuliert. Und dann: Absage. Keine Begründung. Manchmal nicht einmal eine Absage — einfach Stille.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Was du nicht weißt: Die Entscheidung, ob du weiterkommst oder nicht, fällt meistens innerhalb der ersten 30 Sekunden. Nicht weil Hiring Manager oberflächlich sind. Sondern weil sie 47 weitere Bewerbungen auf dem Tisch haben.'
+      },
+      {
+        type: 'heading',
+        text: 'Die Realität des Screening-Prozesses'
+      },
+      {
+        type: 'paragraph',
+        text: 'Stell dir vor, du bist Hiring Manager. Es ist Dienstag, 9:47 Uhr. Du hast drei Meetings vor dem Mittagessen, zwei offene Tickets im System, und HR hat dir heute Morgen geschrieben, dass sie bis Ende der Woche eine Entscheidung brauchen. Dann öffnest du die Bewerbungsmappe.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Du scrollst. Nicht liest — scrollst. Dein Auge sucht nach Ankerpunkten: Jobtitel, Unternehmen, Zeiträume. Irgendwas, das signalisiert: Diese Person macht das, was wir brauchen. Findet es das nicht innerhalb der ersten Sekunden, wandert der Blick weiter.'
+      },
+      {
+        type: 'callout',
+        text: '„Ich hab keine Zeit für viel Onboarding. Jemand mit Agenturhintergrund wäre ideal, solange die Gehaltsvorstellungen passen." — Interne Notiz eines Hiring Managers, typisch für die meisten offenen Stellen'
+      },
+      {
+        type: 'paragraph',
+        text: 'Das ist keine Ausnahme. Das ist Standard. Hiring Manager haben selten explizite Auswahlkriterien aufgeschrieben. Sie haben ein Gefühl — einen internen Filter, der sich aus Druck, Teambedarf und persönlicher Erfahrung zusammensetzt. Und dieser Filter arbeitet schnell.'
+      },
+      {
+        type: 'heading',
+        text: 'Was in diesen 30 Sekunden wirklich passiert'
+      },
+      {
+        type: 'paragraph',
+        text: 'Der erste Scan ist kein bewusster Prozess. Es ist Mustererkennung. Das Gehirn sucht nach Signalen, die schnell verarbeitet werden können:'
+      },
+      {
+        type: 'numbered-list',
+        items: [
+          'Struktur und Lesbarkeit. Ist der Lebenslauf sofort navigierbar? Oder muss man suchen? Ein unübersichtliches Layout kostet dich die ersten fünf Sekunden — und die bekommst du nicht zurück.',
+          'Der letzte Job. Titel und Unternehmen. Das ist der stärkste Anker. Wenn diese eine Zeile sofort Relevanz signalisiert, hast du die nächsten 20 Sekunden gewonnen.',
+          'Kontinuität. Lücken, häufige Jobwechsel, kurze Beschäftigungsdauern — sie erzeugen sofort eine innere Frage. Nicht unbedingt eine negative, aber eine, die Energie kostet. Energie, die in einem 30-Sekunden-Fenster fehlt.',
+          'Gehalt. Wenn es im Lebenslauf oder Anschreiben vorkommt und aus dem Rahmen fällt — zu hoch, manchmal sogar zu niedrig — ist das oft ein stilles K.O.'
+        ]
+      },
+      {
+        type: 'heading',
+        text: 'Warum das Anschreiben meistens zu spät kommt'
+      },
+      {
+        type: 'paragraph',
+        text: 'Das Anschreiben wird gelesen, wenn der Lebenslauf schon positiv bewertet wurde. Es ist kein Türöffner — es ist eine Bestätigung. Wer hofft, mit einem starken Anschreiben einen schwachen Lebenslauf zu kompensieren, versteht die Reihenfolge falsch.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Das bedeutet nicht, dass das Anschreiben unwichtig ist. Aber es bedeutet, dass du zuerst die 30-Sekunden-Hürde nehmen musst, bevor irgendjemand deine Persönlichkeit oder Motivation liest.'
+      },
+      {
+        type: 'heading',
+        text: 'Was du konkret ändern kannst'
+      },
+      {
+        type: 'paragraph',
+        text: 'Leg deinen Lebenslauf vor jemanden, der ihn noch nie gesehen hat. Gib ihm 30 Sekunden. Dann frag: Was machst du beruflich? Für welche Stelle bewirbst du dich? Wenn die Antworten vage sind, ist das dein Problem — nicht das des Hiring Managers.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Konkrete Stellschrauben:'
+      },
+      {
+        type: 'list',
+        items: [
+          'Jobtitel fett und sofort lesbar — nicht versteckt in einem Fließtext',
+          'Unternehmensnamen, die Kontext geben — füge in Klammern die Branche hinzu, wenn das Unternehmen unbekannt ist',
+          'Kurze Beschäftigungsdauern aktiv erklären — im Lebenslauf, nicht erst im Interview',
+          'Gehaltsvorstellungen nur nennen, wenn explizit gefragt — und dann im passenden Rahmen',
+          'Nicht mehr als eine Seite für die letzten fünf Jahre'
+        ]
+      },
+      {
+        type: 'heading',
+        text: 'Die andere Seite verstehen'
+      },
+      {
+        type: 'paragraph',
+        text: 'Der effektivste Weg, deinen Lebenslauf zu verbessern, ist zu verstehen, wie Entscheidungen wirklich getroffen werden. Nicht wie sie getroffen werden sollten — wie sie es tatsächlich tun. Unter Zeitdruck, mit unvollständigen Informationen, beeinflusst von Budgetdruck, Teamdynamik und manchmal von einem Kollegen, der kurz vor dem Meeting schreibt: „Gib dem mal eine Chance, der ist ein Freund von mir."'
+      },
+      {
+        type: 'paragraph',
+        text: 'Wer das einmal von innen erlebt hat, bewirbt sich anders.'
+      },
+      {
+        type: 'divider'
+      },
+      {
+        type: 'paragraph',
+        text: 'Der Hiring Manager Simulator lässt dich genau diese Perspektive einnehmen: Du screenst Bewerbungen selbst, spürst den Zeitdruck und merkst, welche Signale wirklich zählen — und welche in der Praxis verloren gehen. Das verändert, wie du deinen Lebenslauf schreibst.'
+      }
+    ]
+  },
+  {
+    slug: 'business-model-canvas-bewerbung',
+    title: 'Das wichtigste Instrument, das alle bei der Bewerbung vergessen',
+    subtitle: 'Warum du vor jeder Bewerbung das Business Model Canvas deines Zielunternehmens ausfüllen solltest — und wie es dich in eine andere Liga hebt.',
+    date: '16. März 2026',
+    readingTime: '9 Min. Lesezeit',
+    category: 'Bewerbungsstrategie',
+    metaDescription: 'Das Business Model Canvas als Bewerbungsstrategie: Wie du mit einem einzigen Framework dein Unternehmen wirklich verstehst, deinen einzigartigen Beitrag positionierst und Hiring Manager mit strategischer Tiefe überzeugst.',
+    content: [
+      {
+        type: 'paragraph',
+        text: 'Die meisten Bewerber vorbereiten sich auf Bewerbungen, indem sie die Stellenbeschreibung lesen und ihren Lebenslauf anpassen. Fortgeschrittene recherchieren das Unternehmen auf LinkedIn und schauen sich die letzten Pressemitteilungen an. Beide Ansätze lösen dasselbe Problem: Sie beschreiben, was du kannst — ohne wirklich zu verstehen, was das Unternehmen braucht.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Es gibt ein Tool, das diese Lücke schließt. Es ist seit Jahrzehnten in der Strategieberatung, im Unternehmertum und im MBA-Studium ein Standardwerkzeug. Als Bewerbungsinstrument wird es kaum genutzt. Das ist dein Vorteil.'
+      },
+      {
+        type: 'heading',
+        text: 'Was das Business Model Canvas ist — in 60 Sekunden'
+      },
+      {
+        type: 'paragraph',
+        text: 'Das Business Model Canvas (BMC) ist ein einseitiges Framework mit neun Bausteinen, die zusammen beschreiben, wie ein Unternehmen Wert schafft, liefert und einnimmt. Es wurde von Alexander Osterwalder und Yves Pigneur entwickelt und ist heute das meistgenutzte strategische Planungstool der Welt.'
+      },
+      {
+        type: 'numbered-list',
+        items: [
+          'Kundensegmente — Für wen schafft das Unternehmen Wert?',
+          'Wertversprechen — Welches Problem löst es, welchen Bedarf erfüllt es?',
+          'Kanäle — Wie erreicht es seine Kunden?',
+          'Kundenbeziehungen — Wie interagiert es mit ihnen?',
+          'Einnahmequellen — Womit und wie verdient es Geld?',
+          'Schlüsselressourcen — Was braucht es, um das Modell zu betreiben?',
+          'Schlüsselaktivitäten — Was muss es tun, um Wert zu liefern?',
+          'Schlüsselpartnerschaften — Mit wem kooperiert es?',
+          'Kostenstruktur — Was kostet das Modell zu betreiben?'
+        ]
+      },
+      {
+        type: 'paragraph',
+        text: 'Wenn du das für dein Zielunternehmen ausfüllst — nicht als Übung, sondern als echte Analyse — passiert etwas, das kein Lebenslauf-Tutorial dir beibringen kann: Du verstehst das Unternehmen als System. Und du siehst deinen potenziellen Beitrag dort, wo er wirklich zählt.'
+      },
+      {
+        type: 'heading',
+        text: 'Warum das für Bewerber entscheidend ist'
+      },
+      {
+        type: 'paragraph',
+        text: 'Hiring Manager treffen ihre Entscheidungen unter einem ganz konkreten Druck: Sie müssen eine offene Stelle schließen, die einem echten Problem entspricht. Dieses Problem sitzt irgendwo im Betriebssystem des Unternehmens — in einer Lücke im Wertversprechen, in einer unterbesetzten Schlüsselaktivität, in einem Kanal, der nicht skaliert, in einer Kostenstruktur, die optimiert werden muss.'
+      },
+      {
+        type: 'callout',
+        text: 'Wenn du weißt, wo das Problem sitzt, weißt du, wie du dich positionierst. Nicht als „ich bin gut in X" — sondern als „ich löse euer konkretes Problem in Bereich Y, weil ich Z mitbringe."'
+      },
+      {
+        type: 'paragraph',
+        text: 'Das ist der Unterschied zwischen einer Bewerbung, die beschreibt, und einer, die überzeugt. Zwischen einem Kandidaten, der qualifiziert ist, und einem, der strategisch denkt. Und Hiring Manager — besonders bei Senior-Positionen — spüren diesen Unterschied sofort.'
+      },
+      {
+        type: 'heading',
+        text: 'So wendest du das BMC auf deine Bewerbung an'
+      },
+      {
+        type: 'subheading',
+        text: 'Schritt 1: Das Canvas des Unternehmens ausfüllen'
+      },
+      {
+        type: 'paragraph',
+        text: 'Bevor du das erste Wort deines Anschreibens schreibst, fülle das Business Model Canvas für dein Zielunternehmen aus. Nutze öffentlich verfügbare Informationen: Geschäftsbericht, Website, LinkedIn, Branchenberichte, Pressemitteilungen, Kundenrezensionen, Stellenbeschreibungen der letzten 12 Monate.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Du wirst Lücken haben — das ist normal. Genau diese Lücken sind wertvoll: Sie zeigen dir, welche Fragen du im Interview stellen kannst, um mehr zu verstehen. Und sie zeigen dir, was das Unternehmen selbst möglicherweise noch nicht vollständig beantwortet hat.'
+      },
+      {
+        type: 'subheading',
+        text: 'Schritt 2: Deinen Beitrag in das System einordnen'
+      },
+      {
+        type: 'paragraph',
+        text: 'Jetzt die entscheidende Frage: Wo in diesem Canvas sitzt die Stelle, auf die du dich bewirbst? Und: Welche dieser neun Bausteine beeinflusst deine Arbeit direkt oder indirekt?'
+      },
+      {
+        type: 'list',
+        items: [
+          'Ein Sales Manager beeinflusst primär Kanäle, Kundenbeziehungen und Einnahmequellen',
+          'Ein Data Scientist wirkt auf Schlüsselressourcen, Schlüsselaktivitäten und möglicherweise das Wertversprechen',
+          'Ein Operations Manager optimiert Kostenstruktur, Schlüsselaktivitäten und Schlüsselpartnerschaften',
+          'Ein Product Manager steht im Zentrum von Wertversprechen, Kundensegmenten und Schlüsselressourcen'
+        ]
+      },
+      {
+        type: 'paragraph',
+        text: 'Wenn du das weißt, kannst du deinen Lebenslauf und dein Anschreiben so gestalten, dass sie genau auf diese Bausteine einzahlen — mit konkreten Beispielen, quantifizierten Erfolgen und einer klaren Aussage über deinen strategischen Wert.'
+      },
+      {
+        type: 'subheading',
+        text: 'Schritt 3: Den einzigartigen Beitrag formulieren'
+      },
+      {
+        type: 'paragraph',
+        text: 'Jetzt kommt der Schritt, den die wenigsten Bewerber gehen: Formuliere deinen einzigartigen Beitrag in der Sprache des Unternehmensmodells, nicht in der Sprache deines Lebenslaufs.'
+      },
+      {
+        type: 'callout',
+        text: 'Nicht: „Ich habe 8 Jahre Erfahrung im Vertrieb." — Sondern: „Ihr habt ein stabiles B2B-Kundensegment, aber der Kanal zu mittelständischen Unternehmen ist noch unterentwickelt. Ich habe genau diesen Kanal in zwei Unternehmen aufgebaut und skaliert."'
+      },
+      {
+        type: 'paragraph',
+        text: 'Das klingt nicht nur präziser — es demonstriert strategisches Verständnis. Es zeigt, dass du nicht nur weißt, was du kannst, sondern auch, wo und wie es ihrem Modell nützt. Das ist der Unterschied, den erfahrene Hiring Manager sofort wahrnehmen.'
+      },
+      {
+        type: 'heading',
+        text: 'Das BMC im Interview: die unterschätzte Geheimwaffe'
+      },
+      {
+        type: 'paragraph',
+        text: 'Du musst das Canvas nicht im Interview präsentieren. Aber wenn du es ausgefüllt hast, verändert es die Art, wie du Fragen beantwortest, wie du Fragen stellst, und wie du über die Stelle sprichst.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Beispiele für Fragen, die aus einem BMC-Verständnis entstehen:'
+      },
+      {
+        type: 'list',
+        items: [
+          '„Ich habe gesehen, dass ihr stark über Direktvertrieb wachst — wie ist die strategische Gewichtung zwischen dem und euren Partnerkanälen in den nächsten zwei Jahren?"',
+          '„Euer Wertversprechen für Unternehmenskunden unterscheidet sich deutlich vom B2C-Segment — wie ist die Funktion, auf die ich mich bewerbe, in diese Differenzierung eingebunden?"',
+          '„Was ist die größte operative Herausforderung in der Skalierung eures Kernprozesses gerade?"'
+        ]
+      },
+      {
+        type: 'paragraph',
+        text: 'Diese Fragen zeigen nicht nur Vorbereitung. Sie zeigen Denkweise. Und bei Positionen, bei denen strategisches Denken ein Einstellungskriterium ist, ist das genau das, was Kandidaten voneinander unterscheidet.'
+      },
+      {
+        type: 'heading',
+        text: 'Warum es fast niemand macht'
+      },
+      {
+        type: 'paragraph',
+        text: 'Das Business Model Canvas erfordert mehr Aufwand als eine Standardbewerbung. Es dauert ein bis zwei Stunden, um es ernsthaft und fundiert auszufüllen. Es erfordert, Informationen zu synthetisieren, statt sie nur zu lesen. Und es erfordert, die eigene Erfahrung in einem anderen Koordinatensystem zu betrachten — nicht als chronologische Karriereliste, sondern als Hebel in einem Unternehmensmodell.'
+      },
+      {
+        type: 'paragraph',
+        text: 'Genau deshalb macht es fast niemand. Und genau deshalb hebt es dich heraus.'
+      },
+      {
+        type: 'divider'
+      },
+      {
+        type: 'paragraph',
+        text: 'Das Business Model Canvas gehört in deine Bewerbungsvorbereitung, bevor du eine Zeile schreibst. Es zwingt dich, das Unternehmen als System zu verstehen — und deinen Beitrag dort zu verorten, wo er wirklich wirkt. Kombiniert mit dem Verständnis, wie Hiring Manager Entscheidungen treffen, ist das die schärfste Bewerbungsstrategie, die du aufbauen kannst.'
       }
     ]
   },

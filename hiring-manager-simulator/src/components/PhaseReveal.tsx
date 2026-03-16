@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useGame } from '../context/GameContext';
 import { motion } from 'framer-motion';
-import { RefreshCw, CheckCircle, Send, Loader2, CheckCircle2 } from 'lucide-react';
+import { CheckCircle, Send, Loader2, CheckCircle2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { submitFeedback } from '../services/api';
+import { PostSimulationReward } from './PostSimulationReward';
 
 export function PhaseReveal() {
-    const { candidates, finalChoice, resetGame, setGameState } = useGame();
+    const { candidates, finalChoice } = useGame();
 
     const chosenCandidate = candidates.find(c => c.id === finalChoice);
 
@@ -183,15 +184,7 @@ export function PhaseReveal() {
                 )}
             </motion.div>
 
-            <div className="flex justify-center pt-4">
-                <button
-                    onClick={() => { resetGame(); setGameState('applicant_intro'); }}
-                    className="flex items-center gap-2 px-8 py-3 bg-ink text-paper rounded-full font-bold hover:bg-black transition-all hover:scale-105"
-                >
-                    <RefreshCw className="w-4 h-4" />
-                    Nochmal spielen
-                </button>
-            </div>
+            <PostSimulationReward />
         </div>
     );
 }
