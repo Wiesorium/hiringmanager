@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, ArrowRight, Mail, Calendar, BookOpen, Loader2, CheckCircle2, Send } from 'lucide-react';
+import { Check, ArrowRight, Mail, BookOpen, Loader2, CheckCircle2, Send, RefreshCw, Mic } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { cn } from '../lib/utils';
 import { submitFeedback } from '../services/api';
@@ -65,7 +65,7 @@ export function PostSimulationReward() {
     // CTA tabs
     const [tab, setTab] = useState<'email' | 'call'>('email');
 
-    // ── Tab 1: Newsletter email ─────────────────────────────────────────────
+    // ── Tab 1: Newsletter email ──────────────────────────────────────────────
     const [email, setEmail] = useState('');
     const [emailState, setEmailState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
@@ -76,7 +76,7 @@ export function PostSimulationReward() {
         setEmailState(res ? 'success' : 'error');
     };
 
-    // ── Tab 2: Booking request form ─────────────────────────────────────────
+    // ── Tab 2: Podcast booking request ──────────────────────────────────────
     const [callEmail, setCallEmail] = useState('');
     const [callTime, setCallTime] = useState('');
     const [callState, setCallState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -84,9 +84,21 @@ export function PostSimulationReward() {
     const handleCallSubmit = async () => {
         if (!callEmail.trim() || !callEmail.includes('@') || callState === 'loading') return;
         setCallState('loading');
-        const message = `BERATUNGSGESPRÄCH-ANFRAGE\nE-Mail: ${callEmail.trim()}\nWunschzeit: ${callTime.trim() || 'nicht angegeben'}`;
+        const message = `PODCAST-ANFRAGE\nE-Mail: ${callEmail.trim()}\nWunschzeit: ${callTime.trim() || 'nicht angegeben'}`;
         const ok = await submitFeedback({ feedback: message, email: callEmail.trim() });
         setCallState(ok ? 'success' : 'error');
+    };
+
+    // ── Feedback form ────────────────────────────────────────────────────────
+    const [feedbackText, setFeedbackText] = useState('');
+    const [feedbackEmail, setFeedbackEmail] = useState('');
+    const [feedbackState, setFeedbackState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+    const handleFeedbackSubmit = async () => {
+        if (!feedbackText.trim() || feedbackState === 'loading') return;
+        setFeedbackState('loading');
+        const ok = await submitFeedback({ feedback: feedbackText.trim(), email: feedbackEmail.trim() || undefined });
+        setFeedbackState(ok ? 'success' : 'error');
     };
 
     // Prioritised blog list: unchecked learnings → their articles first
@@ -104,12 +116,7 @@ export function PostSimulationReward() {
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.5 }}
-            className="mt-14 space-y-10 max-w-4xl mx-auto"
-        >
+        <div className="space-y-10 pt-4">
             {/* ── Divider ── */}
             <div className="flex items-center gap-4">
                 <div className="flex-1 h-px bg-stone-200" />
@@ -199,12 +206,12 @@ export function PostSimulationReward() {
                 </div>
             </div>
 
-            {/* ── CTA: Email or Call ── */}
+            {/* ── CTA: Email or Podcast ── */}
             <div className="bg-ink rounded-2xl overflow-hidden text-white">
                 <div className="px-8 pt-8 pb-6 text-center border-b border-white/10">
                     <h3 className="text-2xl font-serif font-bold mb-2">Bring deine Bewerbung auf das nächste Level</h3>
                     <p className="text-white/70 text-sm leading-relaxed max-w-lg mx-auto">
-                        Wähle, wie du weitermachen möchtest — mit gezielten Blogartikeln per E-Mail oder einem direkten Gespräch.
+                        Tägliche Impulse per E-Mail — oder ein echtes Gespräch, das veröffentlicht wird.
                     </p>
                 </div>
 
@@ -226,7 +233,7 @@ export function PostSimulationReward() {
                             tab === 'call' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white/80'
                         )}
                     >
-                        <Calendar className="w-4 h-4" /> 30-min Beratungsgespräch
+                        <Mic className="w-4 h-4" /> Podcast-Gespräch
                     </button>
                 </div>
 
@@ -279,20 +286,26 @@ export function PostSimulationReward() {
                             )}
                         </div>
                     ) : (
-                        /* ── Booking request (no Calendly) ── */
+                        /* ── Podcast booking ── */
                         <div className="space-y-5">
                             <div>
+                                <div className="flex items-center gap-2 mb-3">
+                                    <Mic className="w-5 h-5 text-highlight flex-shrink-0" />
+                                    <p className="text-base font-bold text-white">Wir laden dich zu unserem Podcast ein</p>
+                                </div>
                                 <p className="text-sm text-white/80 leading-relaxed mb-3">
-                                    Du bekommst ein <span className="text-white font-semibold">kostenloses 30-minütiges Gespräch</span> mit Martin —
-                                    kein Sales-Call, sondern ein ehrliches Mini-Gespräch: wie läuft deine Jobsuche, wo willst du hin,
-                                    was hält dich zurück. Wie ein kleiner Podcast — nur über deine Karriere.
+                                    Ein offenes <span className="text-white font-semibold">30–60-minütiges Gespräch</span> mit Martin:
+                                    Wie läuft deine Jobsuche gerade? Was hält dich zurück? Wo willst du hin?
+                                    Wir sprechen offen darüber — <span className="text-highlight font-semibold">und veröffentlichen das Gespräch als Podcast-Episode</span>.
+                                    Kein poliertes Interview. Echte Situation, echte Reflexion, echter Mehrwert für andere Bewerber.
                                 </p>
                                 <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white/60 leading-relaxed mb-2">
                                     <p className="font-semibold text-white/80 mb-1.5">Was dich erwartet</p>
                                     <ul className="space-y-1">
-                                        <li>→ Gespräch über deine aktuelle Bewerbungssituation</li>
-                                        <li>→ Konkretes Feedback zu deiner Positionierung</li>
-                                        <li>→ 1–2 sofort umsetzbare Stellschrauben</li>
+                                        <li>→ Ehrliches Gespräch über deine Bewerbungssituation</li>
+                                        <li>→ Konkretes Feedback zu deiner Positionierung live im Gespräch</li>
+                                        <li>→ Die Episode wird veröffentlicht — du kannst sie teilen</li>
+                                        <li>→ Natürlich nur mit deiner Zustimmung</li>
                                     </ul>
                                 </div>
                                 <p className="text-xs text-white/40">
@@ -305,7 +318,7 @@ export function PostSimulationReward() {
                                 <div className="flex items-center gap-3 bg-green-500/20 border border-green-400/30 rounded-xl px-4 py-3">
                                     <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
                                     <p className="text-sm text-green-300 font-medium">
-                                        Danke! Martin meldet sich in Kürze per E-Mail, um den Termin zu bestätigen.
+                                        Danke! Martin meldet sich per E-Mail, um Termin und Details zu bestätigen.
                                     </p>
                                 </div>
                             ) : (
@@ -331,13 +344,13 @@ export function PostSimulationReward() {
                                     >
                                         {callState === 'loading'
                                             ? <Loader2 className="w-4 h-4 animate-spin" />
-                                            : <><Send className="w-4 h-4" /> Termin anfragen — kostenlos</>
+                                            : <><Mic className="w-4 h-4" /> Zum Podcast einschreiben — kostenlos</>
                                         }
                                     </button>
                                     {callState === 'error' && (
                                         <p className="text-xs text-red-400 text-center">Etwas ist schiefgelaufen. Bitte versuche es erneut.</p>
                                     )}
-                                    <p className="text-xs text-white/40 text-center">Kein Kauf, keine Verpflichtung. Einfach ein gutes Gespräch.</p>
+                                    <p className="text-xs text-white/40 text-center">Keine Verpflichtung. Das Gespräch findet nur mit deiner Zustimmung statt.</p>
                                 </div>
                             )}
                         </div>
@@ -345,15 +358,63 @@ export function PostSimulationReward() {
                 </div>
             </div>
 
+            {/* ── Feedback form ── */}
+            <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8"
+            >
+                <h3 className="text-lg font-bold font-serif mb-1">Wie können wir es besser machen?</h3>
+                <p className="text-sm text-muted mb-5">Dein Feedback hilft uns, das Spiel zu verbessern. Anonym und freiwillig.</p>
+
+                {feedbackState === 'success' ? (
+                    <div className="flex items-center gap-3 text-emerald-700 bg-emerald-50 rounded-xl p-4">
+                        <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                        <p className="font-medium text-sm">Danke für dein Feedback! Wir nehmen es uns zu Herzen.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <textarea
+                            value={feedbackText}
+                            onChange={e => setFeedbackText(e.target.value)}
+                            placeholder="Was hat dir gefallen? Was sollten wir verbessern?"
+                            rows={3}
+                            className="w-full px-4 py-3 rounded-xl border border-stone-200 bg-stone-50 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ink/20 focus:border-ink/40 transition-all placeholder:text-muted"
+                        />
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <input
+                                type="email"
+                                value={feedbackEmail}
+                                onChange={e => setFeedbackEmail(e.target.value)}
+                                placeholder="Deine E-Mail (optional)"
+                                className="flex-1 px-4 py-2.5 rounded-xl border border-stone-200 bg-stone-50 text-sm focus:outline-none focus:ring-2 focus:ring-ink/20 transition-all placeholder:text-muted"
+                            />
+                            <button
+                                onClick={handleFeedbackSubmit}
+                                disabled={!feedbackText.trim() || feedbackState === 'loading'}
+                                className="flex items-center justify-center gap-2 px-6 py-2.5 bg-ink text-paper rounded-xl font-bold text-sm hover:bg-black transition-all hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            >
+                                {feedbackState === 'loading' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                                Feedback senden
+                            </button>
+                        </div>
+                        {feedbackState === 'error' && (
+                            <p className="text-red-600 text-xs">Leider ist etwas schiefgelaufen.</p>
+                        )}
+                    </div>
+                )}
+            </motion.div>
+
             {/* ── Restart ── */}
-            <div className="text-center pb-4">
+            <div className="text-center pb-6">
                 <button
                     onClick={() => { resetGame(); setGameState('applicant_intro'); }}
-                    className="text-sm text-muted hover:text-ink transition-colors underline underline-offset-2"
+                    className="inline-flex items-center gap-2 text-sm text-muted hover:text-ink transition-colors underline underline-offset-2"
                 >
-                    Neue Simulation starten →
+                    <RefreshCw className="w-3.5 h-3.5" /> Neue Simulation starten
                 </button>
             </div>
-        </motion.div>
+        </div>
     );
 }
