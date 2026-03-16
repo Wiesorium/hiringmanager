@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CheckCircle, ArrowRight, Star, Users, BrainCircuit, ChevronDown, BookOpen, Target } from 'lucide-react';
 import { useGame } from '../context/GameContext';
+import { trackInteraction } from '../services/api';
 
 // ─── Expanded FAQ (Deutsch) ───────────────────────────────────────────────────
 const faqs = [
@@ -74,6 +75,12 @@ function FAQItem({ q, a }: { q: string; a: string }) {
 export function B2CLandingPage() {
     const { setGameState, setActiveBlogSlug } = useGame();
 
+    const handleCtaClick = () => {
+        trackInteraction('cta_clicked');
+        window.fbq?.('track', 'ViewContent', { content_name: 'Simulator Intro' });
+        setGameState('applicant_intro');
+    };
+
     return (
         <div className="min-h-screen bg-paper flex flex-col font-sans text-ink">
             {/* ── Top Bar ─────────────────────────────────────────────────────── */}
@@ -92,7 +99,7 @@ export function B2CLandingPage() {
                             Blog
                         </button>
                         <button
-                            onClick={() => setGameState('applicant_intro')}
+                            onClick={handleCtaClick}
                             className="px-4 py-2 bg-highlight text-white rounded-lg font-bold hover:bg-highlight/90 transition-all text-sm"
                         >
                             Jetzt testen
@@ -100,7 +107,7 @@ export function B2CLandingPage() {
                     </nav>
 
                     <button
-                        onClick={() => setGameState('applicant_intro')}
+                        onClick={handleCtaClick}
                         className="sm:hidden px-4 py-2 bg-highlight text-white rounded-lg font-bold hover:bg-highlight/90 transition-all text-sm"
                     >
                         Testen
@@ -132,7 +139,7 @@ export function B2CLandingPage() {
 
                         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center pt-2">
                             <button
-                                onClick={() => setGameState('applicant_intro')}
+                                onClick={handleCtaClick}
                                 className="w-full sm:w-auto px-8 py-4 bg-highlight text-white rounded-lg font-bold text-lg hover:bg-highlight/90 shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2"
                             >
                                 Kostenlos testen <ArrowRight className="w-5 h-5" />

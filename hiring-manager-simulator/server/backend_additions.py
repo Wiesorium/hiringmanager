@@ -165,6 +165,64 @@ def validate_code():
 
 
 # ---------------------------------------------------------------------------
+# POST /track_interaction  — one node per event, filterable by date
+# ---------------------------------------------------------------------------
+
+VALID_INTERACTIONS = {
+    'cta_clicked',
+    'job_selection_viewed',
+    'stripe_link_clicked',
+    'code_validated',
+    'simulation_generation_started',
+    'free_job_selected',
+    'simulation_started',
+    'screening_done',
+    'interviews_done',
+    'decision_done',
+    'newsletter_submitted',
+    'podcast_request_submitted',
+    'feedback_submitted',
+}
+
+@hiring_simulator.route("/track_interaction", methods=["POST"])
+def track_interaction():
+    """
+    Creates one :Interaction node per event in Neo4j.
+    Unlike /track_event (which bumps a counter), this lets you
+    filter, group, and funnel-analyse by date, hour, or custom meta.
+
+    Body:
+      { "event": "cta_clicked", "meta": { "jobId": "..." } }
+
+    Response:
+      { "result_state": "success" }
+    """
+    params = request.get_json(silent=True) or {}
+    event = params.get("event", "").strip()
+    if event not in VALID_INTERACTIONS:
+        return jsonify({"result_state": "error", "result": f"Unknown event: {event}"}), 400
+    meta = params.get("meta", {})
+    try:
+        with Neo4j_Service.get_driver().session() as session:
+            session.run(
+                """
+                CREATE (i:Interaction {
+                    event:      $event,
+                    occurredAt: $ts,
+                    meta:       $meta
+                })
+                """,
+                event=event,
+                ts=str(datetime.datetime.utcnow()),
+                meta=json.dumps(meta) if meta else "{}",
+            )
+    except Exception as e:
+        logging.error(f"[hiring_simulator] track_interaction DB error: {e}")
+        return jsonify({"result_state": "error", "result": "DB write failed"}), 500
+    return jsonify({"result_state": "success"}), 200
+
+
+# ---------------------------------------------------------------------------
 # MODIFICATION to existing generate_sim_from_jobdescription
 # ---------------------------------------------------------------------------
 # Add the following lines INSIDE your existing generate_sim_from_jobdescription

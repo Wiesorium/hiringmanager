@@ -3,7 +3,7 @@ import type { Candidate, GameState, Phase, Message, ApplicantEvent, Question } f
 import { getCandidatesForJob } from '../data/candidates';
 import { scenarios as staticScenarios } from '../data/scenarios';
 import { jobs as staticJobs } from '../data/jobs';
-import { fetchSimulations, joinNewsletter, generateSimulation, pollSimulationStatus, trackEvent, type ApiSimulation } from '../services/api';
+import { fetchSimulations, joinNewsletter, generateSimulation, pollSimulationStatus, trackInteraction, type ApiSimulation } from '../services/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -242,7 +242,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Track funnel: user started a simulation
-        trackEvent('simulation_started');
+        trackInteraction('simulation_started');
     };
 
     const nextPhase = () => {
@@ -255,7 +255,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             })));
             setPhase('interviews');
             setSelectedCandidates([]);
-            trackEvent('screening_done');
+            trackInteraction('screening_done');
 
             if (scenario) {
                 const newMsgs = scenario.messages.filter((m: Message) => m.triggerPhase === 'interviews');
@@ -269,7 +269,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
             }
         } else if (phase === 'interviews') {
             setPhase('decision');
-            trackEvent('interviews_done');
+            trackInteraction('interviews_done');
 
             if (scenario) {
                 const newMsgs = scenario.messages.filter((m: Message) => m.triggerPhase === 'decision');
@@ -321,7 +321,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         // Clear all pending notifications immediately after hiring
         setApplicantEvents(prev => prev.map(e => ({ ...e, isRead: true })));
         setMessages(prev => prev.map(m => ({ ...m, isRead: true })));
-        trackEvent('decision_done');
+        trackInteraction('decision_done');
     };
 
     const markMessageRead = (id: string) => {

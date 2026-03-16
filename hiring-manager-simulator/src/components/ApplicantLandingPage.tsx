@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { MailOpen, ArrowRight, Loader2, Sparkles, CheckCircle, AlertCircle, ChevronDown, FileText, Lock, Key, ExternalLink, Mail } from 'lucide-react';
 import { useGame } from '../context/GameContext';
-import { validateAccessCode } from '../services/api';
+import { validateAccessCode, trackInteraction } from '../services/api';
 
 // ─── Animated progress bar for the ~1-2min GPT wait ─────────────────────────
 function GenerationProgressBar({ active }: { active: boolean }) {
@@ -99,6 +99,7 @@ function GenerateSimCard() {
             saveCode(code);
             setCodeState('valid');
             setRemaining(res.remaining);
+            trackInteraction('code_validated', { remaining: res.remaining });
         } else {
             setCodeState('invalid');
         }
@@ -110,6 +111,8 @@ function GenerateSimCard() {
     const handleGenerate = async () => {
         if (!canSubmit) return;
         setState('loading');
+        trackInteraction('simulation_generation_started');
+        window.fbq?.('track', 'AddToCart', { value: 19.00, currency: 'EUR', content_name: 'AI Simulation' });
 
         const result = await generateAndAddSimulation(jobDesc.trim(), accessCode, email.trim());
 
@@ -170,10 +173,11 @@ function GenerateSimCard() {
                                         </p>
                                     </div>
                                 </div>
-                                <a
+                <a
                                     href={STRIPE_LINK}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    onClick={() => trackInteraction('stripe_link_clicked')}
                                     className="w-full flex items-center justify-center gap-2 py-3 rounded-lg font-bold text-sm bg-highlight text-white hover:bg-highlight/90 transition-all"
                                 >
                                     Zugangscode kaufen – €19 <ExternalLink className="w-4 h-4" />
@@ -380,6 +384,8 @@ export function ApplicantLandingPage() {
 
     useEffect(() => {
         window.scrollTo(0, 0);
+        trackInteraction('job_selection_viewed');
+        window.fbq?.('track', 'ViewContent', { content_name: 'Job Selection' });
     }, []);
 
     return (
@@ -433,7 +439,15 @@ export function ApplicantLandingPage() {
                             availableJobs.map((job) => {
                                 const prompt = (job as unknown as { sourcePrompt?: string }).sourcePrompt;
                                 return (
-                                    <JobCard key={job.id} job={job} prompt={prompt} onSelect={() => selectJob(job.id)} />
+                                    <JobCard
+                                        key={job.id}
+                                        job={job}
+                                        prompt={prompt}
+                                        onSelect={() => {
+                                            trackInteraction('free_job_selected', { jobId: job.id });
+                                            selectJob(job.id);
+                                        }}
+                                    />
                                 );
                             })
                         )}

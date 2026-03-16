@@ -7,6 +7,13 @@
  * the static data from jobs.ts / scenarios.ts / candidates.ts.
  */
 
+// Allow TypeScript to reference the Meta Pixel global
+declare global {
+    interface Window {
+        fbq?: (...args: unknown[]) => void;
+    }
+}
+
 const BASE_URL = 'https://app.thediary.games/api/hiring';
 
 export interface ApiQuestion {
@@ -224,24 +231,56 @@ export async function createAccessCode(stripeSessionId: string): Promise<{ code:
 }
 
 /**
- * Track a conversion funnel event.
+ * Track a single user interaction — creates one :Interaction node in Neo4j.
  * Fire-and-forget — never throws, never blocks gameplay.
  */
-export type TrackingEvent =
-    | 'simulation_started'   // user clicked start on job posting
-    | 'screening_done'       // user advanced from phase 1 → 2
-    | 'interviews_done'      // user advanced from phase 2 → 3
-    | 'decision_done';       // user made final hire
+export type InteractionEvent =
+    | 'cta_clicked'
+    | 'job_selection_viewed'
+    | 'stripe_link_clicked'
+    | 'code_validated'
+    | 'simulation_generation_started'
+    | 'free_job_selected'
+    | 'simulation_started'
+    | 'screening_done'
+    | 'interviews_done'
+    | 'decision_done'
+    | 'newsletter_submitted'
+    | 'podcast_request_submitted'
+    | 'feedback_submitted';
 
-export async function trackEvent(event: TrackingEvent): Promise<void> {
+// ── Session tracking ─────────────────────────────────────────────────────────
+// Generates a UUID once per browser session (resets when tab is closed).
+// Stored in sessionStorage — no PII, GDPR-safe.
+function getSessionId(): string {
+    const key = 'hms_session_id';
+    let id = sessionStorage.getItem(key);
+    if (!id) {
+        id = crypto.randomUUID();
+        sessionStorage.setItem(key, id);
+    }
+    return id;
+}
+
+export async function trackInteraction(
+    event: InteractionEvent,
+    meta?: Record<string, unknown>
+): Promise<void> {
     try {
-        await fetch(`${BASE_URL}/track_event`, {
+        await fetch(`${BASE_URL}/track_interaction`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ event }),
+            body: JSON.stringify({
+                event,
+                meta: {
+                    ...(meta ?? {}),
+                    sessionId: getSessionId(),
+                    clientTs: Date.now(),   // ms since epoch — use for time-between-steps
+                },
+            }),
         });
     } catch {
-        // Silently ignore — tracking must never break the game
+        // Fire-and-forget — never breaks the game
     }
 }
 

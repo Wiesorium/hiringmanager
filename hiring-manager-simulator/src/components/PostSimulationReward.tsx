@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Check, ArrowRight, Mail, Loader2, CheckCircle2, Send, RefreshCw, Mic } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { cn } from '../lib/utils';
-import { submitFeedback } from '../services/api';
+import { submitFeedback, trackInteraction } from '../services/api';
 
 // ── Learnings the user can self-assess ──────────────────────────────────────
 const LEARNINGS = [
@@ -73,7 +73,13 @@ export function PostSimulationReward() {
         if (!email.trim() || !email.includes('@') || emailState === 'loading') return;
         setEmailState('loading');
         const res = await subscribeNewsletter(email.trim());
-        setEmailState(res ? 'success' : 'error');
+        if (res) {
+            setEmailState('success');
+            trackInteraction('newsletter_submitted', { learnings: Array.from(checked) });
+            window.fbq?.('track', 'Lead', { content_name: 'newsletter' });
+        } else {
+            setEmailState('error');
+        }
     };
 
     // ── Tab 2: Podcast booking request ──────────────────────────────────────
@@ -86,7 +92,13 @@ export function PostSimulationReward() {
         setCallState('loading');
         const message = `PODCAST-ANFRAGE\nE-Mail: ${callEmail.trim()}\nWunschzeit: ${callTime.trim() || 'nicht angegeben'}`;
         const ok = await submitFeedback({ feedback: message, email: callEmail.trim() });
-        setCallState(ok ? 'success' : 'error');
+        if (ok) {
+            setCallState('success');
+            trackInteraction('podcast_request_submitted', { learnings: Array.from(checked) });
+            window.fbq?.('track', 'Lead', { content_name: 'podcast' });
+        } else {
+            setCallState('error');
+        }
     };
 
     // ── Feedback form ────────────────────────────────────────────────────────
@@ -98,7 +110,12 @@ export function PostSimulationReward() {
         if (!feedbackText.trim() || feedbackState === 'loading') return;
         setFeedbackState('loading');
         const ok = await submitFeedback({ feedback: feedbackText.trim(), email: feedbackEmail.trim() || undefined });
-        setFeedbackState(ok ? 'success' : 'error');
+        if (ok) {
+            setFeedbackState('success');
+            trackInteraction('feedback_submitted');
+        } else {
+            setFeedbackState('error');
+        }
     };
 
     // Prioritised blog list: unchecked learnings → their articles first

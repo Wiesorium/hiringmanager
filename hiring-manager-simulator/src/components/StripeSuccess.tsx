@@ -3,12 +3,6 @@ import { CheckCircle, Copy, Loader2, AlertCircle, ArrowRight } from 'lucide-reac
 import { createAccessCode } from '../services/api';
 import { useGame } from '../context/GameContext';
 
-declare global {
-    interface Window {
-        fbq?: (...args: unknown[]) => void;
-    }
-}
-
 export function StripeSuccess() {
     const { setGameState } = useGame();
     const [state, setState] = useState<'loading' | 'success' | 'error'>('loading');
@@ -34,9 +28,8 @@ export function StripeSuccess() {
                 // Save code to localStorage so user doesn't need to re-enter
                 localStorage.setItem('hms_access_code', result.code);
 
-                // Fire Meta Pixel Purchase event
                 if (window.fbq) {
-                    window.fbq('track', 'Purchase', { value: 5.00, currency: 'EUR' });
+                    window.fbq('track', 'Purchase', { value: 19.00, currency: 'EUR', content_name: 'Hiring Simulator Access Code' });
                 }
             } else {
                 setState('error');
