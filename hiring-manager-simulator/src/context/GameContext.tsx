@@ -313,14 +313,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     const makeFinalDecision = (id: string) => {
         setFinalChoice(id);
-        // nextPhase reads finalChoice from state, but state hasn't updated yet –
-        // so we inline the reveal transition here instead.
         setPhase('reveal');
         setCandidates(prev => prev.map(c => ({
             ...c,
             status: c.id === id ? 'hired' : c.status
         })));
-        trackEvent('decision_done'); // funnel: hire made
+        // Clear all pending notifications immediately after hiring
+        setApplicantEvents(prev => prev.map(e => ({ ...e, isRead: true })));
+        setMessages(prev => prev.map(m => ({ ...m, isRead: true })));
+        trackEvent('decision_done');
     };
 
     const markMessageRead = (id: string) => {

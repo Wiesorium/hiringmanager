@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, ArrowRight, Mail, BookOpen, Loader2, CheckCircle2, Send, RefreshCw, Mic } from 'lucide-react';
+import { Check, ArrowRight, Mail, Loader2, CheckCircle2, Send, RefreshCw, Mic } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { cn } from '../lib/utils';
 import { submitFeedback } from '../services/api';
@@ -114,6 +114,7 @@ export function PostSimulationReward() {
         setGameState('blog_post' as any);
         window.scrollTo(0, 0);
     };
+    void navigateToBlog; // kept for potential future blog links from CTA
 
     return (
         <div className="space-y-10 pt-4">
@@ -163,48 +164,7 @@ export function PostSimulationReward() {
                 )}
             </div>
 
-            {/* ── Blog teasers ── */}
-            <div>
-                <div className="flex items-center gap-2 mb-4">
-                    <BookOpen className="w-4 h-4 text-highlight" />
-                    <h3 className="font-bold text-ink">
-                        {checked.size > 0 && uncheckedIds.size > 0
-                            ? 'Lese als nächstes — auf Basis dessen, was du noch nicht abgehakt hast'
-                            : 'Vertiefe dein Wissen'}
-                    </h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {sorted.map((post) => {
-                        const isHighlighted = post.learnId !== null && uncheckedIds.has(post.learnId);
-                        return (
-                            <button
-                                key={post.slug}
-                                onClick={() => navigateToBlog(post.slug)}
-                                className={cn(
-                                    'w-full text-left rounded-xl border-2 p-5 transition-all group',
-                                    isHighlighted
-                                        ? 'border-highlight/30 bg-highlight/5 hover:border-highlight/60'
-                                        : 'border-stone-100 bg-white hover:border-highlight/30 hover:bg-highlight/5'
-                                )}
-                            >
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="text-xs font-bold text-highlight">{post.label}</span>
-                                    {isHighlighted && (
-                                        <span className="text-xs bg-highlight/10 text-highlight px-2 py-0.5 rounded-full font-semibold">Empfohlen</span>
-                                    )}
-                                </div>
-                                <p className="font-serif font-bold text-ink group-hover:text-highlight transition-colors text-sm leading-snug mb-1">
-                                    {post.title}
-                                </p>
-                                <p className="text-xs text-muted leading-relaxed">{post.desc}</p>
-                                <p className="text-xs font-semibold text-highlight mt-3 flex items-center gap-1">
-                                    Artikel lesen <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-                                </p>
-                            </button>
-                        );
-                    })}
-                </div>
-            </div>
+
 
             {/* ── CTA: Email or Podcast ── */}
             <div className="bg-ink rounded-2xl overflow-hidden text-white">
@@ -220,20 +180,22 @@ export function PostSimulationReward() {
                     <button
                         onClick={() => setTab('email')}
                         className={cn(
-                            'flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all',
+                            'flex-1 py-3 sm:py-4 text-xs sm:text-sm font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition-all',
                             tab === 'email' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white/80'
                         )}
                     >
-                        <Mail className="w-4 h-4" /> Blog-Tipps per E-Mail
+                        <Mail className="w-4 h-4" />
+                        <span>Tägl. Blog-Tipps</span>
                     </button>
                     <button
                         onClick={() => setTab('call')}
                         className={cn(
-                            'flex-1 py-4 text-sm font-bold flex items-center justify-center gap-2 transition-all',
+                            'flex-1 py-3 sm:py-4 text-xs sm:text-sm font-bold flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 transition-all',
                             tab === 'call' ? 'bg-white/10 text-white' : 'text-white/50 hover:text-white/80'
                         )}
                     >
-                        <Mic className="w-4 h-4" /> Podcast-Gespräch
+                        <Mic className="w-4 h-4" />
+                        <span>Podcast-Gespräch</span>
                     </button>
                 </div>
 
@@ -241,7 +203,7 @@ export function PostSimulationReward() {
                     {tab === 'email' ? (
                         <div className="space-y-4">
                             <p className="text-sm text-white/80 leading-relaxed">
-                                Du bekommst eine kleine E-Mail-Strecke mit den Artikeln, die zu deinen offenen Lernfeldern passen —
+                                Du bekommst <span className="text-white font-semibold">täglich eine kurze E-Mail</span> mit den Artikeln, die zu deinen offenen Lernfeldern passen —
                                 kein Spam, keine generischen Newsletter. Nur das, was für deine Bewerbung gerade relevant ist.
                             </p>
                             {uncheckedIds.size > 0 && (
