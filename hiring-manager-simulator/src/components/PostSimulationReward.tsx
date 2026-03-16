@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, ArrowRight, Mail, Calendar, BookOpen, Loader2, CheckCircle2 } from 'lucide-react';
+import { Check, ArrowRight, Mail, Calendar, BookOpen, Loader2, CheckCircle2, Send } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { cn } from '../lib/utils';
+import { submitFeedback } from '../services/api';
 
 // ── Learnings the user can self-assess ──────────────────────────────────────
 const LEARNINGS = [
@@ -64,7 +65,7 @@ export function PostSimulationReward() {
     // CTA tabs
     const [tab, setTab] = useState<'email' | 'call'>('email');
 
-    // Email form
+    // ── Tab 1: Newsletter email ─────────────────────────────────────────────
     const [email, setEmail] = useState('');
     const [emailState, setEmailState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
@@ -73,6 +74,19 @@ export function PostSimulationReward() {
         setEmailState('loading');
         const res = await subscribeNewsletter(email.trim());
         setEmailState(res ? 'success' : 'error');
+    };
+
+    // ── Tab 2: Booking request form ─────────────────────────────────────────
+    const [callEmail, setCallEmail] = useState('');
+    const [callTime, setCallTime] = useState('');
+    const [callState, setCallState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+    const handleCallSubmit = async () => {
+        if (!callEmail.trim() || !callEmail.includes('@') || callState === 'loading') return;
+        setCallState('loading');
+        const message = `BERATUNGSGESPRÄCH-ANFRAGE\nE-Mail: ${callEmail.trim()}\nWunschzeit: ${callTime.trim() || 'nicht angegeben'}`;
+        const ok = await submitFeedback({ feedback: message, email: callEmail.trim() });
+        setCallState(ok ? 'success' : 'error');
     };
 
     // Prioritised blog list: unchecked learnings → their articles first
@@ -219,26 +233,23 @@ export function PostSimulationReward() {
                 <div className="px-8 py-7">
                     {tab === 'email' ? (
                         <div className="space-y-4">
-                            <div>
-                                <p className="text-sm text-white/80 leading-relaxed mb-4">
-                                    Du bekommst eine kleine E-Mail-Strecke mit den Artikeln, die zu deinen offenen Lernfeldern passen —
-                                    kein Spam, keine generischen Newsletter. Nur das, was für deine Bewerbung gerade relevant ist.
-                                </p>
-                                {/* Teaser of "not yet checked" */}
-                                {uncheckedIds.size > 0 && (
-                                    <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 mb-4">
-                                        <p className="text-xs text-white/50 uppercase tracking-wider font-bold mb-2">Du erhältst u. a.:</p>
-                                        <ul className="space-y-1">
-                                            {sorted.filter(p => p.learnId && uncheckedIds.has(p.learnId)).map(p => (
-                                                <li key={p.slug} className="text-xs text-white/80 flex items-center gap-2">
-                                                    <ArrowRight className="w-3 h-3 text-highlight flex-shrink-0" />
-                                                    {p.title}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
+                            <p className="text-sm text-white/80 leading-relaxed">
+                                Du bekommst eine kleine E-Mail-Strecke mit den Artikeln, die zu deinen offenen Lernfeldern passen —
+                                kein Spam, keine generischen Newsletter. Nur das, was für deine Bewerbung gerade relevant ist.
+                            </p>
+                            {uncheckedIds.size > 0 && (
+                                <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3">
+                                    <p className="text-xs text-white/50 uppercase tracking-wider font-bold mb-2">Du erhältst u. a.:</p>
+                                    <ul className="space-y-1">
+                                        {sorted.filter(p => p.learnId && uncheckedIds.has(p.learnId)).map(p => (
+                                            <li key={p.slug} className="text-xs text-white/80 flex items-center gap-2">
+                                                <ArrowRight className="w-3 h-3 text-highlight flex-shrink-0" />
+                                                {p.title}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
                             {emailState === 'success' ? (
                                 <div className="flex items-center gap-3 bg-green-500/20 border border-green-400/30 rounded-xl px-4 py-3">
                                     <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
@@ -268,29 +279,67 @@ export function PostSimulationReward() {
                             )}
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            <p className="text-sm text-white/80 leading-relaxed">
-                                Du bekommst ein <span className="text-white font-semibold">kostenloses 30-minütiges Gespräch</span> — kein Sales-Call,
-                                sondern ein ehrliches Mini-Gespräch mit Martin: wie läuft deine Jobsuche gerade, wo willst du hin,
-                                und was hält dich zurück. Wie ein kleiner Podcast — nur über deine Karriere.
-                            </p>
-                            <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white/60 leading-relaxed">
-                                <p className="font-semibold text-white/80 mb-1">Was dich erwartet</p>
-                                <ul className="space-y-1 list-none">
-                                    <li>→ Kurzes Gespräch über deine aktuelle Bewerbungssituation</li>
-                                    <li>→ Konkretes Feedback zu deiner Positionierung</li>
-                                    <li>→ 1–2 sofort umsetzbare Stellschrauben für deinen nächsten Schritt</li>
-                                </ul>
+                        /* ── Booking request (no Calendly) ── */
+                        <div className="space-y-5">
+                            <div>
+                                <p className="text-sm text-white/80 leading-relaxed mb-3">
+                                    Du bekommst ein <span className="text-white font-semibold">kostenloses 30-minütiges Gespräch</span> mit Martin —
+                                    kein Sales-Call, sondern ein ehrliches Mini-Gespräch: wie läuft deine Jobsuche, wo willst du hin,
+                                    was hält dich zurück. Wie ein kleiner Podcast — nur über deine Karriere.
+                                </p>
+                                <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-xs text-white/60 leading-relaxed mb-2">
+                                    <p className="font-semibold text-white/80 mb-1.5">Was dich erwartet</p>
+                                    <ul className="space-y-1">
+                                        <li>→ Gespräch über deine aktuelle Bewerbungssituation</li>
+                                        <li>→ Konkretes Feedback zu deiner Positionierung</li>
+                                        <li>→ 1–2 sofort umsetzbare Stellschrauben</li>
+                                    </ul>
+                                </div>
+                                <p className="text-xs text-white/40">
+                                    📅 Termine täglich zwischen <span className="text-white/60 font-semibold">18:00 – 19:00 Uhr</span>.
+                                    Gib deinen Wunschtermin an — Martin meldet sich per E-Mail zur Bestätigung.
+                                </p>
                             </div>
-                            <a
-                                href="https://cal.com/martinwieser/bewerbungsberatung-30min"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-highlight text-white rounded-xl font-bold text-sm hover:bg-highlight/90 transition-all shadow-lg"
-                            >
-                                <Calendar className="w-4 h-4" /> Termin buchen — kostenlos
-                            </a>
-                            <p className="text-xs text-white/40 text-center">Kein Kauf, keine Verpflichtung. Einfach ein gutes Gespräch.</p>
+
+                            {callState === 'success' ? (
+                                <div className="flex items-center gap-3 bg-green-500/20 border border-green-400/30 rounded-xl px-4 py-3">
+                                    <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
+                                    <p className="text-sm text-green-300 font-medium">
+                                        Danke! Martin meldet sich in Kürze per E-Mail, um den Termin zu bestätigen.
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    <input
+                                        type="email"
+                                        value={callEmail}
+                                        onChange={e => setCallEmail(e.target.value)}
+                                        placeholder="Deine E-Mail-Adresse"
+                                        className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/30 text-sm focus:outline-none focus:ring-2 focus:ring-highlight/60 transition-all"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={callTime}
+                                        onChange={e => setCallTime(e.target.value)}
+                                        placeholder="Wann passt es dir? z. B. Mo, Di oder Mi um 18:00 Uhr"
+                                        className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder:text-white/30 text-sm focus:outline-none focus:ring-2 focus:ring-highlight/60 transition-all"
+                                    />
+                                    <button
+                                        onClick={handleCallSubmit}
+                                        disabled={!callEmail.includes('@') || callState === 'loading'}
+                                        className="w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-highlight text-white rounded-xl font-bold text-sm hover:bg-highlight/90 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-lg"
+                                    >
+                                        {callState === 'loading'
+                                            ? <Loader2 className="w-4 h-4 animate-spin" />
+                                            : <><Send className="w-4 h-4" /> Termin anfragen — kostenlos</>
+                                        }
+                                    </button>
+                                    {callState === 'error' && (
+                                        <p className="text-xs text-red-400 text-center">Etwas ist schiefgelaufen. Bitte versuche es erneut.</p>
+                                    )}
+                                    <p className="text-xs text-white/40 text-center">Kein Kauf, keine Verpflichtung. Einfach ein gutes Gespräch.</p>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
